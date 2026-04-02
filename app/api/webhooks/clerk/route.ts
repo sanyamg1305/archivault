@@ -62,30 +62,42 @@ export async function POST(req: Request) {
 
     // Handle Organization Membership (Role Mapping)
     if (eventType === 'organizationMembership.created' || eventType === 'organizationMembership.updated') {
-        const { organization, public_user_data, role } = evt.data
-        const userId = public_user_data.user_id
+        const { organization, public_user_data, role } = evt.data;
+        const userId = public_user_data.user_id;
 
-        // 1. Identify the role correctly
-        // Clerk roles usually look like 'org:admin', 'admin', 'org:member', etc.
-        const isAdmin = role.toLowerCase().includes('admin')
-        const archivaultRole = isAdmin ? 'admin' : 'team_member'
+        // 1. Map Clerk Role Identifiers to our Database Roles
+        let archivaultRole: 'admin' | 'team_member' | 'client' = 'team_member';
 
-        // 2. Update the organization_memberships table (Org-specific role)
-        await supabase.from('organization_memberships').upsert({
-            id: evt.data.id,
-            organization_id: organization.id,
-            user_id: userId,
-            role: archivaultRole,
-        })
-
-        // 3. ALSO update the main profiles table (Global role)
-        // This ensures the "Admin" status is reflected on their main profile
-        if (isAdmin) {
-            await supabase
-                .from('profiles')
-                .update({ role: 'admin' })
-                .eq('id', userId)
+        if (role === 'org:admin') {
+            archivaultRole = 'admin';
+        } else if (role === 'org:client') {
+            archivaultRole = 'client';
+        } else {
+            // Default for org:member or any other custom team roles
+            archivaultRole = 'team_member';
         }
+
+        // 2. Store the role in the specific Membership table (The "Contextual" Role)
+        // This is what RLS will use to protect project data.
+        const { error: membershipError } = await supabase
+            .from('organization_memberships')
+            .upsert({
+                id: evt.data.id, // The Clerk Membership ID
+                organization_id: organization.id,
+                user_id: userId,
+                role: archivaultRole,
+            });
+
+        if (membershipError) console.error('Membership Sync Error:', membershipError);
+
+        // 3. Update the main Profile table (The "Global" Role)
+        // We do this so we can easily check their role in the UI without complex joins.
+        const { error: profileError } = await supabase
+            .from('profiles')
+            .update({ role: archivaultRole })
+            .eq('id', userId);
+
+        if (profileError) console.error('Profile Sync Error:', profileError);
     }
 
     return new Response('', { status: 200 })
