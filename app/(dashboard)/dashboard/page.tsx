@@ -18,16 +18,7 @@ export const metadata = {
 export default async function DashboardPage() {
   const { orgId, userId } = await auth();
 
-  if (!orgId) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-muted-foreground text-sm">
-          Please select an organization to continue.
-        </p>
-      </div>
-    );
-  }
-
+  // orgId is guaranteed by the layout's OrganizationGuard — safe to assert
   const supabase = await createClerkSupabaseClient();
 
   // 1. Fetch user profile for role check
