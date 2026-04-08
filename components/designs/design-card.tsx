@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FileText, History, Upload } from "lucide-react";
+import Image from "next/image";
 
 import { UploadNewVersionDialog } from "@/components/designs/upload-new-version-dialog";
 import { DesignHistorySheet } from "@/components/designs/design-history-sheet";
@@ -13,14 +14,15 @@ export function DesignCard({ design }: { design: any }) {
 
   return (
     <Card className="overflow-hidden">
-      <div className="aspect-video bg-slate-100 flex items-center justify-center border-b">
+      <div className="h-52 w-full bg-slate-100 flex items-center justify-center border-b relative">
         {latestVersion.file_path.endsWith('.pdf') ? (
           <FileText className="h-12 w-12 text-slate-400" />
         ) : (
-           <img 
+           <Image 
             src={design.signedUrl || ""} 
             alt={design.title}
-            className="object-cover w-full h-full"
+            fill
+            className="object-cover"
            />
         )}
       </div>
