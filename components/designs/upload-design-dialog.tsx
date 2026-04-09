@@ -37,9 +37,11 @@ function SubmitButton() {
 export function UploadDesignDialog({
   projectId,
   rooms,
+  defaultRoomId,
 }: {
   projectId: string;
   rooms: any[];
+  defaultRoomId?: string;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -71,7 +73,7 @@ export function UploadDesignDialog({
           </div>
           <div className="space-y-2">
             <Label htmlFor="roomId">Room (Optional)</Label>
-            <Select name="roomId">
+            <Select name="roomId" defaultValue={defaultRoomId}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a room" />
               </SelectTrigger>

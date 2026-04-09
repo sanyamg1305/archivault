@@ -2,6 +2,7 @@ import { createClerkSupabaseClient } from "@/utils/supabase/server";
 import { CreateRoomDialog } from "@/components/projects/create-room-dialog";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Box } from "lucide-react";
+import Link from "next/link";
 
 export default async function RoomsPage({
   params,
@@ -31,15 +32,14 @@ export default async function RoomsPage({
 
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
         {rooms?.map((room) => (
-          <Card
-            key={room.id}
-            className="hover:border-primary transition-colors cursor-pointer"
-          >
-            <CardHeader className="flex flex-row items-center gap-4">
-              <Box className="h-5 w-5 text-muted-foreground shrink-0" />
-              <CardTitle className="text-base">{room.name}</CardTitle>
-            </CardHeader>
-          </Card>
+          <Link key={room.id} href={`/projects/${projectId}/rooms/${room.id}`}>
+            <Card className="hover:border-primary transition-colors cursor-pointer">
+              <CardHeader className="flex flex-row items-center gap-4">
+                <Box className="h-5 w-5 text-muted-foreground shrink-0" />
+                <CardTitle className="text-base">{room.name}</CardTitle>
+              </CardHeader>
+            </Card>
+          </Link>
         ))}
 
         {rooms?.length === 0 && (

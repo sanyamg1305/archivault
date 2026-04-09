@@ -10,7 +10,7 @@ import { Plus } from "lucide-react";
 import { createMaterial } from "@/app/actions/materials";
 import { toast } from "sonner";
 
-export function AddMaterialDialog({ projectId, rooms }: { projectId: string; rooms: any[] }) {
+export function AddMaterialDialog({ projectId, rooms, defaultRoomId }: { projectId: string; rooms: any[]; defaultRoomId?: string }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -52,7 +52,7 @@ export function AddMaterialDialog({ projectId, rooms }: { projectId: string; roo
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Room</Label>
-              <Select name="roomId" required>
+              <Select name="roomId" required defaultValue={defaultRoomId}>
                 <SelectTrigger><SelectValue placeholder="Select room" /></SelectTrigger>
                 <SelectContent>
                   {rooms.map(room => <SelectItem key={room.id} value={room.id}>{room.name}</SelectItem>)}
