@@ -28,6 +28,7 @@ export function ClientSidebar() {
 
   const navItems = [
     { title: "Dashboard", url: `/portal/${projectId}/dashboard`, icon: LayoutDashboard },
+    { title: "Action Center", url: `/portal/${projectId}/action-center/design-approvals`, icon: CheckCircle },
   ]
 
   return (
