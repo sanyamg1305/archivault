@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Home, CheckCircle, LayoutDashboard, Building2 } from "lucide-react"
+import { Home, CheckCircle, LayoutDashboard, Building2, Box } from "lucide-react"
 import { OrganizationSwitcher, UserButton } from "@clerk/nextjs"
 import { usePathname, useParams } from "next/navigation"
 import Link from "next/link"
@@ -29,6 +29,7 @@ export function ClientSidebar() {
   const navItems = [
     { title: "Dashboard", url: `/portal/${projectId}/dashboard`, icon: LayoutDashboard },
     { title: "Action Center", url: `/portal/${projectId}/action-center/design-approvals`, icon: CheckCircle },
+    { title: "Rooms", url: `/portal/${projectId}/rooms`, icon: Box },
   ]
 
   return (
