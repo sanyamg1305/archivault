@@ -48,3 +48,31 @@ export async function createProject(formData: {
   revalidatePath("/dashboard");
   return project;
 }
+
+export async function updateProjectBudget(projectId: string, newBudget: number) {
+  const { userId, orgId, orgRole } = await auth();
+
+  if (!userId || !orgId) throw new Error("Missing User or Organization context.");
+
+  const supabase = await createClerkSupabaseClient();
+
+  const { error } = await supabase
+    .from("projects")
+    .update({ total_budget: newBudget })
+    .eq("id", projectId);
+
+  if (error) {
+    console.error("Supabase Error updating budget:", error);
+    throw new Error(error.message);
+  }
+
+  // Create Activity Log
+  await supabase.from("activity_logs").insert({
+    project_id: projectId,
+    user_id: userId,
+    action_description: `Updated project budget to $${newBudget.toLocaleString()}`,
+  });
+
+  revalidatePath(`/projects/${projectId}`);
+  return { success: true };
+}

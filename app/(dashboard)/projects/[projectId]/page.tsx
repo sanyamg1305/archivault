@@ -1,6 +1,7 @@
 import { createClerkSupabaseClient } from "@/utils/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Package, CheckCircle } from "lucide-react";
+import { EditBudgetDialog } from "@/components/projects/edit-budget-dialog";
 
 export default async function ProjectOverview({
   params,
@@ -43,7 +44,10 @@ export default async function ProjectOverview({
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              Total Budget
+              <EditBudgetDialog projectId={projectId} currentBudget={project?.total_budget ?? 0} />
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
