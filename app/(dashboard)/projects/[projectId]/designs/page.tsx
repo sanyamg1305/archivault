@@ -19,17 +19,24 @@ export default async function DesignsPage({ params }: { params: Promise<{ projec
     .eq("project_id", projectId)
     .order('created_at', { foreignTable: 'design_versions', ascending: false });
 
-  // Generate signed URLs for private images
+  // Generate signed URLs for all versions
   const designsWithUrls = await Promise.all(
     (designs || []).map(async (design) => {
-      const latestVersion = design.design_versions?.[0];
-      if (latestVersion && !latestVersion.file_path.endsWith('.pdf')) {
-        const { data } = await supabase.storage
-          .from("designs")
-          .createSignedUrl(latestVersion.file_path, 60 * 60 * 24); // 24 hours
-        return { ...design, signedUrl: data?.signedUrl };
-      }
-      return design;
+      const versionsWithUrls = await Promise.all(
+        (design.design_versions || []).map(async (version: any) => {
+          const { data } = await supabase.storage
+            .from("designs")
+            .createSignedUrl(version.file_path, 60 * 60 * 24);
+          return { ...version, signedUrl: data?.signedUrl };
+        })
+      );
+      
+      const latestVersionWithUrl = versionsWithUrls[0];
+      return { 
+        ...design, 
+        design_versions: versionsWithUrls,
+        signedUrl: latestVersionWithUrl && !latestVersionWithUrl.file_path.endsWith('.pdf') ? latestVersionWithUrl.signedUrl : null
+      };
     })
   );
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { History } from "lucide-react";
+import { History, FileText } from "lucide-react";
+import Image from "next/image";
 
 import {
   Sheet,
@@ -33,7 +34,7 @@ export function DesignHistorySheet({ design }: { design: any }) {
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-6 space-y-6">
+        <div className="p-6 pt-4 space-y-6">
           {versions.map((version: any) => (
             <div key={version.id} className="space-y-3">
               <div className="flex items-center justify-between">
@@ -50,6 +51,29 @@ export function DesignHistorySheet({ design }: { design: any }) {
                 </span>
               </div>
               
+              {version.signedUrl && (
+                <div className="w-full relative rounded-md overflow-hidden bg-slate-100 border">
+                  {version.file_path?.endsWith('.pdf') ? (
+                    <div className="flex flex-col items-center justify-center py-6 h-32">
+                      <FileText className="h-8 w-8 text-slate-400 mb-2" />
+                      <a href={version.signedUrl} target="_blank" rel="noopener noreferrer">
+                        <Button variant="outline" size="sm">View PDF</Button>
+                      </a>
+                    </div>
+                  ) : (
+                    <a href={version.signedUrl} target="_blank" rel="noopener noreferrer" className="block relative h-40 w-full group">
+                      <Image 
+                        src={version.signedUrl} 
+                        alt={`Version ${version.version_number}`}
+                        fill
+                        unoptimized
+                        className="object-cover transition-opacity group-hover:opacity-90"
+                      />
+                    </a>
+                  )}
+                </div>
+              )}
+
               <div className="bg-slate-50/50 border p-3 rounded-md text-sm text-slate-700">
                   <p className="font-medium mb-1 text-slate-900">Change Notes</p>
                   <p>{version.change_notes || <span className="text-muted-foreground italic">No notes provided.</span>}</p>

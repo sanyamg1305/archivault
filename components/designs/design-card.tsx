@@ -19,7 +19,7 @@ export function DesignCard({ design }: { design: any }) {
           <FileText className="h-12 w-12 text-slate-400" />
         ) : (
            <Image 
-            src={design.signedUrl || ""} 
+            src={latestVersion.signedUrl || design.signedUrl || ""} 
             alt={design.title}
             fill
             unoptimized
