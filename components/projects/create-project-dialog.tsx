@@ -39,8 +39,8 @@ export function CreateProjectDialog() {
 
     const formData = new FormData(event.currentTarget);
     const clientId = formData.get("client_id") as string | undefined;
-    const selectedMember = memberships?.data?.find(m => m.publicUserData.userId === clientId);
-    const clientRef = selectedMember 
+    const selectedMember = memberships?.data?.find(m => m.publicUserData?.userId === clientId);
+    const clientRef = selectedMember?.publicUserData
       ? `${selectedMember.publicUserData.firstName || ''} ${selectedMember.publicUserData.lastName || ''}`.trim() || selectedMember.publicUserData.identifier || "Unknown Client"
       : "Unknown Client";
 
@@ -101,10 +101,14 @@ export function CreateProjectDialog() {
               <SelectContent>
                 {memberships?.data?.map((mem) => {
                   if (mem.role === "org:admin") return null; // Optionally filter out architects
+                  
+                  const userData = mem.publicUserData;
+                  if (!userData) return null;
+
                   return (
-                    <SelectItem key={mem.publicUserData.userId} value={mem.publicUserData.userId || ""}>
-                      {mem.publicUserData.firstName || mem.publicUserData.identifier}{" "}
-                      {mem.publicUserData.lastName}
+                    <SelectItem key={userData.userId || mem.id} value={userData.userId || ""}>
+                      {userData.firstName || userData.identifier}{" "}
+                      {userData.lastName}
                     </SelectItem>
                   );
                 })}

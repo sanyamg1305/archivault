@@ -19,7 +19,15 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 
-export function ClientSidebar() {
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
+export function ClientSidebar({ projects = [] }: { projects?: any[] }) {
   const pathname = usePathname()
   const params = useParams()
   const { state } = useSidebar()
@@ -34,19 +42,45 @@ export function ClientSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="h-16 flex items-center justify-center border-b px-2 overflow-hidden">
+      <SidebarHeader className="min-h-16 py-3 flex items-center justify-center border-b px-3 overflow-hidden">
         {isCollapsed ? (
           <Building2 className="h-5 w-5 shrink-0 text-muted-foreground" />
         ) : (
-          <OrganizationSwitcher
-            appearance={{
-              elements: {
-                rootBox: "w-full flex items-center justify-center",
-                organizationSwitcherTrigger:
-                  "w-full px-2 py-1.5 border rounded-md truncate",
-              },
-            }}
-          />
+          <div className="w-full flex flex-col gap-2.5">
+            <OrganizationSwitcher
+              hidePersonal
+              appearance={{
+                elements: {
+                  rootBox: "w-full",
+                  organizationSwitcherTrigger:
+                    "w-full flex justify-between px-2 py-1.5 border rounded-md text-sm bg-background",
+                },
+              }}
+            />
+            {projects.length > 1 ? (
+              <Select 
+                value={projectId} 
+                onValueChange={(val) => {
+                  if(val && val !== projectId) {
+                    window.location.href = `/portal/${val}/dashboard`
+                  }
+                }}
+              >
+                <SelectTrigger className="w-full bg-background h-8 text-xs">
+                  <SelectValue placeholder="Select Project" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map(p => (
+                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="w-full px-2 py-1 border rounded-md truncate text-xs font-medium bg-background text-center text-muted-foreground">
+                {projects[0]?.name || "My Project"}
+              </div>
+            )}
+          </div>
         )}
       </SidebarHeader>
 

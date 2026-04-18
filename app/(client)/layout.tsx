@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server"
+import { createClerkSupabaseClient } from "@/utils/supabase/server"
 import { ClientSidebar } from "@/components/client-sidebar"
 import { OrganizationGuard } from "@/components/auth/org-guard"
 import {
@@ -14,16 +15,24 @@ export default async function ClientLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { orgId } = await auth()
+  const { orgId, userId } = await auth()
 
-  if (!orgId) {
+  if (!orgId || !userId) {
     return <OrganizationGuard />
   }
+
+  const supabase = await createClerkSupabaseClient()
+  
+  const { data: projects } = await supabase
+    .from("projects")
+    .select("id, name")
+    .eq("organization_id", orgId)
+    .eq("client_id", userId as string)
 
   return (
     <TooltipProvider>
       <SidebarProvider>
-        <ClientSidebar />
+        <ClientSidebar projects={projects || []} />
         <SidebarInset>
           {/* Top bar */}
           <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
