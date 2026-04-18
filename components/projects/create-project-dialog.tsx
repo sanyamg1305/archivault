@@ -10,10 +10,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PlusCircle } from "lucide-react";
 import { createProject } from "@/app/actions/projects";
+import { useOrganization } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -21,17 +29,27 @@ export function CreateProjectDialog() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
+  
+  const { memberships } = useOrganization({
+    memberships: true,
+  });
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
 
     const formData = new FormData(event.currentTarget);
+    const clientId = formData.get("client_id") as string | undefined;
+    const selectedMember = memberships?.data?.find(m => m.publicUserData.userId === clientId);
+    const clientRef = selectedMember 
+      ? `${selectedMember.publicUserData.firstName || ''} ${selectedMember.publicUserData.lastName || ''}`.trim() || selectedMember.publicUserData.identifier || "Unknown Client"
+      : "Unknown Client";
+
     try {
       const project = await createProject({
         name: formData.get("name") as string,
-        client_reference: formData.get("client_reference") as string,
+        client_reference: clientRef,
         total_budget: Number(formData.get("total_budget")),
+        client_id: clientId,
       });
 
       setOpen(false);
@@ -73,14 +91,25 @@ export function CreateProjectDialog() {
               required
             />
           </div>
+
           <div className="space-y-1.5">
-            <Label htmlFor="client_reference">Client Name / Reference</Label>
-            <Input
-              id="client_reference"
-              name="client_reference"
-              placeholder="e.g. John Doe"
-              required
-            />
+            <Label htmlFor="client_id">Assign Client (Optional)</Label>
+            <Select name="client_id">
+              <SelectTrigger>
+                <SelectValue placeholder="Select a client..." />
+              </SelectTrigger>
+              <SelectContent>
+                {memberships?.data?.map((mem) => {
+                  if (mem.role === "org:admin") return null; // Optionally filter out architects
+                  return (
+                    <SelectItem key={mem.publicUserData.userId} value={mem.publicUserData.userId || ""}>
+                      {mem.publicUserData.firstName || mem.publicUserData.identifier}{" "}
+                      {mem.publicUserData.lastName}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="total_budget">Total Project Budget ($)</Label>

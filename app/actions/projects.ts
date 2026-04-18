@@ -8,6 +8,7 @@ export async function createProject(formData: {
   name: string;
   client_reference: string;
   total_budget: number;
+  client_id?: string;
 }) {
   const { userId, orgId, orgRole } = await auth();
 
@@ -29,6 +30,7 @@ export async function createProject(formData: {
       total_budget: formData.total_budget,
       organization_id: orgId,
       created_by: userId,
+      ...(formData.client_id ? { client_id: formData.client_id } : {}),
     })
     .select()
     .single();
