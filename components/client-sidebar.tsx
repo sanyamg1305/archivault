@@ -42,7 +42,7 @@ export function ClientSidebar({ projects = [] }: { projects?: any[] }) {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="min-h-16 py-3 flex items-center justify-center border-b px-3 overflow-hidden">
+      <SidebarHeader className="min-h-16 py-3 flex items-center justify-center px-3 overflow-hidden">
         {isCollapsed ? (
           <Building2 className="h-5 w-5 shrink-0 text-muted-foreground" />
         ) : (
