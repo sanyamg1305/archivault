@@ -79,6 +79,13 @@ export function DesignHistorySheet({ design }: { design: any }) {
                   <p>{version.change_notes || <span className="text-muted-foreground italic">No notes provided.</span>}</p>
               </div>
               
+              {version.revision_note && (
+                <div className="bg-blue-50/50 border border-blue-200 p-3 rounded-md text-sm text-blue-800 dark:bg-blue-950/20 dark:border-blue-900 dark:text-blue-200">
+                    <p className="font-semibold text-[10px] uppercase tracking-wider mb-1 opacity-80">Client Feedback</p>
+                    <p className="leading-relaxed whitespace-pre-wrap">{version.revision_note}</p>
+                </div>
+              )}
+              
               <Separator />
             </div>
           ))}

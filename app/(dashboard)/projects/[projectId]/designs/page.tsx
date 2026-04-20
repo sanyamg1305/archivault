@@ -47,11 +47,18 @@ export default async function DesignsPage({ params }: { params: Promise<{ projec
         <UploadDesignDialog projectId={projectId} rooms={rooms || []} />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {designsWithUrls.map((design) => (
-          <DesignCard key={design.id} design={design} />
-        ))}
-      </div>
+      {designsWithUrls.length === 0 ? (
+        <div className="py-16 text-center border-2 border-dashed rounded-lg bg-slate-50/50">
+          <p className="font-medium text-muted-foreground">No designs uploaded for this project yet.</p>
+          <p className="text-sm text-muted-foreground mt-1">Upload a design to get started.</p>
+        </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {designsWithUrls.map((design) => (
+            <DesignCard key={design.id} design={design} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
