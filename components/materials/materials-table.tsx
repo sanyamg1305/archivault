@@ -5,23 +5,31 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
+} from "@/components/ui/dialog";
 import { updateMaterialStatus, deleteMaterial } from "@/app/actions/materials";
 import { EditMaterialDialog } from "./edit-material-dialog";
 import { toast } from "sonner";
 
-export function MaterialsTable({ materials, projectId, isAdminOrTeam }: { 
-  materials: any[]; 
-  projectId: string; 
-  isAdminOrTeam: boolean 
+export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
+  materials: any[];
+  projectId: string;
+  isAdminOrTeam: boolean
 }) {
   const [editingMaterial, setEditingMaterial] = useState<any>(null);
+  const [viewFeedbackMaterial, setViewFeedbackMaterial] = useState<any>(null);
 
   const statusColors: any = {
     Pending: "bg-yellow-100 text-yellow-800",
@@ -65,13 +73,25 @@ export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
                 <TableCell>${m.estimated_cost.toLocaleString()}</TableCell>
                 <TableCell>
                   <Badge variant="secondary" className={statusColors[m.status]}>{m.status}</Badge>
+                  {m.status === "Revision Requested" && m.revision_note && (
+                    <div className="mt-1">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-6 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        onClick={() => setViewFeedbackMaterial(m)}
+                      >
+                        View Feedback
+                      </Button>
+                    </div>
+                  )}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     {/* Fast Approval Actions for Pending items */}
                     {m.status === "Pending" && (
                       <>
-                        <Button 
+                        <Button
                           size="sm" variant="ghost" className="text-green-600 h-8"
                           onClick={() => updateMaterialStatus(projectId, m.id, m.name, "Approved")}
                         >Approve</Button>
@@ -91,7 +111,7 @@ export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
                             <Pencil className="mr-2 h-4 w-4" /> Edit Details
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             className="text-red-600 focus:text-red-600 cursor-pointer"
                             onClick={() => handleDelete(m.id, m.name)}
                           >
@@ -110,12 +130,33 @@ export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
 
       {/* Hidden Edit Dialog triggered by state */}
       {editingMaterial && (
-        <EditMaterialDialog 
-          material={editingMaterial} 
+        <EditMaterialDialog
+          material={editingMaterial}
           projectId={projectId}
           open={!!editingMaterial}
           setOpen={(open) => !open && setEditingMaterial(null)}
         />
+      )}
+
+      {/* Hidden Feedback Dialog triggered by state */}
+      {viewFeedbackMaterial && (
+        <Dialog open={!!viewFeedbackMaterial} onOpenChange={(open) => !open && setViewFeedbackMaterial(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Revision Feedback</DialogTitle>
+              <DialogDescription>
+                Client requested changes for material: <span className="font-semibold text-foreground">{viewFeedbackMaterial.name}</span>
+              </DialogDescription>
+            </DialogHeader>
+            <div className="rounded-md border p-4 bg-muted/50 text-sm leading-relaxed whitespace-pre-wrap mt-2">
+              <span className="text-[10px] uppercase tracking-wider font-semibold opacity-70 block mb-2">Request Details</span>
+              {viewFeedbackMaterial.revision_note}
+            </div>
+            <div className="mt-2 flex justify-end">
+              <Button onClick={() => setViewFeedbackMaterial(null)}>Close</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </>
   );

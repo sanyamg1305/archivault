@@ -20,7 +20,7 @@ export async function approveItem(
 
   const { error } = await supabase
     .from(table)
-    .update({ status: "Approved" })
+    .update({ status: "Approved", revision_note: null })
     .eq("id", id);
 
   if (error) throw new Error(error.message);
@@ -52,7 +52,7 @@ export async function requestRevisionItem(
 
   const { error } = await supabase
     .from(table)
-    .update({ status: "Revision Requested" })
+    .update({ status: "Revision Requested", revision_note: reason })
     .eq("id", id);
 
   if (error) throw new Error(error.message);
