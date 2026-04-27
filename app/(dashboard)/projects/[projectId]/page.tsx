@@ -1,7 +1,8 @@
 import { createClerkSupabaseClient } from "@/utils/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Package, CheckCircle } from "lucide-react";
+import { DollarSign, Package, CheckCircle, UserCircle } from "lucide-react";
 import { EditBudgetDialog } from "@/components/projects/edit-budget-dialog";
+import { AssignClientDialog } from "@/components/projects/assign-client-dialog";
 
 export default async function ProjectOverview({
   params,
@@ -14,7 +15,7 @@ export default async function ProjectOverview({
   // Fetch Budget Details
   const { data: project } = await supabase
     .from("projects")
-    .select("total_budget")
+    .select("total_budget, client_reference")
     .eq("id", projectId)
     .single();
 
@@ -34,14 +35,17 @@ export default async function ProjectOverview({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold">Financial Overview</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Real-time budget health for this project.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">Overview</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Financial health and project assignments.
+          </p>
+        </div>
+        <AssignClientDialog projectId={projectId} currentClientName={project?.client_reference} />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -53,6 +57,18 @@ export default async function ProjectOverview({
           <CardContent>
             <div className="text-2xl font-bold">
               ${project?.total_budget.toLocaleString()}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Assigned Client</CardTitle>
+            <UserCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold truncate mt-1">
+              {project?.client_reference || "Unassigned"}
             </div>
           </CardContent>
         </Card>

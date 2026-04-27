@@ -78,3 +78,32 @@ export async function updateProjectBudget(projectId: string, newBudget: number) 
   revalidatePath(`/projects/${projectId}`);
   return { success: true };
 }
+
+export async function assignClientToProject(projectId: string, clientId: string, clientReference: string) {
+  const { userId, orgId } = await auth();
+
+  if (!userId || !orgId) throw new Error("Missing User or Organization context.");
+
+  const supabase = await createClerkSupabaseClient();
+
+  const { error } = await supabase
+    .from("projects")
+    .update({ client_id: clientId, client_reference: clientReference })
+    .eq("id", projectId);
+
+  if (error) {
+    console.error("Supabase Error assigning client:", error);
+    throw new Error(error.message);
+  }
+
+  // Create Activity Log
+  await supabase.from("activity_logs").insert({
+    project_id: projectId,
+    user_id: userId,
+    action_description: `Assigned client ${clientReference} to project`,
+  });
+
+  revalidatePath(`/projects/${projectId}`);
+  revalidatePath("/dashboard");
+  return { success: true };
+}
