@@ -100,7 +100,7 @@ export default async function ProjectsDirectoryPage({ searchParams }: { searchPa
                       </p>
                     </div>
                     <div className="pt-2 flex items-center text-sm font-medium text-primary opacity-80 group-hover:opacity-100 transition-opacity">
-                      View full context <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-1.5 transition-transform" />
+                      View project <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-1.5 transition-transform" />
                     </div>
                   </div>
                 </CardContent>
