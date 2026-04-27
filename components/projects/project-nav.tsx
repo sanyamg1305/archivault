@@ -9,8 +9,6 @@ const tabs = [
   { label: "Rooms", segment: "rooms" },
   { label: "Materials", segment: "materials" },
   { label: "Designs", segment: "designs" },
-  { label: "Approvals", segment: "approvals" },
-  { label: "Budget", segment: "budget" },
 ];
 
 export function ProjectNav({ projectId }: { projectId: string }) {
