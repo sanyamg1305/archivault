@@ -116,7 +116,7 @@ export function CreateProjectDialog() {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="total_budget">Total Project Budget ($)</Label>
+            <Label htmlFor="total_budget">Total Project Budget (₹)</Label>
             <Input
               id="total_budget"
               name="total_budget"

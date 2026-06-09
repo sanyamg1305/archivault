@@ -94,7 +94,7 @@ export function AddMaterialDialog({ projectId, rooms, defaultRoomId }: { project
             <Input name="vendor" placeholder="Vendor or URL" />
           </div>
           <div className="space-y-2">
-            <Label>Estimated Cost ($)</Label>
+            <Label>Estimated Cost (₹)</Label>
             <Input name="estimated_cost" type="number" step="0.01" required />
           </div>
 
