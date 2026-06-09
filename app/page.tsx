@@ -1,6 +1,7 @@
 import { SignInButton, SignUpButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
+import Image from "next/image";
 import { 
   ArrowRight, 
   MessageSquare, 
@@ -21,11 +22,8 @@ export default async function LandingPage() {
       {/* Navigation */}
       <header className="fixed top-0 z-50 w-full border-b border-zinc-200/50 bg-white/80 backdrop-blur-md dark:border-zinc-800/50 dark:bg-zinc-950/80">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-950 text-white dark:bg-white dark:text-zinc-950">
-              <Layers className="h-5 w-5" />
-            </div>
-            <span className="text-xl font-bold tracking-tighter">Archivault</span>
+          <div className="flex items-center">
+            <Image src="/logo.png" alt="ArchiVault" width={130} height={44} className="object-contain" priority />
           </div>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-600 dark:text-zinc-400">
             <Link href="#how-it-works" className="hover:text-zinc-950 dark:hover:text-white transition-colors">How it Works</Link>
@@ -359,9 +357,8 @@ export default async function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-zinc-200 dark:border-zinc-800 py-12 bg-white dark:bg-zinc-950">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Layers className="h-5 w-5" />
-            <span className="text-lg font-bold tracking-tight">Archivault</span>
+          <div className="flex items-center">
+            <Image src="/logo.png" alt="ArchiVault" width={110} height={36} className="object-contain" />
           </div>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             © {new Date().getFullYear()} Archivault. All rights reserved.
