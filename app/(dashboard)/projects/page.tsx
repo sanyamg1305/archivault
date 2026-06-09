@@ -18,19 +18,13 @@ export const metadata = {
 };
 
 export default async function ProjectsDirectoryPage({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
-  const { orgId, userId } = await auth();
+  const { orgId, userId, orgRole } = await auth();
   const supabase = await createClerkSupabaseClient();
   
   const params = await searchParams;
   const searchQuery = typeof params.q === 'string' ? params.q.toLowerCase() : '';
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", userId)
-    .single();
-
-  const isAdmin = profile?.role === "admin";
+  const isAdmin = orgRole === "org:admin";
 
   const { data: projects } = await supabase.from("projects").select("*").order("created_at", { ascending: false });
   
