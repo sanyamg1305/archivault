@@ -13,7 +13,7 @@ export function useSupabaseBrowser() {
       global: {
         fetch: async (url, options = {}) => {
           // Native Integration: getToken() without a template name.
-          const clerkToken = await session?.getToken({ template: 'supabase' });
+          const clerkToken = await session?.getToken();
 
           const headers = new Headers(options?.headers);
           if (clerkToken) {
