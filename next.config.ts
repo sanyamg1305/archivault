@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "img.clerk.com" },
-      { protocol: "https", hostname: "whgrufqdwbkwisojrbnl.supabase.co" },
+      { protocol: "https", hostname: "inxlcfkivsmsmgdnzego.supabase.co" },
     ],
   },
 };
