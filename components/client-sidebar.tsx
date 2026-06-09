@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Home, CheckCircle, LayoutDashboard, Building2, Box } from "lucide-react"
-import { OrganizationSwitcher, UserButton } from "@clerk/nextjs"
+import { Home, CheckCircle, LayoutDashboard, Building2, Box, ArrowLeft } from "lucide-react"
+import { OrganizationSwitcher, UserButton, useOrganization } from "@clerk/nextjs"
 import { usePathname, useParams } from "next/navigation"
 import Link from "next/link"
 
@@ -33,6 +33,8 @@ export function ClientSidebar({ projects = [] }: { projects?: any[] }) {
   const { state } = useSidebar()
   const isCollapsed = state === "collapsed"
   const projectId = params.projectId as string || ""
+  const { membership } = useOrganization()
+  const isAdmin = membership?.role === "org:admin"
 
   const navItems = [
     { title: "Dashboard", url: `/portal/${projectId}/dashboard`, icon: LayoutDashboard },
@@ -107,7 +109,16 @@ export function ClientSidebar({ projects = [] }: { projects?: any[] }) {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-4 flex flex-row items-center gap-3 overflow-hidden">
+      <SidebarFooter className="border-t p-4 flex flex-col gap-3 overflow-hidden">
+        {isAdmin && (
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
+            {!isCollapsed && <span>Back to Dashboard</span>}
+          </Link>
+        )}
         <UserButton showName={!isCollapsed} />
       </SidebarFooter>
     </Sidebar>

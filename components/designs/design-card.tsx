@@ -3,7 +3,7 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, History, Upload } from "lucide-react";
+import { FileText, History, Upload, Check, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,15 +11,47 @@ import {
   DialogTitle,
   DialogDescription
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Image from "next/image";
 
 import { UploadNewVersionDialog } from "@/components/designs/upload-new-version-dialog";
 import { DesignHistorySheet } from "@/components/designs/design-history-sheet";
+import { RevisionDialog } from "@/components/portal/action-center/revision-dialog";
+import { approveItem, requestRevisionItem } from "@/app/actions/approvals";
+import { toast } from "sonner";
 
-export function DesignCard({ design }: { design: any }) {
+export function DesignCard({ design, approvalMode, projectId }: { design: any; approvalMode?: boolean; projectId?: string }) {
   const latestVersion = design.design_versions[0]; // Assuming sorted by created_at desc
   const [viewFeedbackVersion, setViewFeedbackVersion] = useState<any>(null);
+  const [revisionOpen, setRevisionOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  const showApprovalButtons = approvalMode && projectId && latestVersion?.status === "Pending";
+
+  const handleApprove = () => {
+    if (!projectId) return;
+    startTransition(async () => {
+      try {
+        await approveItem("design_version", latestVersion.id, projectId, `${design.title} v${latestVersion.version_number}`);
+        toast.success(`Approved ${design.title}`);
+      } catch (err: any) {
+        toast.error(err.message || "Failed to approve");
+      }
+    });
+  };
+
+  const handleRevisionSubmit = (reason: string) => {
+    if (!projectId) return;
+    startTransition(async () => {
+      try {
+        await requestRevisionItem("design_version", latestVersion.id, projectId, `${design.title} v${latestVersion.version_number}`, reason);
+        toast.success("Revision requested");
+        setRevisionOpen(false);
+      } catch (err: any) {
+        toast.error(err.message || "Failed to request revision");
+      }
+    });
+  };
 
   return (
     <>
@@ -59,15 +91,50 @@ export function DesignCard({ design }: { design: any }) {
           </div>
         </div>
       </CardHeader>
-      <CardFooter className="p-4 pt-0 gap-2 w-full">
-        <DesignHistorySheet design={design} />
-        <UploadNewVersionDialog 
-          designId={design.id} 
-          projectId={design.project_id} 
-          nextVersion={latestVersion.version_number + 1} 
-        />
+      <CardFooter className="p-4 pt-0 gap-2 w-full flex-col">
+        {showApprovalButtons && (
+          <div className="flex gap-2 w-full">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 text-destructive border-destructive/20 hover:bg-destructive/10"
+              onClick={() => setRevisionOpen(true)}
+              disabled={isPending}
+            >
+              <X className="h-4 w-4 mr-1.5" /> Revise
+            </Button>
+            <Button
+              size="sm"
+              className="flex-1"
+              onClick={handleApprove}
+              disabled={isPending}
+            >
+              <Check className="h-4 w-4 mr-1.5" /> {isPending ? "..." : "Approve"}
+            </Button>
+          </div>
+        )}
+        {!approvalMode && (
+          <div className="flex gap-2 w-full">
+            <DesignHistorySheet design={design} />
+            <UploadNewVersionDialog
+              designId={design.id}
+              projectId={design.project_id}
+              nextVersion={latestVersion.version_number + 1}
+            />
+          </div>
+        )}
       </CardFooter>
     </Card>
+
+      {showApprovalButtons && (
+        <RevisionDialog
+          open={revisionOpen}
+          onOpenChange={setRevisionOpen}
+          itemName={`${design.title} v${latestVersion.version_number}`}
+          onSubmit={handleRevisionSubmit}
+          isPending={isPending}
+        />
+      )}
 
       {viewFeedbackVersion && (
         <Dialog open={!!viewFeedbackVersion} onOpenChange={(open) => !open && setViewFeedbackVersion(null)}>

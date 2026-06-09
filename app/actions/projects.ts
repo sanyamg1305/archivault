@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { createClerkSupabaseClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -10,12 +10,7 @@ export async function createProject(formData: {
   total_budget: number;
   client_id?: string;
 }) {
-  const { userId, orgId, orgRole } = await auth();
-
-  console.log("--- DEBUG PROJECT CREATION ---");
-  console.log("Clerk userId:", userId);
-  console.log("Clerk orgId:", orgId);
-  console.log("Clerk orgRole:", orgRole);
+  const { userId, orgId } = await auth();
 
   if (!userId || !orgId) throw new Error("Missing User or Organization context.");
 
@@ -105,5 +100,65 @@ export async function assignClientToProject(projectId: string, clientId: string,
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function updateProjectStatus(projectId: string, status: string) {
+  const { userId, orgId } = await auth();
+  if (!userId || !orgId) throw new Error("Missing User or Organization context.");
+
+  const supabase = await createClerkSupabaseClient();
+
+  const { error } = await supabase
+    .from("projects")
+    .update({ status })
+    .eq("id", projectId);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/projects/${projectId}`, "layout");
+  revalidatePath("/projects");
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function updateProjectNotes(projectId: string, description: string) {
+  const { userId, orgId } = await auth();
+  if (!userId || !orgId) throw new Error("Missing User or Organization context.");
+
+  const supabase = await createClerkSupabaseClient();
+  const { error } = await supabase.from("projects").update({ description }).eq("id", projectId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/projects/${projectId}`);
+}
+
+export async function updateProjectTimeline(projectId: string, data: {
+  start_date: string | null;
+  target_date: string | null;
+  phase: string;
+}) {
+  const { userId, orgId } = await auth();
+  if (!userId || !orgId) throw new Error("Missing User or Organization context.");
+
+  const supabase = await createClerkSupabaseClient();
+  const { error } = await supabase.from("projects").update(data).eq("id", projectId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/projects/${projectId}`, "layout");
+}
+
+export async function inviteClientToOrg(email: string) {
+  const { userId, orgId } = await auth();
+  if (!userId || !orgId) throw new Error("Missing User or Organization context.");
+
+  const clerk = await clerkClient();
+  await clerk.organizations.createOrganizationInvitation({
+    organizationId: orgId,
+    emailAddress: email,
+    role: "org:member",
+    inviterUserId: userId,
+  });
+
   return { success: true };
 }

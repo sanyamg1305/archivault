@@ -5,6 +5,7 @@ import { approveItem, requestRevisionItem } from "@/app/actions/approvals";
 import { Button } from "@/components/ui/button";
 import { Building2, Tag, ShoppingCart, Check, X } from "lucide-react";
 import { RevisionDialog } from "./revision-dialog";
+import { MaterialImageUpload } from "@/components/materials/material-image-upload";
 import { toast } from "sonner";
 
 interface MaterialApprovalProps {
@@ -14,6 +15,7 @@ interface MaterialApprovalProps {
     brand: string | null;
     category: string | null;
     estimated_cost: number;
+    imageUrl?: string | null;
     room?: { name: string } | null;
   };
   projectId: string;
@@ -54,6 +56,12 @@ export function ApprovalCardMaterial({ material, projectId }: MaterialApprovalPr
       <Card className="overflow-hidden hover:shadow-md transition-shadow">
         <CardContent className="p-0 sm:flex sm:items-stretch h-full min-h-[16rem]">
           <div className="flex-1 p-6 space-y-4 flex flex-col justify-center">
+            <MaterialImageUpload
+              materialId={material.id}
+              projectId={projectId}
+              imageUrl={material.imageUrl}
+              size="md"
+            />
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center gap-2">
                 {material.room && (

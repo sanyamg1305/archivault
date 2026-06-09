@@ -4,7 +4,9 @@ import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MoreHorizontal, Pencil, Trash2, Search } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,22 +23,41 @@ import {
 } from "@/components/ui/dialog";
 import { updateMaterialStatus, deleteMaterial } from "@/app/actions/materials";
 import { EditMaterialDialog } from "./edit-material-dialog";
+import { MaterialImageUpload } from "./material-image-upload";
 import { toast } from "sonner";
+
+const statusColors: Record<string, string> = {
+  Pending: "bg-yellow-100 text-yellow-800",
+  Approved: "bg-green-100 text-green-800",
+  Rejected: "bg-red-100 text-red-800",
+  "Revision Requested": "bg-blue-100 text-blue-800",
+  Superseded: "bg-gray-100 text-gray-600",
+};
+
+const ALL_STATUSES = ["All", "Pending", "Approved", "Revision Requested", "Rejected"];
 
 export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
   materials: any[];
   projectId: string;
-  isAdminOrTeam: boolean
+  isAdminOrTeam: boolean;
 }) {
   const [editingMaterial, setEditingMaterial] = useState<any>(null);
   const [viewFeedbackMaterial, setViewFeedbackMaterial] = useState<any>(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
 
-  const statusColors: any = {
-    Pending: "bg-yellow-100 text-yellow-800",
-    Approved: "bg-green-100 text-green-800",
-    Rejected: "bg-red-100 text-red-800",
-    "Revision Requested": "bg-blue-100 text-blue-800",
-  };
+  const filtered = materials.filter((m) => {
+    const matchesSearch =
+      !search ||
+      m.name?.toLowerCase().includes(search.toLowerCase()) ||
+      m.brand?.toLowerCase().includes(search.toLowerCase()) ||
+      m.category?.toLowerCase().includes(search.toLowerCase()) ||
+      m.vendor?.toLowerCase().includes(search.toLowerCase());
+
+    const matchesStatus = statusFilter === "All" || m.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
 
   async function handleDelete(id: string, name: string) {
     if (confirm(`Are you sure you want to delete ${name}?`)) {
@@ -51,10 +72,34 @@ export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
 
   return (
     <>
+      {/* Filters */}
+      <div className="flex gap-3 items-center">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by name, brand, vendor..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 h-9"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-44 h-9">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {ALL_STATUSES.map((s) => (
+              <SelectItem key={s} value={s}>{s}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12" />
               <TableHead>Material</TableHead>
               <TableHead>Room</TableHead>
               <TableHead>Cost</TableHead>
@@ -63,72 +108,108 @@ export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {materials.map((m) => (
-              <TableRow key={m.id}>
-                <TableCell className="font-medium">
-                  <div>{m.name}</div>
-                  <div className="text-xs text-muted-foreground">{m.brand} • {m.category}</div>
+            {filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-10 text-muted-foreground text-sm">
+                  {search || statusFilter !== "All" ? "No materials match your filters." : "No materials yet."}
                 </TableCell>
-                <TableCell>{m.rooms?.name}</TableCell>
-                <TableCell>${m.estimated_cost.toLocaleString()}</TableCell>
-                <TableCell>
-                  <Badge variant="secondary" className={statusColors[m.status]}>{m.status}</Badge>
-                  {m.status === "Revision Requested" && m.revision_note && (
-                    <div className="mt-1">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-6 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                        onClick={() => setViewFeedbackMaterial(m)}
-                      >
-                        View Feedback
-                      </Button>
+              </TableRow>
+            ) : (
+              filtered.map((m) => (
+                <TableRow key={m.id}>
+                  {/* Image thumbnail / upload */}
+                  <TableCell className="py-2">
+                    <MaterialImageUpload
+                      materialId={m.id}
+                      projectId={projectId}
+                      imageUrl={m.imageUrl ?? null}
+                      size="sm"
+                    />
+                  </TableCell>
+
+                  <TableCell className="font-medium">
+                    <div>{m.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {m.brand} • {m.category}
+                      {m.vendor && (
+                        <>
+                          {" • "}
+                          {m.vendor.startsWith("http://") || m.vendor.startsWith("https://") ? (
+                            <a href={m.vendor} target="_blank" rel="noopener noreferrer" className="text-primary underline-offset-2 hover:underline">
+                              {new URL(m.vendor).hostname}
+                            </a>
+                          ) : (
+                            <span>{m.vendor}</span>
+                          )}
+                        </>
+                      )}
                     </div>
-                  )}
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    {/* Fast Approval Actions for Pending items */}
-                    {m.status === "Pending" && (
-                      <>
+                  </TableCell>
+
+                  <TableCell>{m.rooms?.name}</TableCell>
+                  <TableCell>${m.estimated_cost.toLocaleString()}</TableCell>
+
+                  <TableCell>
+                    <Badge variant="secondary" className={statusColors[m.status]}>{m.status}</Badge>
+                    {m.status === "Revision Requested" && m.revision_note && (
+                      <div className="mt-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          onClick={() => setViewFeedbackMaterial(m)}
+                        >
+                          View Feedback
+                        </Button>
+                      </div>
+                    )}
+                  </TableCell>
+
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      {m.status === "Pending" && (
                         <Button
                           size="sm" variant="ghost" className="text-green-600 h-8"
                           onClick={() => updateMaterialStatus(projectId, m.id, m.name, "Approved")}
                         >Approve</Button>
-                      </>
-                    )}
+                      )}
+                      {m.status === "Revision Requested" && isAdminOrTeam && (
+                        <Button
+                          size="sm" variant="ghost" className="text-blue-600 h-8"
+                          onClick={() => updateMaterialStatus(projectId, m.id, m.name, "Pending")}
+                        >Resubmit for Review</Button>
+                      )}
 
-                    {/* Full CRUD Dropdown (Admin/Team Only) */}
-                    {isAdminOrTeam && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setEditingMaterial(m)}>
-                            <Pencil className="mr-2 h-4 w-4" /> Edit Details
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-red-600 focus:text-red-600 cursor-pointer"
-                            onClick={() => handleDelete(m.id, m.name)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" /> Delete Material
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+                      {isAdminOrTeam && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setEditingMaterial(m)}>
+                              <Pencil className="mr-2 h-4 w-4" /> Edit Details
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-red-600 focus:text-red-600 cursor-pointer"
+                              onClick={() => handleDelete(m.id, m.name)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" /> Delete Material
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
 
-      {/* Hidden Edit Dialog triggered by state */}
       {editingMaterial && (
         <EditMaterialDialog
           material={editingMaterial}
@@ -138,7 +219,6 @@ export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
         />
       )}
 
-      {/* Hidden Feedback Dialog triggered by state */}
       {viewFeedbackMaterial && (
         <Dialog open={!!viewFeedbackMaterial} onOpenChange={(open) => !open && setViewFeedbackMaterial(null)}>
           <DialogContent>

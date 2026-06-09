@@ -79,9 +79,12 @@ export default async function ProjectsDirectoryPage({ searchParams }: { searchPa
                     <div className="p-2.5 rounded-lg bg-primary/10 text-primary mb-4 w-fit group-hover:scale-110 transition-transform duration-300">
                       <FolderOpen className="w-5 h-5" />
                     </div>
-                    {/* Placeholder status since DB migration comes later */}
-                    <span className="text-[10px] font-bold text-muted-foreground bg-secondary/80 px-2.5 py-1 rounded-sm uppercase tracking-wider">
-                      Active
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider ${
+                      project.status === "Completed" ? "text-blue-700 bg-blue-100" :
+                      project.status === "On Hold" ? "text-amber-700 bg-amber-100" :
+                      "text-green-700 bg-green-100"
+                    }`}>
+                      {project.status ?? "Active"}
                     </span>
                   </div>
                   <CardTitle className="text-xl line-clamp-1 group-hover:text-primary transition-colors">

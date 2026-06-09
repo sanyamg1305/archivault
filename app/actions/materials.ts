@@ -18,7 +18,7 @@ export async function createMaterial(data: {
 
   const supabase = await createClerkSupabaseClient();
 
-  const { error } = await supabase.from("materials").insert({
+  const { data: material, error } = await supabase.from("materials").insert({
     project_id: data.projectId,
     room_id: data.roomId,
     name: data.name,
@@ -27,7 +27,7 @@ export async function createMaterial(data: {
     vendor: data.vendor,
     estimated_cost: data.estimated_cost,
     status: "Pending",
-  });
+  }).select().single();
 
   if (error) throw new Error(error.message);
 
@@ -38,6 +38,38 @@ export async function createMaterial(data: {
   });
 
   revalidatePath(`/projects/${data.projectId}/materials`);
+  return material;
+}
+
+export async function uploadMaterialImage(formData: FormData) {
+  const { userId, orgId } = await auth();
+  if (!userId || !orgId) throw new Error("Unauthorized");
+
+  const supabase = await createClerkSupabaseClient();
+
+  const materialId = formData.get("materialId") as string;
+  const projectId = formData.get("projectId") as string;
+  const file = formData.get("file") as File;
+
+  const fileExt = file.name.split(".").pop();
+  const filePath = `${orgId}/${projectId}/${materialId}/image.${fileExt}`;
+
+  const { error: storageErr } = await supabase.storage
+    .from("materials")
+    .upload(filePath, file, { upsert: true });
+
+  if (storageErr) throw new Error(storageErr.message);
+
+  const { error } = await supabase
+    .from("materials")
+    .update({ image_path: filePath })
+    .eq("id", materialId);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/projects/${projectId}/materials`);
+  revalidatePath(`/projects/${projectId}`);
+  revalidatePath(`/portal`);
 }
 
 export async function updateMaterialStatus(
@@ -51,7 +83,7 @@ export async function updateMaterialStatus(
 
   const { error } = await supabase
     .from("materials")
-    .update({ status })
+    .update({ status, ...(status === "Pending" ? { revision_note: null } : {}) })
     .eq("id", materialId);
 
   if (error) throw new Error(error.message);

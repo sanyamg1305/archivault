@@ -29,12 +29,17 @@ export default async function MaterialApprovalsPage({
 
   const { data: materialsResult } = await supabase
     .from("materials")
-    .select("id, name, brand, category, estimated_cost, room:rooms(name)")
+    .select("id, name, brand, category, estimated_cost, image_path, room:rooms(name)")
     .eq("project_id", projectId)
     .eq("status", "Pending")
     .order("created_at", { ascending: false });
 
-  const pendingMaterials = materialsResult || [];
+  const pendingMaterials = (materialsResult ?? []).map((m: any) => ({
+    ...m,
+    imageUrl: m.image_path
+      ? supabase.storage.from("materials").getPublicUrl(m.image_path).data.publicUrl
+      : null,
+  }));
 
   return (
     <div className="w-full">

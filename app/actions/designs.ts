@@ -60,15 +60,24 @@ export async function uploadNewVersion(formData: FormData) {
   const fileExt = file.name.split('.').pop();
   const filePath = `${orgId}/${projectId}/${designId}/v${nextVersion}.${fileExt}`;
 
-  await supabase.storage.from("designs").upload(filePath, file);
+  const { error: storageErr } = await supabase.storage.from("designs").upload(filePath, file);
+  if (storageErr) throw new Error(storageErr.message);
 
-  await supabase.from("design_versions").insert({
+  // Supersede any prior versions that are still awaiting client action
+  await supabase
+    .from("design_versions")
+    .update({ status: "Superseded" })
+    .eq("design_id", designId)
+    .in("status", ["Pending", "Revision Requested"]);
+
+  const { error: versionErr } = await supabase.from("design_versions").insert({
     design_id: designId,
     file_path: filePath,
     version_number: nextVersion,
     change_notes: changeNotes,
     created_by: userId
   });
+  if (versionErr) throw new Error(versionErr.message);
 
   revalidatePath(`/projects/${projectId}/designs`);
 }

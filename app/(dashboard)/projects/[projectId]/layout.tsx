@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { createClerkSupabaseClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import { ProjectNav } from "@/components/projects/project-nav";
+import { ProjectStatusSelect } from "@/components/projects/project-status-select";
 
 export default async function ProjectLayout({
   children,
@@ -36,7 +37,10 @@ export default async function ProjectLayout({
               Project
             </p>
             <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
-            <p className="text-muted-foreground mt-0.5">{project.client_reference}</p>
+            <div className="flex items-center gap-3 mt-1">
+              <p className="text-muted-foreground">{project.client_reference}</p>
+              <ProjectStatusSelect projectId={projectId} status={project.status ?? "Active"} />
+            </div>
           </div>
           <div className="text-right">
             <p className="text-sm text-muted-foreground">Total Budget</p>

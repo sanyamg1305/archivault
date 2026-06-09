@@ -51,7 +51,7 @@ export default async function ClientRoomDesignsPage({
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {designsWithUrls.map((design) => (
-            <DesignCard key={design.id} design={design} />
+            <DesignCard key={design.id} design={design} approvalMode projectId={projectId} />
           ))}
         </div>
       )}
