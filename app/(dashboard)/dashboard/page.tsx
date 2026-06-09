@@ -278,10 +278,10 @@ export default async function DashboardPage() {
                         </div>
                         <div className="flex justify-between text-xs text-muted-foreground mt-2">
                           <span className="font-medium text-foreground/80">
-                            ${spent.toLocaleString()} spent
+                            ₹{spent.toLocaleString('en-IN')} spent
                           </span>
                           <span>
-                            of ${total.toLocaleString()}
+                            of ₹{total.toLocaleString('en-IN')}
                           </span>
                         </div>
                       </div>

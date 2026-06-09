@@ -147,7 +147,7 @@ export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
                   </TableCell>
 
                   <TableCell>{m.rooms?.name}</TableCell>
-                  <TableCell>${m.estimated_cost.toLocaleString()}</TableCell>
+                  <TableCell>₹{m.estimated_cost.toLocaleString('en-IN')}</TableCell>
 
                   <TableCell>
                     <Badge variant="secondary" className={statusColors[m.status]}>{m.status}</Badge>

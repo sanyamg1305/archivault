@@ -93,7 +93,7 @@ export function ApprovalCardMaterial({ material, projectId }: MaterialApprovalPr
                 <span className="text-xs font-semibold uppercase tracking-wider">Estimated Impact</span>
               </div>
               <div className="text-3xl font-bold tracking-tight text-foreground">
-                ${Number(material.estimated_cost).toLocaleString()}
+                ₹{Number(material.estimated_cost).toLocaleString('en-IN')}
               </div>
               <p className="text-xs text-muted-foreground mt-1 max-w-[200px] leading-snug">
                 Approving this commits funds to your project budget.

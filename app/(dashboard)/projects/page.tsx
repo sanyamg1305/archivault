@@ -93,7 +93,7 @@ export default async function ProjectsDirectoryPage({ searchParams }: { searchPa
                     <div className="space-y-1 bg-muted/30 p-3 rounded-lg border border-border/50">
                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Total Budget</p>
                       <p className="text-lg font-bold tracking-tight text-foreground">
-                        ${Number(project.total_budget).toLocaleString()}
+                        ₹{Number(project.total_budget).toLocaleString('en-IN')}
                       </p>
                     </div>
                     <div className="pt-2 flex items-center text-sm font-medium text-primary opacity-80 group-hover:opacity-100 transition-opacity">

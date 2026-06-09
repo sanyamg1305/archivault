@@ -45,7 +45,7 @@ export default async function ProjectLayout({
           <div className="text-right">
             <p className="text-sm text-muted-foreground">Total Budget</p>
             <p className="text-2xl font-mono font-bold">
-              ${project.total_budget.toLocaleString()}
+              ₹{project.total_budget.toLocaleString('en-IN')}
             </p>
           </div>
         </div>

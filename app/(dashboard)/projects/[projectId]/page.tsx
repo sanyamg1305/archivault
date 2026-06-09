@@ -1,6 +1,6 @@
 import { createClerkSupabaseClient } from "@/utils/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Package, CheckCircle, UserCircle, Home, Clock, FileText, CalendarDays } from "lucide-react";
+import { IndianRupee, Package, CheckCircle, UserCircle, Home, Clock, FileText, CalendarDays } from "lucide-react";
 import { EditBudgetDialog } from "@/components/projects/edit-budget-dialog";
 import { AssignClientDialog } from "@/components/projects/assign-client-dialog";
 import { ProjectNotes } from "@/components/projects/project-notes";
@@ -60,10 +60,10 @@ export default async function ProjectOverview({
               Total Budget
               <EditBudgetDialog projectId={projectId} currentBudget={project?.total_budget ?? 0} />
             </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <IndianRupee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${(project?.total_budget ?? 0).toLocaleString()}</div>
+            <div className="text-2xl font-bold">₹{(project?.total_budget ?? 0).toLocaleString('en-IN')}</div>
           </CardContent>
         </Card>
 
@@ -85,7 +85,7 @@ export default async function ProjectOverview({
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">${approvedSpend.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-green-600">₹{approvedSpend.toLocaleString('en-IN')}</div>
           </CardContent>
         </Card>
 
@@ -95,7 +95,7 @@ export default async function ProjectOverview({
             <Package className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">${remainingBudget.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-blue-600">₹{remainingBudget.toLocaleString('en-IN')}</div>
           </CardContent>
         </Card>
       </div>
@@ -121,7 +121,7 @@ export default async function ProjectOverview({
                       <div className="flex justify-between items-center mb-1">
                         <span className="text-sm font-medium">{room.name}</span>
                         <span className="text-xs text-muted-foreground">
-                          ${room.approved.toLocaleString()} / ${room.total.toLocaleString()}
+                          ₹{room.approved.toLocaleString('en-IN')} / ₹{room.total.toLocaleString('en-IN')}
                         </span>
                       </div>
                       <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
