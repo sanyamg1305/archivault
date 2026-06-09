@@ -10,8 +10,6 @@ export async function createClerkSupabaseClient() {
     {
       global: {
         fetch: async (url, options = {}) => {
-          // Native Integration: getToken() without a template name.
-          // Clerk automatically adds the Supabase claims to the default session token.
           const clerkToken = await getToken({ template: 'supabase' });
 
           const headers = new Headers(options?.headers);
@@ -26,5 +24,13 @@ export async function createClerkSupabaseClient() {
         },
       },
     }
+  );
+}
+
+// Service role client — bypasses RLS. Only use in server actions after verifying auth via Clerk.
+export function createServiceRoleClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 }

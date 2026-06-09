@@ -1,14 +1,14 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export async function uploadDesign(formData: FormData) {
   const { userId, orgId } = await auth();
   if (!userId || !orgId) throw new Error("Unauthorized");
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const projectId = formData.get("projectId") as string;
   let roomId = formData.get("roomId") as string | null;
@@ -49,7 +49,7 @@ export async function uploadDesign(formData: FormData) {
 
 export async function uploadNewVersion(formData: FormData) {
   const { userId, orgId } = await auth();
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const designId = formData.get("designId") as string;
   const projectId = formData.get("projectId") as string;

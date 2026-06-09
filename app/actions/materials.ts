@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export async function createMaterial(data: {
@@ -16,7 +16,7 @@ export async function createMaterial(data: {
   const { userId, orgId } = await auth();
   if (!userId || !orgId) throw new Error("Unauthorized");
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const { data: material, error } = await supabase.from("materials").insert({
     project_id: data.projectId,
@@ -45,7 +45,7 @@ export async function uploadMaterialImage(formData: FormData) {
   const { userId, orgId } = await auth();
   if (!userId || !orgId) throw new Error("Unauthorized");
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const materialId = formData.get("materialId") as string;
   const projectId = formData.get("projectId") as string;
@@ -79,7 +79,7 @@ export async function updateMaterialStatus(
   status: string
 ) {
   const { userId } = await auth();
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const { error } = await supabase
     .from("materials")
@@ -113,7 +113,7 @@ export async function updateMaterial(
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const { error } = await supabase
     .from("materials")
@@ -143,7 +143,7 @@ export async function deleteMaterial(materialId: string, projectId: string, name
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const { error } = await supabase.from("materials").delete().eq("id", materialId);
 

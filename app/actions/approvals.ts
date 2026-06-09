@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 type EntityType = "material" | "design_version";
@@ -15,7 +15,7 @@ export async function approveItem(
   const { userId, orgId } = await auth();
   if (!userId || !orgId) throw new Error("Unauthorized");
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
   const table = entityType === "material" ? "materials" : "design_versions";
 
   const { error } = await supabase
@@ -47,7 +47,7 @@ export async function requestRevisionItem(
   const { userId, orgId } = await auth();
   if (!userId || !orgId) throw new Error("Unauthorized");
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
   const table = entityType === "material" ? "materials" : "design_versions";
 
   const { error } = await supabase

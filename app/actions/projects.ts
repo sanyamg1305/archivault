@@ -1,7 +1,7 @@
 "use server";
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createClerkSupabaseClient, createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export async function createProject(formData: {
@@ -14,9 +14,8 @@ export async function createProject(formData: {
 
   if (!userId || !orgId) throw new Error("Missing User or Organization context.");
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
-  // Insert Project — RLS on Supabase side enforces org:admin check via auth.jwt() ->> 'org_role'
   const { data: project, error: projectError } = await supabase
     .from("projects")
     .insert({
@@ -47,11 +46,11 @@ export async function createProject(formData: {
 }
 
 export async function updateProjectBudget(projectId: string, newBudget: number) {
-  const { userId, orgId, orgRole } = await auth();
+  const { userId, orgId } = await auth();
 
   if (!userId || !orgId) throw new Error("Missing User or Organization context.");
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const { error } = await supabase
     .from("projects")
@@ -79,7 +78,7 @@ export async function assignClientToProject(projectId: string, clientId: string,
 
   if (!userId || !orgId) throw new Error("Missing User or Organization context.");
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const { error } = await supabase
     .from("projects")
@@ -107,7 +106,7 @@ export async function updateProjectStatus(projectId: string, status: string) {
   const { userId, orgId } = await auth();
   if (!userId || !orgId) throw new Error("Missing User or Organization context.");
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const { error } = await supabase
     .from("projects")
@@ -126,7 +125,7 @@ export async function updateProjectNotes(projectId: string, description: string)
   const { userId, orgId } = await auth();
   if (!userId || !orgId) throw new Error("Missing User or Organization context.");
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
   const { error } = await supabase.from("projects").update({ description }).eq("id", projectId);
   if (error) throw new Error(error.message);
 
@@ -141,7 +140,7 @@ export async function updateProjectTimeline(projectId: string, data: {
   const { userId, orgId } = await auth();
   if (!userId || !orgId) throw new Error("Missing User or Organization context.");
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
   const { error } = await supabase.from("projects").update(data).eq("id", projectId);
   if (error) throw new Error(error.message);
 
