@@ -63,7 +63,7 @@ export default async function ProjectOverview({
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${project?.total_budget.toLocaleString()}</div>
+            <div className="text-2xl font-bold">${(project?.total_budget ?? 0).toLocaleString()}</div>
           </CardContent>
         </Card>
 
