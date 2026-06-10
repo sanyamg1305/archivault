@@ -44,8 +44,8 @@ export default async function ExportPage({
         <h1 className="text-3xl font-bold">{project?.name}</h1>
         <div className="flex gap-6 mt-2 text-sm text-zinc-500">
           {project?.client_reference && <span>Client: <strong className="text-zinc-800">{project.client_reference}</strong></span>}
-          <span>Total Budget: <strong className="text-zinc-800">${Number(project?.total_budget).toLocaleString()}</strong></span>
-          <span>Approved Spend: <strong className="text-green-700">${approvedTotal.toLocaleString()}</strong></span>
+          <span>Total Budget: <strong className="text-zinc-800">₹{Number(project?.total_budget).toLocaleString('en-IN')}</strong></span>
+          <span>Approved Spend: <strong className="text-green-700">₹{approvedTotal.toLocaleString('en-IN')}</strong></span>
           <span>Exported: <strong className="text-zinc-800">{new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</strong></span>
         </div>
       </div>
@@ -61,7 +61,7 @@ export default async function ExportPage({
           <div key={room.id} className="mb-10">
             <div className="flex justify-between items-baseline mb-3">
               <h2 className="text-lg font-semibold">{room.name}</h2>
-              <span className="text-sm text-zinc-500">Approved: <strong className="text-green-700">${roomApproved.toLocaleString()}</strong></span>
+              <span className="text-sm text-zinc-500">Approved: <strong className="text-green-700">₹{roomApproved.toLocaleString('en-IN')}</strong></span>
             </div>
             <table className="w-full text-sm border-collapse">
               <thead>
@@ -82,7 +82,7 @@ export default async function ExportPage({
                     </td>
                     <td className="py-2 px-3 text-zinc-600">{m.brand || "—"}</td>
                     <td className="py-2 px-3 text-zinc-600">{m.vendor || "—"}</td>
-                    <td className="py-2 px-3 text-right font-mono">${Number(m.estimated_cost).toLocaleString()}</td>
+                    <td className="py-2 px-3 text-right font-mono">₹{Number(m.estimated_cost).toLocaleString('en-IN')}</td>
                     <td className="py-2 px-3 text-center">
                       <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${
                         m.status === "Approved" ? "bg-green-100 text-green-700" :

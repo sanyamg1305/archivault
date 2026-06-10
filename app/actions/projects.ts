@@ -38,7 +38,7 @@ export async function createProject(formData: {
   await supabase.from("activity_logs").insert({
     project_id: project.id,
     user_id: userId,
-    action_description: `Project created with a budget of $${formData.total_budget.toLocaleString()}`,
+    action_description: `Project created with a budget of ₹${formData.total_budget.toLocaleString('en-IN')}`,
   });
 
   revalidatePath("/dashboard");
@@ -55,7 +55,8 @@ export async function updateProjectBudget(projectId: string, newBudget: number) 
   const { error } = await supabase
     .from("projects")
     .update({ total_budget: newBudget })
-    .eq("id", projectId);
+    .eq("id", projectId)
+    .eq("organization_id", orgId);
 
   if (error) {
     console.error("Supabase Error updating budget:", error);
@@ -66,7 +67,7 @@ export async function updateProjectBudget(projectId: string, newBudget: number) 
   await supabase.from("activity_logs").insert({
     project_id: projectId,
     user_id: userId,
-    action_description: `Updated project budget to $${newBudget.toLocaleString()}`,
+    action_description: `Updated project budget to ₹${newBudget.toLocaleString('en-IN')}`,
   });
 
   revalidatePath(`/projects/${projectId}`);
@@ -83,7 +84,8 @@ export async function assignClientToProject(projectId: string, clientId: string,
   const { error } = await supabase
     .from("projects")
     .update({ client_id: clientId, client_reference: clientReference })
-    .eq("id", projectId);
+    .eq("id", projectId)
+    .eq("organization_id", orgId);
 
   if (error) {
     console.error("Supabase Error assigning client:", error);
@@ -111,7 +113,8 @@ export async function updateProjectStatus(projectId: string, status: string) {
   const { error } = await supabase
     .from("projects")
     .update({ status })
-    .eq("id", projectId);
+    .eq("id", projectId)
+    .eq("organization_id", orgId);
 
   if (error) throw new Error(error.message);
 
@@ -126,7 +129,7 @@ export async function updateProjectNotes(projectId: string, description: string)
   if (!userId || !orgId) throw new Error("Missing User or Organization context.");
 
   const supabase = createServiceRoleClient();
-  const { error } = await supabase.from("projects").update({ description }).eq("id", projectId);
+  const { error } = await supabase.from("projects").update({ description }).eq("id", projectId).eq("organization_id", orgId);
   if (error) throw new Error(error.message);
 
   revalidatePath(`/projects/${projectId}`);
@@ -141,7 +144,7 @@ export async function updateProjectTimeline(projectId: string, data: {
   if (!userId || !orgId) throw new Error("Missing User or Organization context.");
 
   const supabase = createServiceRoleClient();
-  const { error } = await supabase.from("projects").update(data).eq("id", projectId);
+  const { error } = await supabase.from("projects").update(data).eq("id", projectId).eq("organization_id", orgId);
   if (error) throw new Error(error.message);
 
   revalidatePath(`/projects/${projectId}`, "layout");

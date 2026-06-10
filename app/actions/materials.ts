@@ -34,7 +34,7 @@ export async function createMaterial(data: {
   await supabase.from("activity_logs").insert({
     project_id: data.projectId,
     user_id: userId,
-    action_description: `Added material: ${data.name} ($${data.estimated_cost})`,
+    action_description: `Added material: ${data.name} (₹${data.estimated_cost.toLocaleString('en-IN')})`,
   });
 
   revalidatePath(`/projects/${data.projectId}/materials`);
@@ -50,6 +50,11 @@ export async function uploadMaterialImage(formData: FormData) {
   const materialId = formData.get("materialId") as string;
   const projectId = formData.get("projectId") as string;
   const file = formData.get("file") as File;
+
+  const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+  const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) throw new Error("Only image files are allowed.");
+  if (file.size > MAX_SIZE) throw new Error("Image must be under 10 MB.");
 
   const fileExt = file.name.split(".").pop();
   const filePath = `${orgId}/${projectId}/${materialId}/image.${fileExt}`;
@@ -132,7 +137,7 @@ export async function updateMaterial(
   await supabase.from("activity_logs").insert({
     project_id: projectId,
     user_id: userId,
-    action_description: `Updated material: ${data.name} (New Cost: $${data.estimated_cost})`,
+    action_description: `Updated material: ${data.name} (New Cost: ₹${data.estimated_cost.toLocaleString('en-IN')})`,
   });
 
   revalidatePath(`/projects/${projectId}/materials`);

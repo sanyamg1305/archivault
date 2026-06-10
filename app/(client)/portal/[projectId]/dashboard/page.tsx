@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { createClerkSupabaseClient } from "@/utils/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, CheckCircle, Package, AlertCircle, Home, Layers, ImageIcon } from "lucide-react";
+import { IndianRupee, CheckCircle, Package, AlertCircle, Home, Layers, ImageIcon } from "lucide-react";
 
 export default async function ClientOverviewPage({ 
   params 
@@ -93,11 +93,11 @@ export default async function ClientOverviewPage({
         <Card className="col-span-full md:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <IndianRupee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${project?.total_budget.toLocaleString()}
+              ₹{(project?.total_budget ?? 0).toLocaleString('en-IN')}
             </div>
             <p className="text-xs text-muted-foreground mt-1">Overall allowable target</p>
           </CardContent>
@@ -110,7 +110,7 @@ export default async function ClientOverviewPage({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              ${approvedSpend.toLocaleString()}
+              ₹{approvedSpend.toLocaleString('en-IN')}
             </div>
             <p className="text-xs text-muted-foreground mt-1">Locked-in decisions</p>
           </CardContent>
@@ -125,7 +125,7 @@ export default async function ClientOverviewPage({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
-              ${remainingBudget.toLocaleString()}
+              ₹{remainingBudget.toLocaleString('en-IN')}
             </div>
             <p className="text-xs text-muted-foreground mt-1">Unallocated funds</p>
           </CardContent>

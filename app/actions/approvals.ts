@@ -35,6 +35,7 @@ export async function approveItem(
 
   revalidatePath(`/portal/${projectId}`, "layout");
   revalidatePath(`/projects/${projectId}`, "layout");
+  revalidatePath("/dashboard");
 }
 
 export async function requestRevisionItem(
@@ -68,4 +69,5 @@ export async function requestRevisionItem(
 
   revalidatePath(`/portal/${projectId}`, "layout");
   revalidatePath(`/projects/${projectId}`, "layout");
+  revalidatePath("/dashboard");
 }

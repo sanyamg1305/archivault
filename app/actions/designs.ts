@@ -17,6 +17,11 @@ export async function uploadDesign(formData: FormData) {
   const file = formData.get("file") as File;
   const changeNotes = formData.get("changeNotes") as string;
 
+  const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"];
+  const MAX_SIZE = 20 * 1024 * 1024; // 20 MB
+  if (!ALLOWED_TYPES.includes(file.type)) throw new Error("Only images and PDFs are allowed.");
+  if (file.size > MAX_SIZE) throw new Error("File must be under 20 MB.");
+
   // 1. Create the Design record
   const { data: design, error: designErr } = await supabase
     .from("designs")
@@ -80,4 +85,5 @@ export async function uploadNewVersion(formData: FormData) {
   if (versionErr) throw new Error(versionErr.message);
 
   revalidatePath(`/projects/${projectId}/designs`);
+  revalidatePath(`/projects/${projectId}`, "layout");
 }
