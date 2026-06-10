@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Upload } from "lucide-react";
 import { useFormStatus } from "react-dom";
+import { toast } from "sonner";
 
 import {
   Dialog,
@@ -62,8 +63,15 @@ export function UploadDesignDialog({
         <form
           action={async (formData) => {
             formData.append("projectId", projectId);
-            await uploadDesign(formData);
-            setOpen(false);
+            try {
+              await uploadDesign(formData);
+              setOpen(false);
+              toast.success("Design uploaded successfully");
+            } catch (err) {
+              toast.error("Upload failed", {
+                description: err instanceof Error ? err.message : "Something went wrong.",
+              });
+            }
           }}
           className="space-y-4"
         >
