@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "gen:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_REF --schema public > types/database.types.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.0.8",
