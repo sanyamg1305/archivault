@@ -36,6 +36,7 @@ export default async function DashboardPage() {
   const { data: projects } = await supabase
     .from("projects")
     .select("*")
+    .eq("organization_id", orgId ?? "")
     .order("created_at", { ascending: false });
 
   // Fetch all materials for budget calculation

@@ -26,7 +26,7 @@ export default async function ProjectsDirectoryPage({ searchParams }: { searchPa
 
   const isAdmin = orgRole === "org:admin";
 
-  const { data: projects } = await supabase.from("projects").select("*").order("created_at", { ascending: false });
+  const { data: projects } = await supabase.from("projects").select("*").eq("organization_id", orgId ?? "").order("created_at", { ascending: false });
   
   const filteredProjects = projects?.filter(p => 
     p.name.toLowerCase().includes(searchQuery) || 
