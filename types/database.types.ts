@@ -207,6 +207,35 @@ export interface Database {
           created_at?: string;
         };
       };
+      project_messages: {
+        Row: {
+          id: string;
+          project_id: string;
+          sender_id: string;
+          sender_name: string;
+          content: string;
+          channel: "internal" | "external";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          sender_id: string;
+          sender_name: string;
+          content: string;
+          channel: "internal" | "external";
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          sender_id?: string;
+          sender_name?: string;
+          content?: string;
+          channel?: "internal" | "external";
+          created_at?: string;
+        };
+      };
       activity_logs: {
         Row: {
           id: string;
