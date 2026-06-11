@@ -2,6 +2,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
+import { InviteMemberDialog } from "@/components/team/invite-member-dialog";
 
 export const metadata = { title: "Team — ArchiVault" };
 
@@ -34,10 +35,13 @@ export default async function TeamPage() {
           <h1 className="text-3xl font-bold tracking-tight">Team</h1>
           <p className="text-muted-foreground mt-1">Everyone with access to your organization.</p>
         </div>
-        <Badge variant="secondary" className="text-sm px-3 py-1">
-          <Users className="w-4 h-4 mr-2" />
-          {members.length} {members.length === 1 ? "member" : "members"}
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Badge variant="secondary" className="text-sm px-3 py-1">
+            <Users className="w-4 h-4 mr-2" />
+            {members.length} {members.length === 1 ? "member" : "members"}
+          </Badge>
+          <InviteMemberDialog />
+        </div>
       </div>
 
       <MemberGroup title="Architects & Team" members={admins} />
