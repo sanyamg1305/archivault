@@ -91,7 +91,7 @@ export function ClientSidebar({ projects = [] }: { projects?: any[] }) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => (
+              {projectId && navItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
