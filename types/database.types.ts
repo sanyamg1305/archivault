@@ -25,6 +25,7 @@ export interface Database {
           email?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       projects: {
         Row: {
@@ -72,6 +73,7 @@ export interface Database {
           phase?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       rooms: {
         Row: {
@@ -104,6 +106,7 @@ export interface Database {
           notes?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       materials: {
         Row: {
@@ -148,6 +151,7 @@ export interface Database {
           image_path?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       designs: {
         Row: {
@@ -174,6 +178,7 @@ export interface Database {
           description?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       design_versions: {
         Row: {
@@ -206,6 +211,7 @@ export interface Database {
           created_by?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       project_messages: {
         Row: {
@@ -235,6 +241,7 @@ export interface Database {
           channel?: "internal" | "external";
           created_at?: string;
         };
+        Relationships: [];
       };
       activity_logs: {
         Row: {
@@ -261,8 +268,13 @@ export interface Database {
           metadata?: Json | null;
           created_at?: string;
         };
+        Relationships: [];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 }
 

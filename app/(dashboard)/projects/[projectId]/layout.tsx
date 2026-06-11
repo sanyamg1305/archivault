@@ -22,7 +22,7 @@ export default async function ProjectLayout({
     .from("projects")
     .select("*")
     .eq("id", projectId)
-    .eq("organization_id", orgId)
+    .eq("organization_id", orgId ?? "")
     .single();
 
   if (!project) notFound();

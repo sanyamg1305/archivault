@@ -95,7 +95,7 @@ export async function updateMaterialStatus(
 
   await supabase.from("activity_logs").insert({
     project_id: projectId,
-    user_id: userId,
+    user_id: userId ?? "",
     action_description: `Material '${name}' status changed to ${status}`,
   });
 
