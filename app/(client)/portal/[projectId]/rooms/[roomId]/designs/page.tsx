@@ -1,4 +1,4 @@
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { DesignCard } from "@/components/designs/design-card";
 
 export default async function ClientRoomDesignsPage({
@@ -7,34 +7,32 @@ export default async function ClientRoomDesignsPage({
   params: Promise<{ projectId: string; roomId: string }>;
 }) {
   const { projectId, roomId } = await params;
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const { data: designs } = await supabase
     .from("designs")
-    .select(`
-      *,
-      rooms(name),
-      design_versions(*)
-    `)
+    .select("*, rooms(name), design_versions(*)")
     .eq("room_id", roomId)
-    .order("created_at", { foreignTable: "design_versions", ascending: false });
+    .order("created_at", { ascending: false });
 
   const designsWithUrls = await Promise.all(
     (designs || []).map(async (design) => {
+      const sortedVersions = [...(design.design_versions || [])].sort(
+        (a: any, b: any) => b.version_number - a.version_number
+      );
       const versionsWithUrls = await Promise.all(
-        (design.design_versions || []).map(async (version: any) => {
+        sortedVersions.map(async (version: any) => {
           const { data } = await supabase.storage
             .from("designs")
             .createSignedUrl(version.file_path, 60 * 60 * 24);
           return { ...version, signedUrl: data?.signedUrl };
         })
       );
-      
       const latestVersionWithUrl = versionsWithUrls[0];
-      return { 
-        ...design, 
+      return {
+        ...design,
         design_versions: versionsWithUrls,
-        signedUrl: latestVersionWithUrl && !latestVersionWithUrl.file_path.endsWith('.pdf') ? latestVersionWithUrl.signedUrl : null
+        signedUrl: latestVersionWithUrl && !latestVersionWithUrl.file_path.endsWith(".pdf") ? latestVersionWithUrl.signedUrl : null,
       };
     })
   );
