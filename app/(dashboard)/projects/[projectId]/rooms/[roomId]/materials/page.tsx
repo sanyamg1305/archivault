@@ -1,4 +1,4 @@
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { MaterialsTable } from "@/components/materials/materials-table";
 import { AddMaterialDialog } from "@/components/materials/add-material-dialog";
 import { auth } from "@clerk/nextjs/server";
@@ -9,7 +9,7 @@ export default async function RoomMaterialsPage({
   params: Promise<{ projectId: string; roomId: string }>;
 }) {
   const { projectId, roomId } = await params;
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
   const { orgRole } = await auth();
   const isAdminOrTeam = orgRole === "org:admin" || orgRole === "org:member";
 

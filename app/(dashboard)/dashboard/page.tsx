@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { CreateProjectDialog } from "@/components/projects/create-project-dialog";
 import {
   Card,
@@ -22,7 +22,7 @@ export const metadata = {
 export default async function DashboardPage() {
   const { orgId, userId } = await auth();
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const { data: profile } = await supabase
     .from("profiles")

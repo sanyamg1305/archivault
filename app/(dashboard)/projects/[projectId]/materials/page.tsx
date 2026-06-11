@@ -1,4 +1,4 @@
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { auth } from "@clerk/nextjs/server";
 import { AddMaterialDialog } from "@/components/materials/add-material-dialog";
 import { MaterialsTable } from "@/components/materials/materials-table";
@@ -9,7 +9,7 @@ import { Printer } from "lucide-react";
 export default async function MaterialsPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
   const { orgRole } = await auth();
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const { data: rooms } = await supabase.from("rooms").select("*").eq("project_id", projectId);
   const { data: rawMaterials } = await supabase

@@ -1,4 +1,4 @@
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { PrintButton } from "./print-button";
 
 export default async function ExportPage({
@@ -7,7 +7,7 @@ export default async function ExportPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const [{ data: project }, { data: rooms }] = await Promise.all([
     supabase.from("projects").select("name, client_reference, total_budget").eq("id", projectId).single(),

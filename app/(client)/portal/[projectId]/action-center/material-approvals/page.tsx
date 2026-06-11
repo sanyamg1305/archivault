@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { ApprovalCardMaterial } from "@/components/portal/action-center/approval-card-material";
 import { PackageCheck } from "lucide-react";
 
@@ -17,7 +17,7 @@ export default async function MaterialApprovalsPage({
   const { userId, orgId } = await auth();
   if (!userId || !orgId) redirect("/sign-in");
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const { data: project } = await supabase
     .from("projects")

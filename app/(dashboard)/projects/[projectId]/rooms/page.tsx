@@ -1,4 +1,4 @@
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { CreateRoomDialog } from "@/components/projects/create-room-dialog";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Box } from "lucide-react";
@@ -10,7 +10,7 @@ export default async function RoomsPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const { data: rooms } = await supabase
     .from("rooms")

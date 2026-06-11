@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { PrintButton } from "./print-button";
 
 export default async function ExportPage({
@@ -12,7 +12,7 @@ export default async function ExportPage({
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const [{ data: project }, { data: rooms }] = await Promise.all([
     supabase.from("projects").select("name, client_reference, total_budget").eq("id", projectId).single(),

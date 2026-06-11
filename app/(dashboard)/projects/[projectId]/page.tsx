@@ -1,4 +1,4 @@
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IndianRupee, Package, CheckCircle, UserCircle, Home, Clock, FileText, CalendarDays } from "lucide-react";
 import { EditBudgetDialog } from "@/components/projects/edit-budget-dialog";
@@ -12,7 +12,7 @@ export default async function ProjectOverview({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const [
     { data: project },

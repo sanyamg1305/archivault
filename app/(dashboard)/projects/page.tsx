@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { CreateProjectDialog } from "@/components/projects/create-project-dialog";
 import {
   Card,
@@ -19,7 +19,7 @@ export const metadata = {
 
 export default async function ProjectsDirectoryPage({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const { orgId, userId, orgRole } = await auth();
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
   
   const params = await searchParams;
   const searchQuery = typeof params.q === 'string' ? params.q.toLowerCase() : '';

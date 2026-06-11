@@ -1,7 +1,7 @@
 "use server";
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { createClerkSupabaseClient, createServiceRoleClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export async function createProject(formData: {

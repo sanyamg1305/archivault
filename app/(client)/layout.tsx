@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server"
-import { createClerkSupabaseClient } from "@/utils/supabase/server"
+import { createServiceRoleClient } from "@/utils/supabase/server"
 import { ClientSidebar } from "@/components/client-sidebar"
 import { OrganizationGuard } from "@/components/auth/org-guard"
 import {
@@ -21,7 +21,7 @@ export default async function ClientLayout({
     return <OrganizationGuard />
   }
 
-  const supabase = await createClerkSupabaseClient()
+  const supabase = createServiceRoleClient()
   
   const { data: projects } = await supabase
     .from("projects")

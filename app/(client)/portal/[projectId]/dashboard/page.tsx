@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { IndianRupee, CheckCircle, Package, AlertCircle, Home, Layers, ImageIcon } from "lucide-react";
@@ -11,7 +11,7 @@ export default async function ClientOverviewPage({
 }) {
   const { projectId } = await params;
   const { orgId } = await auth();
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   // Fetch project details
   const { data: project } = await supabase

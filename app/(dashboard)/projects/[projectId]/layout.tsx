@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import { ProjectNav } from "@/components/projects/project-nav";
 import { ProjectStatusSelect } from "@/components/projects/project-status-select";
@@ -15,7 +15,7 @@ export default async function ProjectLayout({
   const { projectId } = await params;
   const { orgId } = await auth();
 
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   // Fetch project details and verify it belongs to this Org
   const { data: project } = await supabase

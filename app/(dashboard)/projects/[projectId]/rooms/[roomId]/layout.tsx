@@ -1,4 +1,4 @@
-import { createClerkSupabaseClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { RoomNav } from "@/components/rooms/room-nav";
@@ -11,7 +11,7 @@ export default async function RoomLayout({
   params: Promise<{ projectId: string; roomId: string }>;
 }) {
   const { projectId, roomId } = await params;
-  const supabase = await createClerkSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const { data: room } = await supabase.from("rooms").select("*").eq("id", roomId).single();
 
