@@ -47,12 +47,11 @@ export function SetCredentialsDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setOpen(true); }}>
-          <KeyRound className="h-4 w-4 mr-2" /> Set Login
-        </DropdownMenuItem>
-      </DialogTrigger>
+    <>
+      <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setOpen(true); }}>
+        <KeyRound className="h-4 w-4 mr-2" /> Set Login
+      </DropdownMenuItem>
+      <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle>Set Login for {tradeName}</DialogTitle>
@@ -114,6 +113,7 @@ export function SetCredentialsDialog({
           </Button>
         </form>
       </DialogContent>
-    </Dialog>
+      </Dialog>
+    </>
   );
 }
