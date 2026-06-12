@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { createServiceRoleClient } from "@/utils/supabase/server";
-import { Phone, Mail, HardHat } from "lucide-react";
+import { Phone, HardHat, KeyRound } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AddTradeDialog } from "@/components/trades/add-trade-dialog";
@@ -93,8 +93,7 @@ export default async function TradesPage() {
                     </div>
                     <EditTradeDialog trade={worker} />
                   </div>
-                  {(worker.phone || worker.email) && (
-                    <div className="space-y-1">
+                  <div className="space-y-1">
                       {worker.phone && (
                         <a
                           href={`tel:${worker.phone}`}
@@ -104,17 +103,18 @@ export default async function TradesPage() {
                           {worker.phone}
                         </a>
                       )}
-                      {worker.email && (
-                        <a
-                          href={`mailto:${worker.email}`}
-                          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          <Mail className="h-3.5 w-3.5 shrink-0" />
-                          <span className="truncate">{worker.email}</span>
-                        </a>
+                      {worker.username ? (
+                        <p className="flex items-center gap-2 text-xs text-green-600">
+                          <KeyRound className="h-3.5 w-3.5 shrink-0" />
+                          Portal login: <span className="font-mono font-medium">{worker.username}</span>
+                        </p>
+                      ) : (
+                        <p className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <KeyRound className="h-3.5 w-3.5 shrink-0" />
+                          No login set — use ⋯ → Set Login
+                        </p>
                       )}
                     </div>
-                  )}
                   {worker.notes && (
                     <p className="text-xs text-muted-foreground line-clamp-2">{worker.notes}</p>
                   )}

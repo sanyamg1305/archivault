@@ -14,18 +14,17 @@ const isProtectedRoute = createRouteMatcher([
     '/dashboard(.*)',
     '/projects(.*)',
     '/portal(.*)',
-    '/trades-portal/dashboard(.*)',
     /^\/api(?!\/webhooks).*$/
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-    if (isProtectedRoute(req)) {
-        await auth.protect();
-    }
-
-    // Trades portal: just needs auth, no org checks
+    // Trades portal has its own session-based auth — skip Clerk entirely
     if (isTradesPortalRoute(req)) {
         return;
+    }
+
+    if (isProtectedRoute(req)) {
+        await auth.protect();
     }
 
     const authObject = await auth();

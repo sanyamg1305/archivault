@@ -1,7 +1,9 @@
 "use server";
 
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { createServiceRoleClient } from "@/utils/supabase/server";
+import { hashPassword, verifyPassword, setTradesSession, clearTradesSession, getTradesSession } from "@/utils/trades-auth";
 import { revalidatePath } from "next/cache";
 
 export type TradeWorker = {
@@ -9,8 +11,8 @@ export type TradeWorker = {
   name: string;
   trade_type: string;
   phone: string | null;
+  username: string | null;
   organization_id: string;
-  clerk_user_id: string | null;
 };
 
 export type TradeTask = {
@@ -26,92 +28,132 @@ export type TradeTask = {
   rooms: { name: string } | null;
 };
 
-// Called on first dashboard visit — links Clerk phone to trades row
-export async function linkAndGetTradeWorker(): Promise<{ worker: TradeWorker | null; error?: string }> {
-  const { userId } = await auth();
-  if (!userId) return { worker: null, error: "Not signed in" };
+// ── Admin: set credentials for a trade worker ────────────────────────────────
+
+export async function setTradeCredentials(
+  tradeId: string,
+  username: string,
+  password: string
+): Promise<{ error?: string }> {
+  const { userId, orgId } = await auth();
+  if (!userId || !orgId) return { error: "Unauthorized" };
+
+  if (!username.trim()) return { error: "Username is required" };
+  if (password.length < 6) return { error: "Password must be at least 6 characters" };
 
   const supabase = createServiceRoleClient();
-  const clerk = await clerkClient();
 
-  // 1. Check if already linked
-  const { data: linked } = await supabase
+  // Check username not taken by another worker
+  const { data: existing } = await supabase
     .from("trades")
-    .select("*")
-    .eq("clerk_user_id", userId)
-    .single();
+    .select("id")
+    .eq("username", username.trim().toLowerCase())
+    .neq("id", tradeId)
+    .maybeSingle();
 
-  if (linked) return { worker: linked as TradeWorker };
+  if (existing) return { error: "Username already taken" };
 
-  // 2. Get Clerk user's phone number to match
-  const clerkUser = await clerk.users.getUser(userId);
-  const phone = clerkUser.phoneNumbers?.[0]?.phoneNumber;
+  const { error } = await supabase
+    .from("trades")
+    .update({
+      username: username.trim().toLowerCase(),
+      password_hash: hashPassword(password),
+    })
+    .eq("id", tradeId)
+    .eq("organization_id", orgId);
 
-  if (!phone) {
-    return { worker: null, error: "No phone number on your account. Ask your architect to register your mobile number." };
-  }
-
-  // Normalize: strip spaces/dashes for comparison
-  const normalize = (p: string) => p.replace(/[\s\-\(\)]/g, "");
-  const normalizedPhone = normalize(phone);
-
-  // 3. Look up by phone — fetch all and compare normalized
-  const { data: allTrades } = await supabase.from("trades").select("*").is("clerk_user_id", null);
-  const match = (allTrades ?? []).find(
-    (t: any) => t.phone && normalize(t.phone) === normalizedPhone
-  );
-
-  if (!match) {
-    return {
-      worker: null,
-      error: "Your mobile number is not registered. Ask your architect to add you to the Trades directory.",
-    };
-  }
-
-  // 4. Link the account
-  await supabase.from("trades").update({ clerk_user_id: userId }).eq("id", match.id);
-
-  return { worker: { ...match, clerk_user_id: userId } as TradeWorker };
+  if (error) return { error: error.message };
+  revalidatePath("/trades");
+  return {};
 }
 
-export async function getMyTasks(tradeId: string): Promise<TradeTask[]> {
-  const { userId } = await auth();
-  if (!userId) return [];
+// ── Trade worker: sign in ────────────────────────────────────────────────────
 
+export async function tradesSignIn(
+  _prev: string | null,
+  formData: FormData
+): Promise<string | null> {
+  const username = (formData.get("username") as string ?? "").trim().toLowerCase();
+  const password = formData.get("password") as string ?? "";
+
+  if (!username || !password) return "Enter your username and password.";
+
+  const supabase = createServiceRoleClient();
+  const { data: trade } = await supabase
+    .from("trades")
+    .select("id, password_hash")
+    .eq("username", username)
+    .maybeSingle();
+
+  if (!trade || !trade.password_hash) return "Invalid username or password.";
+  if (!verifyPassword(password, trade.password_hash)) return "Invalid username or password.";
+
+  await setTradesSession(trade.id);
+  redirect("/trades-portal/dashboard");
+}
+
+// ── Trade worker: sign out ───────────────────────────────────────────────────
+
+export async function tradesSignOut(): Promise<void> {
+  await clearTradesSession();
+  redirect("/trades-portal/sign-in");
+}
+
+// ── Trade worker: get own worker record ─────────────────────────────────────
+
+export async function getMyTradeWorker(): Promise<TradeWorker | null> {
+  const session = await getTradesSession();
+  if (!session) return null;
+
+  const supabase = createServiceRoleClient();
+  const { data } = await supabase
+    .from("trades")
+    .select("id, name, trade_type, phone, username, organization_id")
+    .eq("id", session.tradeId)
+    .single();
+
+  return data as TradeWorker | null;
+}
+
+// ── Trade worker: get assigned tasks ────────────────────────────────────────
+
+export async function getMyTasks(tradeId: string): Promise<TradeTask[]> {
   const supabase = createServiceRoleClient();
   const { data } = await supabase
     .from("trade_tasks")
     .select("*, projects(name), rooms(name)")
     .eq("trade_id", tradeId)
-    .order("status")
     .order("due_date", { ascending: true, nullsFirst: false });
 
   return (data ?? []) as TradeTask[];
 }
 
-export async function updateMyTaskStatus(taskId: string, status: string) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+// ── Trade worker: update own task status ────────────────────────────────────
 
-  // Verify this task belongs to this trade worker
+export async function updateMyTaskStatus(taskId: string, status: string): Promise<void> {
+  const session = await getTradesSession();
+  if (!session) throw new Error("Not signed in");
+
   const supabase = createServiceRoleClient();
-  const { data: trade } = await supabase
-    .from("trades")
-    .select("id")
-    .eq("clerk_user_id", userId)
+
+  // Verify this task belongs to this worker
+  const { data: task } = await supabase
+    .from("trade_tasks")
+    .select("trade_id")
+    .eq("id", taskId)
     .single();
 
-  if (!trade) throw new Error("Not a registered trade worker");
+  if (!task || task.trade_id !== session.tradeId) throw new Error("Task not found");
 
-  const { error } = await supabase
+  await supabase
     .from("trade_tasks")
     .update({
       status,
-      ...(status === "Completed" ? { completed_at: new Date().toISOString() } : { completed_at: null }),
+      ...(status === "Completed"
+        ? { completed_at: new Date().toISOString() }
+        : { completed_at: null }),
     })
-    .eq("id", taskId)
-    .eq("trade_id", trade.id);
+    .eq("id", taskId);
 
-  if (error) throw new Error(error.message);
   revalidatePath("/trades-portal/dashboard");
 }

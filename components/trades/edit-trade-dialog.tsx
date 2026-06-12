@@ -12,8 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { updateTrade, deleteTrade } from "@/app/actions/trades";
 import { TRADE_TYPES } from "./add-trade-dialog";
+import { SetCredentialsDialog } from "./set-credentials-dialog";
 
-export function EditTradeDialog({ trade }: { trade: any }) {
+export function EditTradeDialog({ trade }: { trade: any; username?: string | null }) {
   const [open, setOpen] = useState(false);
   const [tradeType, setTradeType] = useState(trade.trade_type);
   const [isPending, startTransition] = useTransition();
@@ -60,6 +61,11 @@ export function EditTradeDialog({ trade }: { trade: any }) {
           <DropdownMenuItem onClick={() => setOpen(true)}>
             <Pencil className="h-4 w-4 mr-2" /> Edit
           </DropdownMenuItem>
+          <SetCredentialsDialog
+            tradeId={trade.id}
+            tradeName={trade.name}
+            currentUsername={trade.username ?? null}
+          />
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">
             <Trash2 className="h-4 w-4 mr-2" /> Remove
