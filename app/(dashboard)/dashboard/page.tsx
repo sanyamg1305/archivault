@@ -39,10 +39,13 @@ export default async function DashboardPage() {
     .eq("organization_id", orgId ?? "")
     .order("created_at", { ascending: false });
 
-  // Fetch all materials for budget calculation
+  const projectIds = projects?.map(p => p.id) ?? [];
+
+  // Fetch all materials for budget calculation (scoped to org projects)
   const { data: allMaterials } = await supabase
     .from("materials")
-    .select("project_id, estimated_cost, status");
+    .select("project_id, estimated_cost, status")
+    .in("project_id", projectIds.length ? projectIds : ["_none_"]);
 
   // Calculate budget utilization per project
   const budgetUtilization = projects?.reduce((acc, project) => {
@@ -56,7 +59,7 @@ export default async function DashboardPage() {
     return acc;
   }, {} as Record<string, { spent: number, total: number }>) || {};
 
-  // Fetch Pending Materials
+  // Fetch Pending Materials (scoped to org projects)
   const { data: pendingMaterials } = await supabase
     .from("materials")
     .select(`
@@ -67,19 +70,21 @@ export default async function DashboardPage() {
       status, 
       projects(name)
     `)
+    .in("project_id", projectIds.length ? projectIds : ["_none_"])
     .in("status", ["Pending", "Revision Requested"])
     .order("created_at", { ascending: false })
     .limit(10);
 
-  // Fetch Pending Designs (joining through designs -> projects)
+  // Fetch Pending Designs (scoped to org projects via designs join)
   const { data: pendingDesigns } = await supabase
     .from("design_versions")
     .select(`
       id, 
       status, 
       version_number, 
-      designs(project_id, title, room_id, projects(name))
+      designs!inner(project_id, title, room_id, projects(name))
     `)
+    .in("designs.project_id", projectIds.length ? projectIds : ["_none_"])
     .in("status", ["Pending", "Revision Requested"])
     .order("created_at", { ascending: false })
     .limit(10);

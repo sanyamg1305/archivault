@@ -27,7 +27,6 @@ export function EditTradeDialog({ trade }: { trade: any }) {
           name: fd.get("name") as string,
           trade_type: tradeType,
           phone: fd.get("phone") as string,
-          email: fd.get("email") as string,
           notes: fd.get("notes") as string,
         });
         toast.success("Updated");
@@ -75,28 +74,22 @@ export function EditTradeDialog({ trade }: { trade: any }) {
             <DialogDescription>Update contact details or trade type.</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 pt-1">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2 col-span-2">
-                <Label htmlFor="edit-name">Full Name</Label>
-                <Input id="edit-name" name="name" required defaultValue={trade.name} />
-              </div>
-              <div className="space-y-2 col-span-2">
-                <Label>Trade Type</Label>
-                <Select value={tradeType} onValueChange={setTradeType}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {TRADE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-phone">Phone</Label>
-                <Input id="edit-phone" name="phone" defaultValue={trade.phone ?? ""} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-email">Email</Label>
-                <Input id="edit-email" name="email" type="email" defaultValue={trade.email ?? ""} />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Full Name</Label>
+              <Input id="edit-name" name="name" required defaultValue={trade.name} />
+            </div>
+            <div className="space-y-2">
+              <Label>Trade Type</Label>
+              <Select value={tradeType} onValueChange={setTradeType}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {TRADE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-phone">Mobile Number</Label>
+              <Input id="edit-phone" name="phone" type="tel" defaultValue={trade.phone ?? ""} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-notes">Notes</Label>

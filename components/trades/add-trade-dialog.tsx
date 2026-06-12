@@ -30,7 +30,6 @@ export function AddTradeDialog() {
           name: fd.get("name") as string,
           trade_type: tradeType,
           phone: fd.get("phone") as string,
-          email: fd.get("email") as string,
           notes: fd.get("notes") as string,
         });
         toast.success("Trade worker added");
@@ -53,28 +52,22 @@ export function AddTradeDialog() {
           <DialogDescription>Add a painter, plumber, electrician or other trade to your team.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-1">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2 col-span-2">
-              <Label htmlFor="name">Full Name <span className="text-destructive">*</span></Label>
-              <Input id="name" name="name" required placeholder="e.g. Ramesh Kumar" />
-            </div>
-            <div className="space-y-2 col-span-2">
-              <Label>Trade Type <span className="text-destructive">*</span></Label>
-              <Select value={tradeType} onValueChange={setTradeType} required>
-                <SelectTrigger><SelectValue placeholder="Select trade…" /></SelectTrigger>
-                <SelectContent>
-                  {TRADE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" name="phone" placeholder="+91 98765 43210" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="trade@email.com" />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="name">Full Name <span className="text-destructive">*</span></Label>
+            <Input id="name" name="name" required placeholder="e.g. Ramesh Kumar" />
+          </div>
+          <div className="space-y-2">
+            <Label>Trade Type <span className="text-destructive">*</span></Label>
+            <Select value={tradeType} onValueChange={setTradeType} required>
+              <SelectTrigger><SelectValue placeholder="Select trade…" /></SelectTrigger>
+              <SelectContent>
+                {TRADE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Mobile Number</Label>
+            <Input id="phone" name="phone" type="tel" placeholder="+91 98765 43210" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="notes">Notes</Label>
