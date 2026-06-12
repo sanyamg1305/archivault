@@ -6,20 +6,26 @@ const isArchitectRoute = createRouteMatcher([
     '/projects(.*)'
 ]);
 
-const isClientRoute = createRouteMatcher([
-    '/portal(.*)'
+const isTradesPortalRoute = createRouteMatcher([
+    '/trades-portal(.*)'
 ]);
 
 const isProtectedRoute = createRouteMatcher([
     '/dashboard(.*)',
     '/projects(.*)',
     '/portal(.*)',
+    '/trades-portal/dashboard(.*)',
     /^\/api(?!\/webhooks).*$/
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
     if (isProtectedRoute(req)) {
         await auth.protect();
+    }
+
+    // Trades portal: just needs auth, no org checks
+    if (isTradesPortalRoute(req)) {
+        return;
     }
 
     const authObject = await auth();
