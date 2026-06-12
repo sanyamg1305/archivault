@@ -1,11 +1,15 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Bell, CheckCheck, ExternalLink } from "lucide-react";
+import { useTransition } from "react";
+import { Bell, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { markAllRead, markOneRead } from "@/app/actions/notifications";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export function NotificationBell({
@@ -15,7 +19,6 @@ export function NotificationBell({
   notifications: any[];
   userId: string;
 }) {
-  const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -28,17 +31,17 @@ export function NotificationBell({
     });
   }
 
-  function handleClickNotif(n: any) {
+  function handleClick(n: any) {
     startTransition(async () => {
       await markOneRead(n.id);
       router.refresh();
     });
-    setOpen(false);
+    if (n.link) router.push(n.link);
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative h-8 w-8">
           <Bell className="h-4 w-4" />
           {unread.length > 0 && (
@@ -47,12 +50,17 @@ export function NotificationBell({
             </span>
           )}
         </Button>
-      </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0">
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <h4 className="font-semibold text-sm">Notifications</h4>
           {unread.length > 0 && (
-            <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={handleMarkAll} disabled={isPending}>
+            <Button
+              variant="ghost" size="sm"
+              className="h-7 text-xs gap-1"
+              onClick={handleMarkAll}
+              disabled={isPending}
+            >
               <CheckCheck className="h-3.5 w-3.5" /> Mark all read
             </Button>
           )}
@@ -67,7 +75,7 @@ export function NotificationBell({
               <div
                 key={n.id}
                 className={`px-4 py-3 hover:bg-muted/50 transition-colors cursor-pointer ${isUnread ? "bg-primary/5" : ""}`}
-                onClick={() => handleClickNotif(n)}
+                onClick={() => handleClick(n)}
               >
                 <div className="flex items-start gap-2">
                   {isUnread && <div className="mt-1.5 h-2 w-2 rounded-full bg-primary shrink-0" />}
@@ -75,16 +83,19 @@ export function NotificationBell({
                     <p className="text-sm font-medium leading-tight">{n.title}</p>
                     {n.body && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.body}</p>}
                     <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(n.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                      {new Date(n.created_at).toLocaleDateString("en-IN", {
+                        day: "numeric", month: "short",
+                        hour: "2-digit", minute: "2-digit",
+                      })}
                     </p>
                   </div>
-                  {n.link && <ExternalLink className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-1" />}
                 </div>
               </div>
             );
           })}
         </div>
-      </PopoverContent>
-    </Popover>
+        {notifications.length > 0 && <DropdownMenuSeparator />}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
