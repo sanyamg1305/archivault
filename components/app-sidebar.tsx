@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { LayoutDashboard, FolderKanban, Users, Settings, Building2, HardHat } from "lucide-react"
+import { LayoutDashboard, FolderKanban, Users, Settings, Building2, HardHat, Store } from "lucide-react"
 import { OrganizationSwitcher, UserButton } from "@clerk/nextjs"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
@@ -25,6 +25,7 @@ const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Projects", url: "/projects", icon: FolderKanban },
   { title: "Trades", url: "/trades", icon: HardHat },
+  { title: "Vendors", url: "/vendors", icon: Store },
   { title: "Team", url: "/team", icon: Users },
   { title: "Settings", url: "/settings", icon: Settings },
 ]

@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import { createNotification } from "./notifications";
 
 type EntityType = "material" | "design_version";
 
@@ -31,6 +32,12 @@ export async function approveItem(
     project_id: projectId,
     user_id: userId,
     action_description: `${actionPrefix}: ${itemName}`,
+  });
+
+  await createNotification(orgId, {
+    title: `Client approved: ${itemName}`,
+    body: entityType === "material" ? "Material approved" : "Design approved",
+    link: `/projects/${projectId}/${entityType === "material" ? "materials" : "designs"}`,
   });
 
   revalidatePath(`/portal/${projectId}`, "layout");
@@ -65,6 +72,12 @@ export async function requestRevisionItem(
     user_id: userId,
     action_description: `${actionPrefix}: ${itemName}`,
     metadata: { revision_reason: reason },
+  });
+
+  await createNotification(orgId, {
+    title: `Revision requested: ${itemName}`,
+    body: reason,
+    link: `/projects/${projectId}/${entityType === "material" ? "materials" : "designs"}`,
   });
 
   revalidatePath(`/portal/${projectId}`, "layout");

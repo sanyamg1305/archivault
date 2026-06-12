@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Home, CheckCircle, LayoutDashboard, Building2, Box, ArrowLeft, MessageCircle } from "lucide-react"
+import { Home, CheckCircle, LayoutDashboard, Building2, Box, ArrowLeft, MessageCircle, CalendarDays, ImageIcon } from "lucide-react"
 import { OrganizationSwitcher, UserButton, useOrganization } from "@clerk/nextjs"
 import { usePathname, useParams } from "next/navigation"
 import Link from "next/link"
@@ -39,6 +39,8 @@ export function ClientSidebar({ projects = [] }: { projects?: any[] }) {
   const navItems = [
     { title: "Dashboard", url: `/portal/${projectId}/dashboard`, icon: LayoutDashboard },
     { title: "Action Center", url: `/portal/${projectId}/action-center/design-approvals`, icon: CheckCircle },
+    { title: "Timeline", url: `/portal/${projectId}/timeline`, icon: CalendarDays },
+    { title: "Progress", url: `/portal/${projectId}/progress`, icon: ImageIcon },
     { title: "Rooms", url: `/portal/${projectId}/rooms`, icon: Box },
     { title: "Chat", url: `/portal/${projectId}/chat`, icon: MessageCircle },
   ]

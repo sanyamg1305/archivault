@@ -5,12 +5,16 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const tabs = [
-  { label: "Overview", segment: null }, // null = matches exactly /projects/[id]
-  { label: "Rooms", segment: "rooms" },
-  { label: "Materials", segment: "materials" },
-  { label: "Designs", segment: "designs" },
-  { label: "Tasks", segment: "tasks" },
-  { label: "Chat", segment: "chat" },
+  { label: "Overview",   segment: null },
+  { label: "Rooms",      segment: "rooms" },
+  { label: "Materials",  segment: "materials" },
+  { label: "Designs",    segment: "designs" },
+  { label: "Timeline",   segment: "timeline" },
+  { label: "Progress",   segment: "progress" },
+  { label: "Documents",  segment: "documents" },
+  { label: "BOQ",        segment: "boq" },
+  { label: "Tasks",      segment: "tasks" },
+  { label: "Chat",       segment: "chat" },
 ];
 
 export function ProjectNav({ projectId }: { projectId: string }) {
