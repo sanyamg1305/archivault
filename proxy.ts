@@ -3,7 +3,11 @@ import { NextResponse } from 'next/server';
 
 const isArchitectRoute = createRouteMatcher([
     '/dashboard(.*)',
-    '/projects(.*)'
+    '/projects(.*)',
+    '/trades(.*)',
+    '/vendors(.*)',
+    '/team(.*)',
+    '/settings(.*)',
 ]);
 
 const isTradesPortalRoute = createRouteMatcher([
@@ -13,6 +17,10 @@ const isTradesPortalRoute = createRouteMatcher([
 const isProtectedRoute = createRouteMatcher([
     '/dashboard(.*)',
     '/projects(.*)',
+    '/trades(.*)',
+    '/vendors(.*)',
+    '/team(.*)',
+    '/settings(.*)',
     '/portal(.*)',
     /^\/api(?!\/webhooks).*$/
 ]);
