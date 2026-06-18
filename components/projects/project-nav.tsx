@@ -13,10 +13,11 @@ const tabs = [
   { label: "Progress",   segment: "progress" },
   { label: "Documents",  segment: "documents" },
   { label: "BOQ",        segment: "boq" },
-  { label: "Tasks",      segment: "tasks" },
-  { label: "Mood Board", segment: "mood-board" },
-  { label: "Sign-off",   segment: "signoff" },
-  { label: "Chat",       segment: "chat" },
+  { label: "Tasks",        segment: "tasks" },
+  { label: "Site Visits",  segment: "site-visits" },
+  { label: "Mood Board",   segment: "mood-board" },
+  { label: "Sign-off",     segment: "signoff" },
+  { label: "Chat",         segment: "chat" },
 ];
 
 export function ProjectNav({ projectId }: { projectId: string }) {
