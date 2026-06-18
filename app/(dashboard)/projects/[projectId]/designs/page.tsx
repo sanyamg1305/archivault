@@ -2,22 +2,49 @@ import { auth } from "@clerk/nextjs/server";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { DesignCard } from "@/components/designs/design-card";
 import { UploadDesignDialog } from "@/components/designs/upload-design-dialog";
+import { FolderCard } from "@/components/designs/folders/folder-card";
+import { CreateFolderDialog } from "@/components/designs/folders/create-folder-dialog";
+import { MoveToFolderDropdown } from "@/components/designs/folders/move-to-folder-dropdown";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 
-export default async function DesignsPage({ params }: { params: Promise<{ projectId: string }> }) {
+export default async function DesignsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ projectId: string }>;
+  searchParams: Promise<{ folder?: string }>;
+}) {
   const { projectId } = await params;
-  await auth(); // ensure authenticated
+  const { folder: activeFolderId } = await searchParams;
+  await auth();
   const supabase = createServiceRoleClient();
 
-  const { data: rooms } = await supabase.from("rooms").select("*").eq("project_id", projectId);
+  const [{ data: rooms }, { data: folders }, { data: designs }] = await Promise.all([
+    supabase.from("rooms").select("*").eq("project_id", projectId),
+    supabase.from("design_folders").select("*").eq("project_id", projectId).order("name"),
+    supabase
+      .from("designs")
+      .select("*, rooms(name), design_versions(*)")
+      .eq("project_id", projectId)
+      .order("created_at", { ascending: false }),
+  ]);
 
-  const { data: designs } = await supabase
-    .from("designs")
-    .select("*, rooms(name), design_versions(*)")
-    .eq("project_id", projectId)
-    .order("created_at", { ascending: false });
+  const allDesigns = designs || [];
+  const allFolders = folders || [];
+
+  // Which designs are shown in this view
+  const visibleDesigns = activeFolderId
+    ? allDesigns.filter((d) => d.folder_id === activeFolderId)
+    : allDesigns.filter((d) => !d.folder_id);
+
+  const activeFolder = activeFolderId ? allFolders.find((f) => f.id === activeFolderId) : null;
+
+  const folderDesignCount = (folderId: string) =>
+    allDesigns.filter((d) => d.folder_id === folderId).length;
 
   const designsWithUrls = await Promise.all(
-    (designs || []).map(async (design) => {
+    visibleDesigns.map(async (design) => {
       const sortedVersions = [...(design.design_versions || [])].sort(
         (a: any, b: any) => b.version_number - a.version_number
       );
@@ -29,12 +56,14 @@ export default async function DesignsPage({ params }: { params: Promise<{ projec
           return { ...version, signedUrl: data?.signedUrl };
         })
       );
-      
       const latestVersionWithUrl = versionsWithUrls[0];
-      return { 
-        ...design, 
+      return {
+        ...design,
         design_versions: versionsWithUrls,
-        signedUrl: latestVersionWithUrl && !latestVersionWithUrl.file_path.endsWith('.pdf') ? latestVersionWithUrl.signedUrl : null
+        signedUrl:
+          latestVersionWithUrl && !latestVersionWithUrl.file_path.endsWith(".pdf")
+            ? latestVersionWithUrl.signedUrl
+            : null,
       };
     })
   );
@@ -42,19 +71,73 @@ export default async function DesignsPage({ params }: { params: Promise<{ projec
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Design Drawings & Renders</h2>
-        <UploadDesignDialog projectId={projectId} rooms={rooms || []} />
+        <div className="flex items-center gap-3">
+          {activeFolderId ? (
+            <>
+              <Link
+                href={`/projects/${projectId}/designs`}
+                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4" /> All Designs
+              </Link>
+              <span className="text-muted-foreground">/</span>
+              <h2 className="text-xl font-semibold">{activeFolder?.name ?? "Folder"}</h2>
+            </>
+          ) : (
+            <h2 className="text-xl font-semibold">Design Drawings & Renders</h2>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {!activeFolderId && <CreateFolderDialog projectId={projectId} />}
+          <UploadDesignDialog projectId={projectId} rooms={rooms || []} />
+        </div>
       </div>
+
+      {/* Folders grid — only on root level */}
+      {!activeFolderId && allFolders.length > 0 && (
+        <div>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Folders</p>
+          <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {allFolders.map((folder) => (
+              <FolderCard
+                key={folder.id}
+                folder={folder}
+                projectId={projectId}
+                designCount={folderDesignCount(folder.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Designs grid */}
+      {!activeFolderId && allFolders.length > 0 && designsWithUrls.length > 0 && (
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide -mb-3">Uncategorised</p>
+      )}
 
       {designsWithUrls.length === 0 ? (
         <div className="py-16 text-center border-2 border-dashed rounded-lg bg-slate-50/50">
-          <p className="font-medium text-muted-foreground">No designs uploaded for this project yet.</p>
-          <p className="text-sm text-muted-foreground mt-1">Upload a design to get started.</p>
+          <p className="font-medium text-muted-foreground">
+            {activeFolderId ? "No designs in this folder yet." : "No designs uploaded for this project yet."}
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {activeFolderId ? "Upload a design and move it here." : "Upload a design to get started."}
+          </p>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {designsWithUrls.map((design) => (
-            <DesignCard key={design.id} design={design} />
+            <div key={design.id} className="relative group/designwrap">
+              <DesignCard design={design} />
+              <div className="absolute top-2 left-2 opacity-0 group-hover/designwrap:opacity-100 transition-opacity z-10">
+                <MoveToFolderDropdown
+                  designId={design.id}
+                  projectId={projectId}
+                  folders={allFolders}
+                  currentFolderId={design.folder_id ?? null}
+                />
+              </div>
+            </div>
           ))}
         </div>
       )}
