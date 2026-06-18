@@ -16,13 +16,9 @@ export default async function ProjectChatPage({
   if (!userId || !orgId) return null;
 
   const supabase = createServiceRoleClient();
-  const { data: project } = await supabase
-    .from("projects")
-    .select("name, client_reference")
-    .eq("id", projectId)
-    .single();
-
-  const [internalMessages, externalMessages] = await Promise.all([
+  const [{ data: project }, { data: vendors }, internalMessages, externalMessages] = await Promise.all([
+    supabase.from("projects").select("name, client_reference").eq("id", projectId).single(),
+    supabase.from("vendors").select("id, name, category, phone, email").eq("organization_id", orgId).order("name"),
     getMessages(projectId, "internal"),
     getMessages(projectId, "external"),
   ]);
@@ -56,6 +52,7 @@ export default async function ProjectChatPage({
             projectId={projectId}
             channel="internal"
             initialMessages={internalMessages}
+            vendors={vendors ?? []}
           />
         </TabsContent>
 
@@ -64,6 +61,7 @@ export default async function ProjectChatPage({
             projectId={projectId}
             channel="external"
             initialMessages={externalMessages}
+            vendors={vendors ?? []}
           />
         </TabsContent>
       </Tabs>

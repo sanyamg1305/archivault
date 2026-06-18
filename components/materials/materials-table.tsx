@@ -25,6 +25,7 @@ import { updateMaterialStatus, deleteMaterial } from "@/app/actions/materials";
 import { EditMaterialDialog } from "./edit-material-dialog";
 import { MaterialImageUpload } from "./material-image-upload";
 import { toast } from "sonner";
+import { MATERIAL_CATEGORIES, getCategoryColor } from "@/lib/material-categories";
 
 const statusColors: Record<string, string> = {
   Pending: "bg-yellow-100 text-yellow-800",
@@ -45,6 +46,7 @@ export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
   const [viewFeedbackMaterial, setViewFeedbackMaterial] = useState<any>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [categoryFilter, setCategoryFilter] = useState("All");
 
   const filtered = materials.filter((m) => {
     const matchesSearch =
@@ -55,8 +57,9 @@ export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
       m.vendor?.toLowerCase().includes(search.toLowerCase());
 
     const matchesStatus = statusFilter === "All" || m.status === statusFilter;
+    const matchesCategory = categoryFilter === "All" || m.category === categoryFilter;
 
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesStatus && matchesCategory;
   });
 
   async function handleDelete(id: string, name: string) {
@@ -73,8 +76,8 @@ export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
   return (
     <>
       {/* Filters */}
-      <div className="flex gap-3 items-center">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-wrap gap-3 items-center">
+        <div className="relative flex-1 min-w-48">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search by name, brand, vendor..."
@@ -83,6 +86,17 @@ export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
             className="pl-9 h-9"
           />
         </div>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="w-44 h-9">
+            <SelectValue placeholder="All Categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="All">All Categories</SelectItem>
+            {MATERIAL_CATEGORIES.map(c => (
+              <SelectItem key={c.label} value={c.label}>{c.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-44 h-9">
             <SelectValue />
@@ -128,22 +142,29 @@ export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
                   </TableCell>
 
                   <TableCell className="font-medium">
-                    <div>{m.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {m.brand} • {m.category}
-                      {m.vendor && (
-                        <>
-                          {" • "}
-                          {m.vendor.startsWith("http://") || m.vendor.startsWith("https://") ? (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span>{m.name}</span>
+                      {m.category && (
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${getCategoryColor(m.category)}`}>
+                          {m.category}
+                        </span>
+                      )}
+                    </div>
+                    {(m.brand || m.vendor) && (
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {m.brand && <span>{m.brand}</span>}
+                        {m.brand && m.vendor && <span> • </span>}
+                        {m.vendor && (
+                          m.vendor.startsWith("http://") || m.vendor.startsWith("https://") ? (
                             <a href={m.vendor} target="_blank" rel="noopener noreferrer" className="text-primary underline-offset-2 hover:underline">
                               {new URL(m.vendor).hostname}
                             </a>
                           ) : (
                             <span>{m.vendor}</span>
-                          )}
-                        </>
-                      )}
-                    </div>
+                          )
+                        )}
+                      </div>
+                    )}
                   </TableCell>
 
                   <TableCell>{m.rooms?.name}</TableCell>

@@ -8,14 +8,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { updateMaterial } from "@/app/actions/materials";
 import { toast } from "sonner";
+import { MATERIAL_CATEGORIES } from "@/lib/material-categories";
 
-export function EditMaterialDialog({ material, projectId, open, setOpen }: { 
-  material: any; 
+export function EditMaterialDialog({ material, projectId, open, setOpen }: {
+  material: any;
   projectId: string;
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
   const [loading, setLoading] = useState(false);
+  const [category, setCategory] = useState(material.category ?? "");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -25,7 +27,7 @@ export function EditMaterialDialog({ material, projectId, open, setOpen }: {
     try {
       await updateMaterial(material.id, projectId, {
         name: formData.get("name") as string,
-        category: formData.get("category") as string,
+        category,
         brand: formData.get("brand") as string,
         vendor: formData.get("vendor") as string,
         estimated_cost: Number(formData.get("estimated_cost")),
@@ -55,7 +57,14 @@ export function EditMaterialDialog({ material, projectId, open, setOpen }: {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Category</Label>
-              <Input name="category" defaultValue={material.category} required />
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                <SelectContent>
+                  {MATERIAL_CATEGORIES.map(c => (
+                    <SelectItem key={c.label} value={c.label}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>Status</Label>

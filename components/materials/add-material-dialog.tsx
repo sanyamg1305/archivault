@@ -9,12 +9,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, ImagePlus } from "lucide-react";
 import { createMaterial, uploadMaterialImage } from "@/app/actions/materials";
 import { toast } from "sonner";
+import { MATERIAL_CATEGORIES } from "@/lib/material-categories";
 
 export function AddMaterialDialog({ projectId, rooms, defaultRoomId }: { projectId: string; rooms: any[]; defaultRoomId?: string }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [category, setCategory] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,7 +36,7 @@ export function AddMaterialDialog({ projectId, rooms, defaultRoomId }: { project
         projectId,
         roomId: formData.get("roomId") as string,
         name: formData.get("name") as string,
-        category: formData.get("category") as string,
+        category,
         brand: formData.get("brand") as string,
         vendor: formData.get("vendor") as string,
         estimated_cost: Number(formData.get("estimated_cost")),
@@ -51,6 +53,7 @@ export function AddMaterialDialog({ projectId, rooms, defaultRoomId }: { project
       setOpen(false);
       setImageFile(null);
       setImagePreview(null);
+      setCategory("");
       toast.success("Material Added");
     } catch (error: any) {
       toast.error("Error", { description: error.message });
@@ -60,7 +63,7 @@ export function AddMaterialDialog({ projectId, rooms, defaultRoomId }: { project
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setImageFile(null); setImagePreview(null); } }}>
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setImageFile(null); setImagePreview(null); setCategory(""); } }}>
       <DialogTrigger asChild>
         <Button className="gap-2"><Plus className="h-4 w-4" /> Add Material</Button>
       </DialogTrigger>
@@ -81,8 +84,15 @@ export function AddMaterialDialog({ projectId, rooms, defaultRoomId }: { project
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Category</Label>
-              <Input name="category" placeholder="e.g. Lighting" required />
+              <Label>Category <span className="text-destructive">*</span></Label>
+              <Select value={category} onValueChange={setCategory} required>
+                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                <SelectContent>
+                  {MATERIAL_CATEGORIES.map(c => (
+                    <SelectItem key={c.label} value={c.label}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div className="space-y-2">
