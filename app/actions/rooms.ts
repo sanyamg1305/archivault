@@ -10,6 +10,7 @@ export async function createRoom(projectId: string, data: {
   floor_area_sqft?: number | null;
   ceiling_height_ft?: number | null;
   notes?: string;
+  floor_id?: string | null;
 }) {
   const { userId, orgId } = await auth();
   if (!userId || !orgId) throw new Error("Unauthorized");
@@ -25,6 +26,7 @@ export async function createRoom(projectId: string, data: {
       floor_area_sqft: data.floor_area_sqft || null,
       ceiling_height_ft: data.ceiling_height_ft || null,
       notes: data.notes || null,
+      floor_id: data.floor_id || null,
     })
     .select()
     .single();
