@@ -23,7 +23,7 @@ export default async function LandingPage() {
       <header className="fixed top-0 z-50 w-full border-b border-zinc-200/50 bg-white/80 backdrop-blur-md dark:border-zinc-800/50 dark:bg-zinc-950/80">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
           <div className="flex items-center">
-            <Image src="/logo.png" alt="ArchiVault" width={130} height={44} className="object-contain" priority />
+            <Image src="/logo.png" alt="ArchiVault" width={180} height={60} className="object-contain" priority />
           </div>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-600 dark:text-zinc-400">
             <Link href="#how-it-works" className="hover:text-zinc-950 dark:hover:text-white transition-colors">How it Works</Link>
@@ -39,13 +39,13 @@ export default async function LandingPage() {
                   </button>
                 </SignInButton>
                 <SignUpButton mode="modal">
-                  <button className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 shadow-sm">
+                  <button className="rounded-full bg-[oklch(0.52_0.17_258)] px-4 py-2 text-sm font-medium text-white transition-all hover:bg-[oklch(0.46_0.17_258)] shadow-sm">
                     Get Started
                   </button>
                 </SignUpButton>
               </>
             ) : (
-                <Link href="/dashboard" className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 shadow-sm">
+                <Link href="/dashboard" className="rounded-full bg-[oklch(0.52_0.17_258)] px-4 py-2 text-sm font-medium text-white transition-all hover:bg-[oklch(0.46_0.17_258)] shadow-sm">
                   Go to Dashboard
                 </Link>
             )}
@@ -58,14 +58,14 @@ export default async function LandingPage() {
         <section className="relative mx-auto max-w-7xl px-6 text-center lg:px-8">
           <div className="mx-auto max-w-4xl">
             <h1 className="text-5xl font-semibold tracking-tighter sm:text-7xl lg:text-8xl text-balance">
-              The Operating System for <span className="text-zinc-500 dark:text-zinc-400 whitespace-nowrap">Architecture & Design</span>
+              The Operating System for <span className="text-[oklch(0.52_0.17_258)] dark:text-[oklch(0.62_0.17_258)] whitespace-nowrap">Architecture & Design</span>
             </h1>
             <p className="mx-auto mt-8 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400 sm:text-xl text-balance leading-relaxed">
               Move from scattered coordination to a single source of truth. Stop losing project decisions in WhatsApp, emails, and fragmented spreadsheets.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <SignUpButton mode="modal">
-                <button className="group flex h-12 items-center justify-center gap-2 rounded-full bg-zinc-950 px-8 text-base font-medium text-white transition-all hover:bg-zinc-800 hover:scale-105 active:scale-95 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 shadow-xl shadow-zinc-950/20 dark:shadow-white/10">
+                <button className="group flex h-12 items-center justify-center gap-2 rounded-full bg-[oklch(0.52_0.17_258)] px-8 text-base font-medium text-white transition-all hover:bg-[oklch(0.46_0.17_258)] hover:scale-105 active:scale-95 shadow-xl shadow-[oklch(0.52_0.17_258)]/30">
                   Start Your First Project
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </button>
@@ -212,11 +212,11 @@ export default async function LandingPage() {
                 </p>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3">
-                     <CheckCircle className="h-6 w-6 text-zinc-950 dark:text-white shrink-0" />
+                     <CheckCircle className="h-6 w-6 text-[oklch(0.52_0.17_258)] dark:text-[oklch(0.62_0.17_258)] shrink-0" />
                      <span className="text-zinc-700 dark:text-zinc-300">Contextual grouping of assets directly maps to spatial reality.</span>
                   </li>
                   <li className="flex items-start gap-3">
-                     <CheckCircle className="h-6 w-6 text-zinc-950 dark:text-white shrink-0" />
+                     <CheckCircle className="h-6 w-6 text-[oklch(0.52_0.17_258)] dark:text-[oklch(0.62_0.17_258)] shrink-0" />
                      <span className="text-zinc-700 dark:text-zinc-300">Instantly locate associated materials for any specific area.</span>
                   </li>
                 </ul>
@@ -234,11 +234,11 @@ export default async function LandingPage() {
                 </p>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3">
-                     <CheckCircle className="h-6 w-6 text-zinc-950 dark:text-white shrink-0" />
+                     <CheckCircle className="h-6 w-6 text-[oklch(0.52_0.17_258)] dark:text-[oklch(0.62_0.17_258)] shrink-0" />
                      <span className="text-zinc-700 dark:text-zinc-300">One-click transparent approvals with immutable audit logs.</span>
                   </li>
                   <li className="flex items-start gap-3">
-                     <CheckCircle className="h-6 w-6 text-zinc-950 dark:text-white shrink-0" />
+                     <CheckCircle className="h-6 w-6 text-[oklch(0.52_0.17_258)] dark:text-[oklch(0.62_0.17_258)] shrink-0" />
                      <span className="text-zinc-700 dark:text-zinc-300">Project an image of elite professionalism to high-net-worth clients.</span>
                   </li>
                 </ul>
@@ -269,22 +269,22 @@ export default async function LandingPage() {
                 <div className="relative w-full max-w-md p-8 rounded-[2rem] bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-xl overflow-hidden">
                    {/* Budget Bar UI */}
                    <h4 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-2">Total Project Budget</h4>
-                   <div className="text-4xl font-light mb-8">$450,000</div>
-                   
+                   <div className="text-4xl font-light mb-8">₹38,00,000</div>
+
                    <div className="space-y-3">
                       <div className="flex justify-between text-sm font-medium">
                          <span className="text-emerald-600 dark:text-emerald-400">Approved Spend</span>
-                         <span>$280,000</span>
+                         <span>₹23,50,000</span>
                       </div>
                       <div className="w-full h-4 bg-zinc-100 dark:bg-zinc-900 rounded-full overflow-hidden flex">
                          <div className="h-full bg-emerald-500 w-[62%]" />
                       </div>
                    </div>
-                   
+
                    <div className="mt-8 space-y-3">
                       <div className="flex justify-between text-sm font-medium">
                          <span className="text-amber-600 dark:text-amber-400">Pending Review</span>
-                         <span>$45,000</span>
+                         <span>₹3,80,000</span>
                       </div>
                       <div className="w-full h-4 bg-zinc-100 dark:bg-zinc-900 rounded-full overflow-hidden flex">
                          <div className="h-full bg-amber-500 w-[10%]" />
@@ -344,7 +344,7 @@ export default async function LandingPage() {
             </p>
             <div className="mt-10 flex justify-center">
               <SignUpButton mode="modal">
-                <button className="group flex h-14 items-center justify-center gap-2 rounded-full bg-zinc-950 px-10 text-lg font-medium text-white transition-all hover:bg-zinc-800 hover:scale-105 active:scale-95 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 shadow-xl shadow-zinc-950/20 dark:shadow-white/10">
+                <button className="group flex h-14 items-center justify-center gap-2 rounded-full bg-[oklch(0.52_0.17_258)] px-10 text-lg font-medium text-white transition-all hover:bg-[oklch(0.46_0.17_258)] hover:scale-105 active:scale-95 shadow-xl shadow-[oklch(0.52_0.17_258)]/30">
                   Start Building
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </button>
@@ -358,7 +358,7 @@ export default async function LandingPage() {
       <footer className="border-t border-zinc-200 dark:border-zinc-800 py-12 bg-white dark:bg-zinc-950">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center">
-            <Image src="/logo.png" alt="ArchiVault" width={110} height={36} className="object-contain" />
+            <Image src="/logo.png" alt="ArchiVault" width={150} height={50} className="object-contain" />
           </div>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             © {new Date().getFullYear()} Archivault. All rights reserved.
