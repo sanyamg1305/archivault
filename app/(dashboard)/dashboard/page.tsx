@@ -7,12 +7,11 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { AlertCircle, Clock, CheckCircle2, ChevronRight, FileImage, Layers, LayoutGrid } from "lucide-react";
+import { ChevronRight, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { RequiresAttention } from "@/components/dashboard/requires-attention";
 
 export const metadata = {
   title: "Dashboard — Action Center",
@@ -93,23 +92,19 @@ export default async function DashboardPage() {
   const actionItems = [
     ...(pendingMaterials || []).map((m: any) => ({
       id: m.id,
-      type: 'material',
+      type: 'material' as const,
       title: m.name,
       status: m.status,
       projectId: m.project_id,
       projectName: m.projects?.name || "Unknown Project",
-      roomId: m.room_id,
-      icon: <Layers className="w-4 h-4" />
     })),
     ...(pendingDesigns || []).map((d: any) => ({
       id: d.id,
-      type: 'design',
+      type: 'design' as const,
       title: `${d.designs?.title || "Design"} (v${d.version_number})`,
       status: d.status,
       projectId: d.designs?.project_id,
       projectName: d.designs?.projects?.name || "Unknown Project",
-      roomId: d.designs?.room_id,
-      icon: <FileImage className="w-4 h-4" />
     }))
   ].sort((a, b) => {
     // Put "Revision Requested" items at the top
@@ -137,67 +132,7 @@ export default async function DashboardPage() {
 
         {/* LEFT COLUMN: Action Items */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-amber-500" />
-              Requires Attention
-            </h2>
-            <Badge variant="secondary" className="px-3 py-1 font-medium bg-amber-500/10 text-amber-600 hover:bg-amber-500/20">
-              {actionItems.length} Pending
-            </Badge>
-          </div>
-
-          <Card className="border-muted bg-card shadow-sm overflow-hidden">
-            <div className="divide-y divide-border">
-              {actionItems.length > 0 ? (
-                actionItems.map((item, index) => (
-                  <Link
-                    key={`${item.type}-${item.id}`}
-                    href={`/projects/${item.projectId}/${item.type}s`}
-                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 hover:bg-muted/50 transition-colors group"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="p-2 rounded-md bg-secondary text-secondary-foreground mt-0.5">
-                        {item.icon}
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground group-hover:text-primary transition-colors flex items-center gap-2">
-                          {item.title}
-                          {item.status === 'Revision Requested' && (
-                            <span className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold text-destructive bg-destructive/10 px-2 py-0.5 rounded-sm">
-                              Revision
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1.5">
-                          <span className="font-medium text-foreground/70">{item.projectName}</span>
-                          <span className="w-1 h-1 rounded-full bg-border" />
-                          <span className="capitalize">{item.type}</span>
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-3 sm:mt-0 flex items-center gap-4">
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Clock className="w-4 h-4 mr-1.5 opacity-70" />
-                        {item.status === 'Revision Requested' ? 'Take action' : 'Waiting on Client'}
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity group-hover:translate-x-1 duration-200" />
-                    </div>
-                  </Link>
-                ))
-              ) : (
-                <div className="p-12 text-center flex flex-col items-center justify-center">
-                  <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center mb-4 text-green-600">
-                    <CheckCircle2 className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-lg font-medium">All caught up!</h3>
-                  <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-                    There are no pending materials or design revisions requiring your attention right now.
-                  </p>
-                </div>
-              )}
-            </div>
-          </Card>
+          <RequiresAttention actionItems={actionItems} />
 
           {/* Ongoing Projects Section */}
           <div className="pt-2 space-y-6">
