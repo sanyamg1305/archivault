@@ -11,12 +11,14 @@ export default async function MaterialsPage({ params }: { params: Promise<{ proj
   const { orgRole } = await auth();
   const supabase = createServiceRoleClient();
 
-  const { data: rooms } = await supabase.from("rooms").select("*").eq("project_id", projectId);
-  const { data: rawMaterials } = await supabase
-    .from("materials")
-    .select("*, rooms(name)")
-    .eq("project_id", projectId)
-    .order("created_at", { ascending: false });
+  const [{ data: rooms }, { data: rawMaterials }] = await Promise.all([
+    supabase.from("rooms").select("id, name").eq("project_id", projectId),
+    supabase
+      .from("materials")
+      .select("*, rooms(name)")
+      .eq("project_id", projectId)
+      .order("created_at", { ascending: false }),
+  ]);
 
   // Attach public image URLs
   const materials = (rawMaterials ?? []).map((m) => ({

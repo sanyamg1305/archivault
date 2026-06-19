@@ -13,13 +13,14 @@ export default async function ClientRoomMaterialsPage({
   const { orgRole } = await auth();
   const isAdminOrTeam = orgRole === "org:admin" || orgRole === "org:member";
 
-  const { data: rooms } = await supabase.from("rooms").select("id, name").eq("project_id", projectId);
-
-  const { data: rawMaterials } = await supabase
-    .from("materials")
-    .select(`*, rooms(name)`)
-    .eq("room_id", roomId)
-    .order("created_at", { ascending: false });
+  const [{ data: rooms }, { data: rawMaterials }] = await Promise.all([
+    supabase.from("rooms").select("id, name").eq("project_id", projectId),
+    supabase
+      .from("materials")
+      .select("*, rooms(name)")
+      .eq("room_id", roomId)
+      .order("created_at", { ascending: false }),
+  ]);
 
   const materials = (rawMaterials ?? []).map((m) => ({
     ...m,

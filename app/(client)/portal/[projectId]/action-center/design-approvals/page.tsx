@@ -19,44 +19,41 @@ export default async function DesignApprovalsPage({
 
   const supabase = createServiceRoleClient();
 
-  const { data: project } = await supabase
-    .from("projects")
-    .select("id")
-    .eq("id", projectId)
-    .single();
+  const [{ data: project }, { data: pendingDesigns }] = await Promise.all([
+    supabase.from("projects").select("id").eq("id", projectId).single(),
+    supabase
+      .from("design_versions")
+      .select(`
+        id,
+        file_path,
+        version_number,
+        change_notes,
+        design:designs!inner (
+          title,
+          room:rooms(name)
+        )
+      `)
+      .eq("status", "Pending")
+      .eq("designs.project_id", projectId)
+      .order("created_at", { ascending: false })
+      .limit(50),
+  ]);
 
   if (!project) redirect("/portal");
 
-  const { data: pendingDesigns, error } = await supabase
-    .from("design_versions")
-    .select(`
-      id, 
-      file_path, 
-      version_number, 
-      change_notes,
-      design:designs!inner (
-        title,
-        room:rooms(name)
-      )
-    `)
-    .eq("status", "Pending")
-    .eq("designs.project_id", projectId)
-    .order("created_at", { ascending: false });
-
   const designs = pendingDesigns || [];
-
-  const designsWithUrls = await Promise.all(
-    designs.map(async (version: any) => {
-      const { data } = await supabase.storage
-        .from("designs")
-        .createSignedUrl(version.file_path, 60 * 60 * 24);
-        
-      return {
-        ...version,
-        signedUrl: data?.signedUrl || null,
-      };
-    })
+  const filePaths = designs.map((v: any) => v.file_path).filter(Boolean);
+  const { data: signedUrlResults } = filePaths.length
+    ? await supabase.storage.from("designs").createSignedUrls(filePaths, 60 * 60 * 24)
+    : { data: [] };
+  const urlMap = Object.fromEntries(
+    (signedUrlResults ?? []).map((r: any) => [r.path, r.signedUrl])
   );
+
+  const designsWithUrls = designs.map((version: any) => ({
+    ...version,
+    signedUrl: urlMap[version.file_path] ?? null,
+  }));
 
   return (
     <div className="w-full">

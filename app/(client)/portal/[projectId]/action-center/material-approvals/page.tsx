@@ -19,20 +19,18 @@ export default async function MaterialApprovalsPage({
 
   const supabase = createServiceRoleClient();
 
-  const { data: project } = await supabase
-    .from("projects")
-    .select("id")
-    .eq("id", projectId)
-    .single();
+  const [{ data: project }, { data: materialsResult }] = await Promise.all([
+    supabase.from("projects").select("id").eq("id", projectId).single(),
+    supabase
+      .from("materials")
+      .select("id, name, brand, category, estimated_cost, image_path, room:rooms(name)")
+      .eq("project_id", projectId)
+      .eq("status", "Pending")
+      .order("created_at", { ascending: false })
+      .limit(50),
+  ]);
 
   if (!project) redirect("/portal");
-
-  const { data: materialsResult } = await supabase
-    .from("materials")
-    .select("id, name, brand, category, estimated_cost, image_path, room:rooms(name)")
-    .eq("project_id", projectId)
-    .eq("status", "Pending")
-    .order("created_at", { ascending: false });
 
   const pendingMaterials = (materialsResult ?? []).map((m: any) => ({
     ...m,

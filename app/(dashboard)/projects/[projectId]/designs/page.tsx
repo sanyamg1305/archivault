@@ -43,30 +43,35 @@ export default async function DesignsPage({
   const folderDesignCount = (folderId: string) =>
     allDesigns.filter((d) => d.folder_id === folderId).length;
 
-  const designsWithUrls = await Promise.all(
-    visibleDesigns.map(async (design) => {
-      const sortedVersions = [...(design.design_versions || [])].sort(
-        (a: any, b: any) => b.version_number - a.version_number
-      );
-      const versionsWithUrls = await Promise.all(
-        sortedVersions.map(async (version: any) => {
-          const { data } = await supabase.storage
-            .from("designs")
-            .createSignedUrl(version.file_path, 60 * 60 * 24);
-          return { ...version, signedUrl: data?.signedUrl };
-        })
-      );
-      const latestVersionWithUrl = versionsWithUrls[0];
-      return {
-        ...design,
-        design_versions: versionsWithUrls,
-        signedUrl:
-          latestVersionWithUrl && !latestVersionWithUrl.file_path.endsWith(".pdf")
-            ? latestVersionWithUrl.signedUrl
-            : null,
-      };
-    })
+  // Batch all signed URL requests into a single storage API call
+  const allPaths = visibleDesigns.flatMap((d) =>
+    (d.design_versions || []).map((v: any) => v.file_path).filter(Boolean)
   );
+  const { data: signedUrlResults } = allPaths.length
+    ? await supabase.storage.from("designs").createSignedUrls(allPaths, 60 * 60 * 24)
+    : { data: [] };
+  const urlMap = Object.fromEntries(
+    (signedUrlResults ?? []).map((r: any) => [r.path, r.signedUrl])
+  );
+
+  const designsWithUrls = visibleDesigns.map((design) => {
+    const sortedVersions = [...(design.design_versions || [])].sort(
+      (a: any, b: any) => b.version_number - a.version_number
+    );
+    const versionsWithUrls = sortedVersions.map((version: any) => ({
+      ...version,
+      signedUrl: urlMap[version.file_path] ?? null,
+    }));
+    const latestVersionWithUrl = versionsWithUrls[0];
+    return {
+      ...design,
+      design_versions: versionsWithUrls,
+      signedUrl:
+        latestVersionWithUrl && !latestVersionWithUrl.file_path?.endsWith(".pdf")
+          ? latestVersionWithUrl.signedUrl
+          : null,
+    };
+  });
 
   return (
     <div className="space-y-6">

@@ -46,17 +46,19 @@ export default async function DashboardPage() {
     .select("project_id, estimated_cost, status")
     .in("project_id", projectIds.length ? projectIds : ["_none_"]);
 
-  // Calculate budget utilization per project
+  // Group materials by project once (O(n)) then compute budget per project (O(n+m) total)
+  const materialsByProject = new Map<string, typeof allMaterials>();
+  for (const m of allMaterials ?? []) {
+    if (!materialsByProject.has(m.project_id)) materialsByProject.set(m.project_id, []);
+    materialsByProject.get(m.project_id)!.push(m);
+  }
   const budgetUtilization = projects?.reduce((acc, project) => {
-    const projectMaterials = allMaterials?.filter(m => m.project_id === project.id) || [];
-    // Include all non-rejected materials in committed costs
-    const spent = projectMaterials
-      .filter(m => m.status !== 'Rejected')
+    const spent = (materialsByProject.get(project.id) ?? [])
+      .filter(m => m.status !== "Rejected")
       .reduce((sum, m) => sum + (Number(m.estimated_cost) || 0), 0);
-
     acc[project.id] = { spent, total: Number(project.total_budget) || 0 };
     return acc;
-  }, {} as Record<string, { spent: number, total: number }>) || {};
+  }, {} as Record<string, { spent: number; total: number }>) || {};
 
   // Fetch Pending Materials (scoped to org projects)
   const { data: pendingMaterials } = await supabase

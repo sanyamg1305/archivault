@@ -15,27 +15,33 @@ export default async function ClientRoomDesignsPage({
     .eq("room_id", roomId)
     .order("created_at", { ascending: false });
 
-  const designsWithUrls = await Promise.all(
-    (designs || []).map(async (design) => {
-      const sortedVersions = [...(design.design_versions || [])].sort(
-        (a: any, b: any) => b.version_number - a.version_number
-      );
-      const versionsWithUrls = await Promise.all(
-        sortedVersions.map(async (version: any) => {
-          const { data } = await supabase.storage
-            .from("designs")
-            .createSignedUrl(version.file_path, 60 * 60 * 24);
-          return { ...version, signedUrl: data?.signedUrl };
-        })
-      );
-      const latestVersionWithUrl = versionsWithUrls[0];
-      return {
-        ...design,
-        design_versions: versionsWithUrls,
-        signedUrl: latestVersionWithUrl && !latestVersionWithUrl.file_path.endsWith(".pdf") ? latestVersionWithUrl.signedUrl : null,
-      };
-    })
+  const allPaths = (designs || []).flatMap((d) =>
+    (d.design_versions || []).map((v: any) => v.file_path).filter(Boolean)
   );
+  const { data: signedUrlResults } = allPaths.length
+    ? await supabase.storage.from("designs").createSignedUrls(allPaths, 60 * 60 * 24)
+    : { data: [] };
+  const urlMap = Object.fromEntries(
+    (signedUrlResults ?? []).map((r: any) => [r.path, r.signedUrl])
+  );
+
+  const designsWithUrls = (designs || []).map((design) => {
+    const sortedVersions = [...(design.design_versions || [])].sort(
+      (a: any, b: any) => b.version_number - a.version_number
+    );
+    const versionsWithUrls = sortedVersions.map((version: any) => ({
+      ...version,
+      signedUrl: urlMap[version.file_path] ?? null,
+    }));
+    const latestVersionWithUrl = versionsWithUrls[0];
+    return {
+      ...design,
+      design_versions: versionsWithUrls,
+      signedUrl: latestVersionWithUrl && !latestVersionWithUrl.file_path?.endsWith(".pdf")
+        ? latestVersionWithUrl.signedUrl
+        : null,
+    };
+  });
 
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
