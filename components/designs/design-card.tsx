@@ -11,16 +11,7 @@ import {
   DialogTitle,
   DialogDescription
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DialogFooter } from "@/components/ui/dialog";
 import { useState, useTransition } from "react";
 import Image from "next/image";
 
@@ -173,26 +164,22 @@ export function DesignCard({ design, approvalMode, projectId, isAdmin }: { desig
         />
       )}
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete design?</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete design?</DialogTitle>
+            <DialogDescription>
               This will permanently delete <span className="font-semibold text-foreground">"{design.title}"</span> and all its versions and files. This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={isPending}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
               {isPending ? "Deleting…" : "Delete permanently"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {viewFeedbackVersion && (
         <Dialog open={!!viewFeedbackVersion} onOpenChange={(open) => !open && setViewFeedbackVersion(null)}>
