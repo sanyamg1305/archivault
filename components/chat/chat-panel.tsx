@@ -13,6 +13,7 @@ import { ChatAttachMenu } from "@/components/chat/chat-attach-menu";
 import { cn } from "@/lib/utils";
 
 type Vendor = { id: string; name: string; category: string; phone?: string; email?: string };
+type Member = { id: string; name: string };
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
@@ -108,19 +109,28 @@ export function ChatPanel({
   initialMessages,
   vendors,
   isAdmin,
+  members,
 }: {
   projectId: string;
   channel: "internal" | "external";
   initialMessages: Message[];
   vendors?: Vendor[];
   isAdmin?: boolean;
+  members?: Member[];
 }) {
   const { user } = useUser();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [mentionIndex, setMentionIndex] = useState(0);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const mentionMatches = mentionQuery !== null && members?.length
+    ? members.filter((m) => m.name.toLowerCase().includes(mentionQuery.toLowerCase())).slice(0, 5)
+    : [];
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -154,7 +164,38 @@ export function ChatPanel({
     });
   }
 
+  function handleInputChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const val = e.target.value;
+    setInput(val);
+    // Detect @mention trigger
+    const cursor = e.target.selectionStart ?? val.length;
+    const before = val.slice(0, cursor);
+    const match = before.match(/@(\w*)$/);
+    if (match) {
+      setMentionQuery(match[1]);
+      setMentionIndex(0);
+    } else {
+      setMentionQuery(null);
+    }
+  }
+
+  function insertMention(member: Member) {
+    const cursor = textareaRef.current?.selectionStart ?? input.length;
+    const before = input.slice(0, cursor);
+    const after = input.slice(cursor);
+    const replaced = before.replace(/@(\w*)$/, `@${member.name} `);
+    setInput(replaced + after);
+    setMentionQuery(null);
+    textareaRef.current?.focus();
+  }
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (mentionMatches.length > 0) {
+      if (e.key === "ArrowDown") { e.preventDefault(); setMentionIndex((i) => Math.min(i + 1, mentionMatches.length - 1)); return; }
+      if (e.key === "ArrowUp") { e.preventDefault(); setMentionIndex((i) => Math.max(i - 1, 0)); return; }
+      if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); insertMention(mentionMatches[mentionIndex]); return; }
+      if (e.key === "Escape") { setMentionQuery(null); return; }
+    }
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -259,7 +300,24 @@ export function ChatPanel({
       </div>
 
       {/* Input */}
-      <div className="border-t px-4 py-3 flex gap-2 items-end bg-background">
+      <div className="border-t px-4 py-3 flex gap-2 items-end bg-background relative">
+        {/* @mention dropdown */}
+        {mentionMatches.length > 0 && (
+          <div className="absolute bottom-full left-14 mb-1 w-48 rounded-lg border bg-popover shadow-md overflow-hidden z-50">
+            {mentionMatches.map((m, i) => (
+              <button
+                key={m.id}
+                className={cn(
+                  "w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors",
+                  i === mentionIndex && "bg-muted"
+                )}
+                onMouseDown={(e) => { e.preventDefault(); insertMention(m); }}
+              >
+                @{m.name}
+              </button>
+            ))}
+          </div>
+        )}
         <ChatAttachMenu
           projectId={projectId}
           channel={channel}
@@ -268,10 +326,11 @@ export function ChatPanel({
           onSent={refresh}
         />
         <Textarea
+          ref={textareaRef}
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          placeholder="Type a message… (Enter to send, Shift+Enter for new line)"
+          placeholder="Type a message… (Enter to send, @name to mention)"
           rows={1}
           className="resize-none min-h-[40px] max-h-[120px]"
         />

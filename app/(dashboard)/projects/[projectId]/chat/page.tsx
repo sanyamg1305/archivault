@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { Lock, Users } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,12 +17,21 @@ export default async function ProjectChatPage({
   const isAdmin = orgRole === "org:admin";
 
   const supabase = createServiceRoleClient();
-  const [{ data: project }, { data: vendors }, internalMessages, externalMessages] = await Promise.all([
+  const clerk = await clerkClient();
+
+  const [{ data: project }, { data: vendors }, internalMessages, externalMessages, membershipsResult] = await Promise.all([
     supabase.from("projects").select("name, client_reference").eq("id", projectId).single(),
     supabase.from("vendors").select("id, name, category, phone, email").eq("organization_id", orgId).order("name"),
     getMessages(projectId, "internal"),
     getMessages(projectId, "external"),
+    clerk.organizations.getOrganizationMembershipList({ organizationId: orgId, limit: 50 }),
   ]);
+
+  const members = (membershipsResult?.data ?? []).map((m: any) => ({
+    id: m.publicUserData?.userId ?? "",
+    name: [m.publicUserData?.firstName, m.publicUserData?.lastName].filter(Boolean).join(" ") ||
+      m.publicUserData?.identifier || "Member",
+  })).filter((m: any) => m.id);
 
   return (
     <div className="flex flex-col -m-8 h-[calc(100vh-10rem)]">
@@ -55,6 +64,7 @@ export default async function ProjectChatPage({
             initialMessages={internalMessages}
             vendors={vendors ?? []}
             isAdmin={isAdmin}
+            members={members}
           />
         </TabsContent>
 
@@ -65,6 +75,7 @@ export default async function ProjectChatPage({
             initialMessages={externalMessages}
             vendors={vendors ?? []}
             isAdmin={isAdmin}
+            members={members}
           />
         </TabsContent>
       </Tabs>

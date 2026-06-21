@@ -40,11 +40,25 @@ export default async function DashboardPage() {
 
   const projectIds = projects?.map(p => p.id) ?? [];
 
-  // Fetch all materials for budget calculation (scoped to org projects)
-  const { data: allMaterials } = await supabase
-    .from("materials")
-    .select("project_id, estimated_cost, status")
-    .in("project_id", projectIds.length ? projectIds : ["_none_"]);
+  const [{ data: allMaterials }, { data: allMilestones }] = await Promise.all([
+    supabase
+      .from("materials")
+      .select("project_id, estimated_cost, status")
+      .in("project_id", projectIds.length ? projectIds : ["_none_"]),
+    supabase
+      .from("project_milestones")
+      .select("project_id, completed_at")
+      .in("project_id", projectIds.length ? projectIds : ["_none_"]),
+  ]);
+
+  // Group milestones by project for O(1) lookup
+  const milestonesByProject = new Map<string, { total: number; completed: number }>();
+  for (const m of allMilestones ?? []) {
+    const cur = milestonesByProject.get(m.project_id) ?? { total: 0, completed: 0 };
+    cur.total++;
+    if (m.completed_at) cur.completed++;
+    milestonesByProject.set(m.project_id, cur);
+  }
 
   // Group materials by project once (O(n)) then compute budget per project (O(n+m) total)
   const materialsByProject = new Map<string, typeof allMaterials>();
@@ -157,8 +171,24 @@ export default async function DashboardPage() {
                         <CardTitle className="text-base">{project.name}</CardTitle>
                         <CardDescription className="text-xs">{project.client_reference}</CardDescription>
                       </CardHeader>
-                      <CardContent className="p-4 pt-0">
-                        <div className="flex items-center justify-between mt-2">
+                      <CardContent className="p-4 pt-0 space-y-3">
+                        {(() => {
+                          const ms = milestonesByProject.get(project.id);
+                          const pct = ms && ms.total > 0 ? Math.round((ms.completed / ms.total) * 100) : null;
+                          return pct !== null ? (
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-xs text-muted-foreground">
+                                <span>Progress</span>
+                                <span className="font-medium text-foreground">{pct}%</span>
+                              </div>
+                              <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+                                <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${pct}%` }} />
+                              </div>
+                              <p className="text-xs text-muted-foreground">{ms!.completed}/{ms!.total} milestones</p>
+                            </div>
+                          ) : null;
+                        })()}
+                        <div className="flex items-center justify-between">
                           <span className="text-xs font-medium text-muted-foreground group-hover:text-primary transition-colors flex items-center gap-1">
                             Open project <ChevronRight className="w-3 h-3" />
                           </span>

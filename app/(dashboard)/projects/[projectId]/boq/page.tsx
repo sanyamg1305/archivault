@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { PrintButton } from "@/app/(dashboard)/projects/[projectId]/export/print-button";
+import { ExportCSVButton } from "@/components/boq/export-csv-button";
 
 export default async function BOQPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
@@ -9,9 +10,10 @@ export default async function BOQPage({ params }: { params: Promise<{ projectId:
 
   const supabase = createServiceRoleClient();
 
-  const [{ data: project }, { data: rooms }] = await Promise.all([
+  const [{ data: project }, { data: rooms }, { data: allMaterials }] = await Promise.all([
     supabase.from("projects").select("*").eq("id", projectId).single(),
     supabase.from("rooms").select("*, materials(*, vendors(name))").eq("project_id", projectId).order("name"),
+    supabase.from("materials").select("name, category, brand, vendor, estimated_cost, status, rooms(name)").eq("project_id", projectId).order("category").order("name"),
   ]);
 
   const grandTotal = (rooms ?? []).reduce((sum: number, room: any) => {
@@ -31,7 +33,10 @@ export default async function BOQPage({ params }: { params: Promise<{ projectId:
             <h2 className="text-xl font-semibold">Bill of Quantities</h2>
             <p className="text-sm text-muted-foreground mt-0.5">Room-wise material cost breakdown</p>
           </div>
-          <PrintButton />
+          <div className="flex gap-2">
+            <ExportCSVButton projectName={project?.name ?? ""} materials={allMaterials ?? []} />
+            <PrintButton />
+          </div>
         </div>
 
         {/* Print header */}

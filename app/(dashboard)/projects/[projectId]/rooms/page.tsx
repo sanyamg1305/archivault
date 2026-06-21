@@ -2,7 +2,7 @@ import { createServiceRoleClient } from "@/utils/supabase/server";
 import { CreateFloorDialog } from "@/components/projects/create-floor-dialog";
 import { FloorSection } from "@/components/projects/floor-section";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { Box, Building2 } from "lucide-react";
+import { Box, Building2, IndianRupee } from "lucide-react";
 import Link from "next/link";
 
 export default async function RoomsPage({
@@ -13,18 +13,18 @@ export default async function RoomsPage({
   const { projectId } = await params;
   const supabase = createServiceRoleClient();
 
-  const [{ data: floors }, { data: rooms }] = await Promise.all([
-    supabase
-      .from("floors")
-      .select("*")
-      .eq("project_id", projectId)
-      .order("sort_order", { ascending: true }),
-    supabase
-      .from("rooms")
-      .select("*")
-      .eq("project_id", projectId)
-      .order("created_at", { ascending: true }),
+  const [{ data: floors }, { data: rooms }, { data: materials }] = await Promise.all([
+    supabase.from("floors").select("*").eq("project_id", projectId).order("sort_order", { ascending: true }),
+    supabase.from("rooms").select("*").eq("project_id", projectId).order("created_at", { ascending: true }),
+    supabase.from("materials").select("room_id, estimated_cost, status").eq("project_id", projectId),
   ]);
+
+  // Approved spend per room
+  const spendByRoom = new Map<string, number>();
+  for (const m of materials ?? []) {
+    if (m.status !== "Approved" || !m.room_id) continue;
+    spendByRoom.set(m.room_id, (spendByRoom.get(m.room_id) ?? 0) + Number(m.estimated_cost ?? 0));
+  }
 
   const allFloors = floors ?? [];
   const allRooms = rooms ?? [];
@@ -32,6 +32,30 @@ export default async function RoomsPage({
 
   function roomsForFloor(floorId: string) {
     return allRooms.filter((r) => r.floor_id === floorId);
+  }
+
+  function RoomCard({ room }: { room: any }) {
+    const approved = spendByRoom.get(room.id) ?? 0;
+    return (
+      <Link href={`/projects/${projectId}/rooms/${room.id}`}>
+        <Card className="hover:border-primary transition-colors cursor-pointer">
+          <CardHeader className="flex flex-row items-center gap-3 p-4">
+            <Box className="h-4 w-4 text-muted-foreground shrink-0" />
+            <div className="min-w-0 flex-1">
+              <CardTitle className="text-sm truncate">{room.name}</CardTitle>
+              {room.room_type && (
+                <p className="text-xs text-muted-foreground truncate">{room.room_type}</p>
+              )}
+              {approved > 0 && (
+                <p className="text-xs text-green-600 font-medium mt-0.5">
+                  ₹{approved.toLocaleString("en-IN")} approved
+                </p>
+              )}
+            </div>
+          </CardHeader>
+        </Card>
+      </Link>
+    );
   }
 
   return (
@@ -72,21 +96,7 @@ export default async function RoomsPage({
               </div>
             ) : (
               <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-4">
-                {floorRooms.map((room) => (
-                  <Link key={room.id} href={`/projects/${projectId}/rooms/${room.id}`}>
-                    <Card className="hover:border-primary transition-colors cursor-pointer">
-                      <CardHeader className="flex flex-row items-center gap-3 p-4">
-                        <Box className="h-4 w-4 text-muted-foreground shrink-0" />
-                        <div className="min-w-0">
-                          <CardTitle className="text-sm truncate">{room.name}</CardTitle>
-                          {room.room_type && (
-                            <p className="text-xs text-muted-foreground truncate">{room.room_type}</p>
-                          )}
-                        </div>
-                      </CardHeader>
-                    </Card>
-                  </Link>
-                ))}
+                {floorRooms.map((room) => <RoomCard key={room.id} room={room} />)}
               </div>
             )}
           </FloorSection>
@@ -102,19 +112,7 @@ export default async function RoomsPage({
           </div>
           <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-4">
             {unassigned.map((room) => (
-              <Link key={room.id} href={`/projects/${projectId}/rooms/${room.id}`}>
-                <Card className="hover:border-primary transition-colors cursor-pointer">
-                  <CardHeader className="flex flex-row items-center gap-3 p-4">
-                    <Box className="h-4 w-4 text-muted-foreground shrink-0" />
-                    <div className="min-w-0">
-                      <CardTitle className="text-sm truncate">{room.name}</CardTitle>
-                      {room.room_type && (
-                        <p className="text-xs text-muted-foreground truncate">{room.room_type}</p>
-                      )}
-                    </div>
-                  </CardHeader>
-                </Card>
-              </Link>
+              <RoomCard key={room.id} room={room} />
             ))}
           </div>
         </div>
