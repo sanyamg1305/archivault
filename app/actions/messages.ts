@@ -125,6 +125,30 @@ export async function sendImageMessage(
   revalidatePath(`/portal/${projectId}/chat`);
 }
 
+export async function deleteMessage(messageId: string, projectId: string): Promise<void> {
+  const { userId, orgRole } = await auth();
+  if (!userId || orgRole !== "org:admin") throw new Error("Unauthorized");
+
+  const supabase = createServiceRoleClient();
+
+  // If it's an image message, delete the storage file too
+  const { data: msg } = await supabase
+    .from("project_messages")
+    .select("message_type, image_url")
+    .eq("id", messageId)
+    .single();
+
+  if (msg?.message_type === "image" && msg.image_url && !msg.image_url.startsWith("http")) {
+    await supabase.storage.from("chat-images").remove([msg.image_url]);
+  }
+
+  const { error } = await supabase.from("project_messages").delete().eq("id", messageId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/projects/${projectId}/chat`);
+  revalidatePath(`/portal/${projectId}/chat`);
+}
+
 export async function sendContactMessage(
   projectId: string,
   channel: "internal" | "external",

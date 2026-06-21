@@ -4,6 +4,28 @@ import { auth } from "@clerk/nextjs/server";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
+export async function deleteDesign(designId: string, projectId: string) {
+  const { userId, orgRole } = await auth();
+  if (!userId || orgRole !== "org:admin") throw new Error("Unauthorized");
+
+  const supabase = createServiceRoleClient();
+
+  // Delete all storage files for this design's versions
+  const { data: versions } = await supabase
+    .from("design_versions")
+    .select("file_path")
+    .eq("design_id", designId);
+
+  if (versions?.length) {
+    await supabase.storage.from("designs").remove(versions.map((v) => v.file_path));
+  }
+
+  const { error } = await supabase.from("designs").delete().eq("id", designId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/projects/${projectId}/designs`);
+}
+
 export async function uploadDesign(formData: FormData) {
   const { userId, orgId } = await auth();
   if (!userId || !orgId) throw new Error("Unauthorized");

@@ -2,13 +2,13 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Send, Phone, Mail, Building2, Store, User } from "lucide-react";
+import { Send, Phone, Mail, Store, User, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { getMessages, sendMessage, type Message, type ContactAttachment } from "@/app/actions/messages";
+import { getMessages, sendMessage, deleteMessage, type Message, type ContactAttachment } from "@/app/actions/messages";
 import { ChatAttachMenu } from "@/components/chat/chat-attach-menu";
 import { cn } from "@/lib/utils";
 
@@ -107,11 +107,13 @@ export function ChatPanel({
   channel,
   initialMessages,
   vendors,
+  isAdmin,
 }: {
   projectId: string;
   channel: "internal" | "external";
   initialMessages: Message[];
   vendors?: Vendor[];
+  isAdmin?: boolean;
 }) {
   const { user } = useUser();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -139,6 +141,17 @@ export function ChatPanel({
   async function refresh() {
     const fresh = await getMessages(projectId, channel);
     setMessages(fresh);
+  }
+
+  function handleDeleteMessage(messageId: string) {
+    startTransition(async () => {
+      try {
+        await deleteMessage(messageId, projectId);
+        setMessages((prev) => prev.filter((m) => m.id !== messageId));
+      } catch (err: any) {
+        toast.error(err.message || "Failed to delete message");
+      }
+    });
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -221,11 +234,22 @@ export function ChatPanel({
             {dayMsgs.map((msg) => {
               const isMe = msg.sender_id === user?.id;
               return (
-                <div key={msg.id} className={cn("flex flex-col gap-0.5", isMe ? "items-end" : "items-start")}>
+                <div key={msg.id} className={cn("flex flex-col gap-0.5 group/msg", isMe ? "items-end" : "items-start")}>
                   <span className="text-xs text-muted-foreground px-1">
                     {isMe ? "You" : msg.sender_name} · {formatTime(msg.created_at)}
                   </span>
-                  <MessageBubble msg={msg} isMe={isMe} />
+                  <div className={cn("flex items-end gap-1", isMe ? "flex-row-reverse" : "flex-row")}>
+                    <MessageBubble msg={msg} isMe={isMe} />
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleDeleteMessage(msg.id)}
+                        className="opacity-0 group-hover/msg:opacity-100 transition-opacity p-1 rounded text-muted-foreground hover:text-destructive shrink-0"
+                        title="Delete message"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               );
             })}

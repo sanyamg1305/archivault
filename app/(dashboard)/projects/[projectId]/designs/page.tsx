@@ -17,7 +17,8 @@ export default async function DesignsPage({
 }) {
   const { projectId } = await params;
   const { folder: activeFolderId } = await searchParams;
-  await auth();
+  const { orgRole } = await auth();
+  const isAdmin = orgRole === "org:admin";
   const supabase = createServiceRoleClient();
 
   const [{ data: rooms }, { data: folders }, { data: designs }] = await Promise.all([
@@ -133,7 +134,7 @@ export default async function DesignsPage({
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {designsWithUrls.map((design) => (
             <div key={design.id} className="relative group/designwrap">
-              <DesignCard design={design} />
+              <DesignCard design={design} projectId={projectId} isAdmin={isAdmin} />
               <div className="absolute top-2 left-2 opacity-0 group-hover/designwrap:opacity-100 transition-opacity z-10">
                 <MoveToFolderDropdown
                   designId={design.id}

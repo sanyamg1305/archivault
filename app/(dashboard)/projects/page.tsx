@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Search, FolderOpen, ArrowRight } from "lucide-react";
+import { DeleteProjectButton } from "@/components/projects/delete-project-button";
 
 export const metadata = {
   title: "Projects Directory — ArchiVault",
@@ -63,7 +64,13 @@ export default async function ProjectsDirectoryPage({ searchParams }: { searchPa
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredProjects.length > 0 ? (
           filteredProjects.map((project, i) => (
-            <Link key={project.id} href={`/projects/${project.id}`} className="group block focus:outline-none">
+            <div key={project.id} className="relative group/wrap">
+              {isAdmin && (
+                <div className="absolute top-2 right-2 z-10 opacity-0 group-hover/wrap:opacity-100 transition-opacity">
+                  <DeleteProjectButton projectId={project.id} projectName={project.name} />
+                </div>
+              )}
+            <Link href={`/projects/${project.id}`} className="group block focus:outline-none">
               <Card className="h-full border-muted bg-card/40 hover:bg-card/80 backdrop-blur-sm shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 overflow-hidden relative flex flex-col">
                 {/* Accent bar */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/40 to-primary opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -103,6 +110,7 @@ export default async function ProjectsDirectoryPage({ searchParams }: { searchPa
                 </CardContent>
               </Card>
             </Link>
+            </div>
           ))
         ) : (
           <div className="col-span-full py-24 text-center border-2 border-dashed rounded-xl border-muted bg-muted/10">

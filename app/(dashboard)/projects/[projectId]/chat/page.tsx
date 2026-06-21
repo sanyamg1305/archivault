@@ -12,8 +12,9 @@ export default async function ProjectChatPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const { userId, orgId } = await auth();
+  const { userId, orgId, orgRole } = await auth();
   if (!userId || !orgId) return null;
+  const isAdmin = orgRole === "org:admin";
 
   const supabase = createServiceRoleClient();
   const [{ data: project }, { data: vendors }, internalMessages, externalMessages] = await Promise.all([
@@ -53,6 +54,7 @@ export default async function ProjectChatPage({
             channel="internal"
             initialMessages={internalMessages}
             vendors={vendors ?? []}
+            isAdmin={isAdmin}
           />
         </TabsContent>
 
@@ -62,6 +64,7 @@ export default async function ProjectChatPage({
             channel="external"
             initialMessages={externalMessages}
             vendors={vendors ?? []}
+            isAdmin={isAdmin}
           />
         </TabsContent>
       </Tabs>

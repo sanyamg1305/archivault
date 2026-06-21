@@ -150,6 +150,51 @@ export async function updateProjectTimeline(projectId: string, data: {
   revalidatePath(`/projects/${projectId}`, "layout");
 }
 
+export async function deleteProject(projectId: string) {
+  const { userId, orgId, orgRole } = await auth();
+  if (!userId || !orgId || orgRole !== "org:admin") throw new Error("Unauthorized");
+
+  const supabase = createServiceRoleClient();
+
+  // Delete all storage files: designs, documents, site photos, materials images
+  const [{ data: designVersions }, { data: documents }, { data: sitePhotos }, { data: materials }] =
+    await Promise.all([
+      supabase
+        .from("design_versions")
+        .select("file_path, designs!inner(project_id)")
+        .eq("designs.project_id", projectId),
+      supabase.from("project_documents").select("file_path").eq("project_id", projectId),
+      supabase.from("site_photos").select("storage_path").eq("project_id", projectId),
+      supabase.from("materials").select("image_path").eq("project_id", projectId).not("image_path", "is", null),
+    ]);
+
+  await Promise.all([
+    designVersions?.length
+      ? supabase.storage.from("designs").remove(designVersions.map((v) => v.file_path))
+      : Promise.resolve(),
+    documents?.length
+      ? supabase.storage.from("project-documents").remove(documents.map((d) => d.file_path))
+      : Promise.resolve(),
+    sitePhotos?.length
+      ? supabase.storage.from("site-photos").remove(sitePhotos.map((p) => p.storage_path))
+      : Promise.resolve(),
+    materials?.length
+      ? supabase.storage.from("materials").remove(materials.map((m) => m.image_path!))
+      : Promise.resolve(),
+  ]);
+
+  // Delete the project — cascades to all child tables via FK
+  const { error } = await supabase
+    .from("projects")
+    .delete()
+    .eq("id", projectId)
+    .eq("organization_id", orgId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/projects");
+  revalidatePath("/dashboard");
+}
+
 export async function inviteClientToOrg(email: string) {
   const { userId, orgId } = await auth();
   if (!userId || !orgId) throw new Error("Missing User or Organization context.");

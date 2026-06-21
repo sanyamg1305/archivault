@@ -3,7 +3,7 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, History, Upload, Check, X } from "lucide-react";
+import { FileText, History, Upload, Check, X, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,16 @@ import {
   DialogTitle,
   DialogDescription
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useState, useTransition } from "react";
 import Image from "next/image";
 
@@ -18,12 +28,14 @@ import { UploadNewVersionDialog } from "@/components/designs/upload-new-version-
 import { DesignHistorySheet } from "@/components/designs/design-history-sheet";
 import { RevisionDialog } from "@/components/portal/action-center/revision-dialog";
 import { approveItem, requestRevisionItem } from "@/app/actions/approvals";
+import { deleteDesign } from "@/app/actions/designs";
 import { toast } from "sonner";
 
-export function DesignCard({ design, approvalMode, projectId }: { design: any; approvalMode?: boolean; projectId?: string }) {
+export function DesignCard({ design, approvalMode, projectId, isAdmin }: { design: any; approvalMode?: boolean; projectId?: string; isAdmin?: boolean }) {
   const latestVersion = design.design_versions[0]; // Assuming sorted by created_at desc
   const [viewFeedbackVersion, setViewFeedbackVersion] = useState<any>(null);
   const [revisionOpen, setRevisionOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const showApprovalButtons = approvalMode && projectId && latestVersion?.status === "Pending";
@@ -53,6 +65,19 @@ export function DesignCard({ design, approvalMode, projectId }: { design: any; a
     });
   };
 
+  function handleDelete() {
+    if (!projectId) return;
+    startTransition(async () => {
+      try {
+        await deleteDesign(design.id, projectId);
+        toast.success(`"${design.title}" deleted`);
+        setDeleteOpen(false);
+      } catch (err: any) {
+        toast.error(err.message || "Failed to delete design");
+      }
+    });
+  }
+
   return (
     <>
       <Card className="overflow-hidden">
@@ -76,8 +101,20 @@ export function DesignCard({ design, approvalMode, projectId }: { design: any; a
             <CardTitle className="text-base">{design.title}</CardTitle>
             <p className="text-xs text-muted-foreground">v{latestVersion.version_number} • {design.rooms?.name || 'General'}</p>
           </div>
-          <div className="flex flex-col items-end mt-1">
-            <Badge variant="outline">{latestVersion.status}</Badge>
+          <div className="flex flex-col items-end mt-1 gap-1">
+            <div className="flex items-center gap-1">
+              {isAdmin && !approvalMode && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              )}
+              <Badge variant="outline">{latestVersion.status}</Badge>
+            </div>
             {latestVersion.status === "Revision Requested" && latestVersion.revision_note && (
               <Button 
                 variant="ghost" 
@@ -135,6 +172,27 @@ export function DesignCard({ design, approvalMode, projectId }: { design: any; a
           isPending={isPending}
         />
       )}
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete design?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete <span className="font-semibold text-foreground">"{design.title}"</span> and all its versions and files. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isPending ? "Deleting…" : "Delete permanently"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {viewFeedbackVersion && (
         <Dialog open={!!viewFeedbackVersion} onOpenChange={(open) => !open && setViewFeedbackVersion(null)}>
