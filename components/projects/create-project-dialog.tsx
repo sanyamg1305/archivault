@@ -25,14 +25,33 @@ import { useOrganization } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+export const PROJECT_TYPES = [
+  { value: "Bungalow",      label: "🏡 Bungalow" },
+  { value: "Apartment",     label: "🏢 Apartment" },
+  { value: "Villa",         label: "🏘️ Villa" },
+  { value: "Penthouse",     label: "🌆 Penthouse" },
+  { value: "Commercial",    label: "🏬 Commercial" },
+  { value: "Office",        label: "💼 Office" },
+  { value: "Restaurant",    label: "🍽️ Restaurant" },
+  { value: "Retail",        label: "🛍️ Retail / Shop" },
+  { value: "Hotel",         label: "🏨 Hotel / Hospitality" },
+  { value: "Healthcare",    label: "🏥 Healthcare / Clinic" },
+  { value: "Industrial",    label: "🏭 Industrial / Warehouse" },
+  { value: "Institutional", label: "🏛️ Institutional" },
+  { value: "Landscape",     label: "🌿 Landscape / Outdoor" },
+  { value: "Renovation",    label: "🔨 Renovation / Remodel" },
+  { value: "Other",         label: "✏️ Other" },
+];
+
 export function CreateProjectDialog() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [projectType, setProjectType] = useState("");
+  const [customType, setCustomType] = useState("");
   const router = useRouter();
-  
-  const { memberships } = useOrganization({
-    memberships: true,
-  });
+
+  const { memberships } = useOrganization({ memberships: true });
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
@@ -41,8 +60,12 @@ export function CreateProjectDialog() {
     const clientId = formData.get("client_id") as string | undefined;
     const selectedMember = memberships?.data?.find(m => m.publicUserData?.userId === clientId);
     const clientRef = selectedMember?.publicUserData
-      ? `${selectedMember.publicUserData.firstName || ''} ${selectedMember.publicUserData.lastName || ''}`.trim() || selectedMember.publicUserData.identifier || "Unknown Client"
+      ? `${selectedMember.publicUserData.firstName || ''} ${selectedMember.publicUserData.lastName || ''}`.trim()
+        || selectedMember.publicUserData.identifier
+        || "Unknown Client"
       : "Unknown Client";
+
+    const finalType = projectType === "Other" ? customType.trim() || "Other" : projectType;
 
     try {
       const project = await createProject({
@@ -50,16 +73,16 @@ export function CreateProjectDialog() {
         client_reference: clientRef,
         total_budget: Number(formData.get("total_budget")),
         client_id: clientId,
+        project_type: finalType || undefined,
       });
 
       setOpen(false);
-      toast.success("Project Created", {
-        description: `${project.name} is ready.`,
-      });
+      setProjectType("");
+      setCustomType("");
+      toast.success("Project Created", { description: `${project.name} is ready.` });
       router.push(`/projects/${project.id}`);
     } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Something went wrong.";
+      const message = error instanceof Error ? error.message : "Something went wrong.";
       toast.error("Error", { description: message });
     } finally {
       setLoading(false);
@@ -93,6 +116,30 @@ export function CreateProjectDialog() {
           </div>
 
           <div className="space-y-1.5">
+            <Label>Project Type</Label>
+            <Select value={projectType} onValueChange={setProjectType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select project type..." />
+              </SelectTrigger>
+              <SelectContent>
+                {PROJECT_TYPES.map((t) => (
+                  <SelectItem key={t.value} value={t.value}>
+                    {t.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {projectType === "Other" && (
+              <Input
+                placeholder="Describe the project type…"
+                value={customType}
+                onChange={(e) => setCustomType(e.target.value)}
+                className="mt-2"
+              />
+            )}
+          </div>
+
+          <div className="space-y-1.5">
             <Label htmlFor="client_id">Assign Client (Optional)</Label>
             <Select name="client_id">
               <SelectTrigger>
@@ -100,21 +147,19 @@ export function CreateProjectDialog() {
               </SelectTrigger>
               <SelectContent>
                 {memberships?.data?.map((mem) => {
-                  if (mem.role === "org:admin") return null; // Optionally filter out architects
-                  
+                  if (mem.role === "org:admin") return null;
                   const userData = mem.publicUserData;
                   if (!userData) return null;
-
                   return (
                     <SelectItem key={userData.userId || mem.id} value={userData.userId || ""}>
-                      {userData.firstName || userData.identifier}{" "}
-                      {userData.lastName}
+                      {userData.firstName || userData.identifier} {userData.lastName}
                     </SelectItem>
                   );
                 })}
               </SelectContent>
             </Select>
           </div>
+
           <div className="space-y-1.5">
             <Label htmlFor="total_budget">Total Project Budget (₹)</Label>
             <Input
@@ -127,6 +172,7 @@ export function CreateProjectDialog() {
               required
             />
           </div>
+
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Creating…" : "Create Project"}
           </Button>

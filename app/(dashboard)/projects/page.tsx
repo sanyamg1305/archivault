@@ -137,6 +137,11 @@ export default async function ProjectsDirectoryPage({ searchParams }: { searchPa
                       <CardDescription className="line-clamp-1 mt-1 font-medium">
                         {project.client_reference || 'No client reference'}
                       </CardDescription>
+                      {project.project_type && (
+                        <span className="inline-block mt-1.5 text-[10px] font-medium px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">
+                          {project.project_type}
+                        </span>
+                      )}
                     </CardHeader>
                     <CardContent className="mt-auto pt-2">
                       <div className="space-y-4">
