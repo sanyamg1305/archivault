@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { LayoutDashboard, FolderKanban, Users, Settings, Building2, HardHat, Store } from "lucide-react"
+import { LayoutDashboard, FolderKanban, Users, Settings, Building2, HardHat, Store, LifeBuoy } from "lucide-react"
 import { OrganizationSwitcher, UserButton } from "@clerk/nextjs"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
@@ -79,8 +79,15 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-4 flex flex-row items-center gap-3 overflow-hidden">
-        {/* showName only when expanded — no space in icon mode */}
+      <SidebarFooter className="border-t p-4 flex flex-col gap-3 overflow-hidden">
+        <a
+          href="mailto:support@archivault.in"
+          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          title="support@archivault.in"
+        >
+          <LifeBuoy className="h-4 w-4 shrink-0" />
+          {!isCollapsed && <span>Support</span>}
+        </a>
         <UserButton showName={!isCollapsed} />
       </SidebarFooter>
     </Sidebar>

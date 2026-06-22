@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Home, CheckCircle, LayoutDashboard, Building2, Box, ArrowLeft, MessageCircle, CalendarDays, ImageIcon, Sparkles, FileCheck, ClipboardList } from "lucide-react"
+import { Home, CheckCircle, LayoutDashboard, Building2, Box, ArrowLeft, MessageCircle, CalendarDays, ImageIcon, Sparkles, FileCheck, ClipboardList, LifeBuoy } from "lucide-react"
 import { OrganizationSwitcher, UserButton, useOrganization } from "@clerk/nextjs"
 import { usePathname, useParams } from "next/navigation"
 import Link from "next/link"
@@ -125,6 +125,14 @@ export function ClientSidebar({ projects = [] }: { projects?: any[] }) {
             {!isCollapsed && <span>Back to Dashboard</span>}
           </Link>
         )}
+        <a
+          href="mailto:support@archivault.in"
+          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          title="support@archivault.in"
+        >
+          <LifeBuoy className="h-4 w-4 shrink-0" />
+          {!isCollapsed && <span>Support</span>}
+        </a>
         <UserButton showName={!isCollapsed} />
       </SidebarFooter>
     </Sidebar>

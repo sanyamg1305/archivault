@@ -366,6 +366,7 @@ export default async function LandingPage() {
           <div className="flex gap-6 text-sm font-medium text-zinc-600 dark:text-zinc-400">
             <a href="/privacy" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Privacy</a>
             <a href="/terms" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Terms</a>
+            <a href="mailto:support@archivault.in" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Support</a>
             <a href="#" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Twitter</a>
           </div>
         </div>
