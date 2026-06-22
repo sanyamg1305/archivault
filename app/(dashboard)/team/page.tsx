@@ -25,27 +25,25 @@ export default async function TeamPage() {
     imageUrl: m.publicUserData?.imageUrl,
   }));
 
-  const admins = members.filter((m) => m.role === "org:admin");
-  const clients = members.filter((m) => m.role !== "org:admin");
+  const teamMembers = members.filter((m) => m.role === "org:admin");
 
   return (
     <div className="p-6 space-y-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Team</h1>
-          <p className="text-muted-foreground mt-1">Everyone with access to your organization.</p>
+          <p className="text-muted-foreground mt-1">Architects and staff with access to your organization.</p>
         </div>
         <div className="flex items-center gap-3">
           <Badge variant="secondary" className="text-sm px-3 py-1">
             <Users className="w-4 h-4 mr-2" />
-            {members.length} {members.length === 1 ? "member" : "members"}
+            {teamMembers.length} {teamMembers.length === 1 ? "member" : "members"}
           </Badge>
           <InviteMemberDialog />
         </div>
       </div>
 
-      <MemberGroup title="Architects & Team" members={admins} />
-      <MemberGroup title="Clients" members={clients} emptyText="No clients added yet. Use 'Assign Client' on a project to invite them." />
+      <MemberGroup title="Architects & Team" members={teamMembers} emptyText="No team members yet." />
     </div>
   );
 }
