@@ -92,10 +92,34 @@ export default async function BOQPage({ params }: { params: Promise<{ projectId:
           );
         })}
 
-        {/* Grand total */}
-        <div className="border-t-2 pt-4 flex items-center justify-between">
-          <span className="font-bold text-lg">Grand Total</span>
-          <span className="font-bold text-xl">₹{grandTotal.toLocaleString("en-IN")}</span>
+        {/* Grand total + budget comparison */}
+        <div className="border-t-2 pt-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-lg">Grand Total</span>
+            <span className="font-bold text-xl">₹{grandTotal.toLocaleString("en-IN")}</span>
+          </div>
+          {project?.total_budget && (() => {
+            const budget = Number(project.total_budget);
+            const pct = budget > 0 ? (grandTotal / budget) * 100 : 0;
+            const over = grandTotal > budget;
+            const warn = pct >= 80 && !over;
+            return (
+              <div className={`rounded-lg p-3 text-sm flex items-center justify-between gap-4 ${
+                over ? "bg-red-50 border border-red-200 text-red-700" :
+                warn ? "bg-amber-50 border border-amber-200 text-amber-700" :
+                "bg-muted/50 border text-muted-foreground"
+              }`}>
+                <span>
+                  {over
+                    ? `⚠️ Over budget by ₹${(grandTotal - budget).toLocaleString("en-IN")}`
+                    : warn
+                    ? `⚡ ${pct.toFixed(0)}% of budget used — approaching limit`
+                    : `Budget: ₹${budget.toLocaleString("en-IN")} total`}
+                </span>
+                <span className="font-semibold shrink-0">{pct.toFixed(0)}% used</span>
+              </div>
+            );
+          })()}
         </div>
       </div>
     </>

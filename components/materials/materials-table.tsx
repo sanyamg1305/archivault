@@ -124,8 +124,18 @@ export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-10 text-muted-foreground text-sm">
-                  {search || statusFilter !== "All" ? "No materials match your filters." : "No materials yet."}
+                <TableCell colSpan={6} className="text-center py-16">
+                  <div className="text-4xl mb-3">📦</div>
+                  <p className="font-medium text-foreground text-sm">
+                    {search || statusFilter !== "All" || categoryFilter !== "All"
+                      ? "No materials match your filters"
+                      : "No materials added yet"}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {search || statusFilter !== "All" || categoryFilter !== "All"
+                      ? "Try clearing some filters to see all materials."
+                      : "Add materials to this project to track costs and get client approvals."}
+                  </p>
                 </TableCell>
               </TableRow>
             ) : (

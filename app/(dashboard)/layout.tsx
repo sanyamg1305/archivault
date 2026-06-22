@@ -9,6 +9,7 @@ import { getNotifications } from "@/app/actions/notifications"
 import Link from "next/link"
 import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { KeyboardShortcuts } from "@/components/keyboard-shortcuts"
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { orgId, userId } = await auth()
@@ -22,11 +23,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
+          <KeyboardShortcuts />
           <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
             <SidebarTrigger className="-ml-1" />
             <DynamicBreadcrumb />
             <div className="ml-auto flex items-center gap-1">
-              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8" title="Search (⌘K)" asChild>
                 <Link href="/search">
                   <Search className="h-4 w-4" />
                 </Link>

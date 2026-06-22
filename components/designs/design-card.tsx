@@ -90,7 +90,18 @@ export function DesignCard({ design, approvalMode, projectId, isAdmin }: { desig
         <div className="flex justify-between items-start">
           <div>
             <CardTitle className="text-base">{design.title}</CardTitle>
-            <p className="text-xs text-muted-foreground">v{latestVersion.version_number} • {design.rooms?.name || 'General'}</p>
+            <p className="text-xs text-muted-foreground">
+              v{latestVersion.version_number} • {design.rooms?.name || 'General'} •{' '}
+              {(() => {
+                const diff = Date.now() - new Date(latestVersion.created_at).getTime();
+                const days = Math.floor(diff / 86400000);
+                if (days === 0) return 'today';
+                if (days === 1) return 'yesterday';
+                if (days < 30) return `${days}d ago`;
+                if (days < 365) return `${Math.floor(days / 30)}mo ago`;
+                return `${Math.floor(days / 365)}y ago`;
+              })()}
+            </p>
           </div>
           <div className="flex flex-col items-end mt-1 gap-1">
             <div className="flex items-center gap-1">

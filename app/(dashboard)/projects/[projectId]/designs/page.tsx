@@ -122,13 +122,17 @@ export default async function DesignsPage({
       )}
 
       {designsWithUrls.length === 0 ? (
-        <div className="py-16 text-center border-2 border-dashed rounded-lg bg-slate-50/50">
-          <p className="font-medium text-muted-foreground">
-            {activeFolderId ? "No designs in this folder yet." : "No designs uploaded for this project yet."}
+        <div className="py-20 text-center border-2 border-dashed rounded-xl bg-muted/10">
+          <div className="text-5xl mb-4">🖼️</div>
+          <h3 className="font-semibold text-foreground">
+            {activeFolderId ? "This folder is empty" : "No designs yet"}
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1 mb-5 max-w-xs mx-auto">
+            {activeFolderId
+              ? "Upload a design and move it into this folder to get started."
+              : "Upload floor plans, renders, or any design files to share with your client."}
           </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {activeFolderId ? "Upload a design and move it here." : "Upload a design to get started."}
-          </p>
+          <UploadDesignDialog projectId={projectId} rooms={rooms || []} />
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

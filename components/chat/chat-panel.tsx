@@ -137,6 +137,14 @@ export function ChatPanel({
   }, [messages]);
 
   useEffect(() => {
+    function handleBeforeUnload(e: BeforeUnloadEvent) {
+      if (input.trim()) e.preventDefault();
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [input]);
+
+  useEffect(() => {
     intervalRef.current = setInterval(async () => {
       try {
         const fresh = await getMessages(projectId, channel);
