@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { updateVendor, deleteVendor, VENDOR_CATEGORIES } from "@/app/actions/vendors";
+import { updateVendor, deleteVendor } from "@/app/actions/vendors";
+import { VENDOR_CATEGORIES } from "@/lib/vendor-categories";
 
 export function EditVendorDialog({ vendor }: { vendor: any }) {
   const [open, setOpen] = useState(false);

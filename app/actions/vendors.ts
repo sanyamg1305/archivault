@@ -4,11 +4,6 @@ import { auth } from "@clerk/nextjs/server";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
-export const VENDOR_CATEGORIES = [
-  "Tiles", "Paint", "Electrical", "Plumbing", "Furniture",
-  "Hardware", "Glass", "Flooring", "Lighting", "HVAC", "Other",
-];
-
 export async function createVendor(data: {
   name: string; phone?: string; city?: string; category: string; notes?: string;
 }) {

@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { createVendor, VENDOR_CATEGORIES } from "@/app/actions/vendors";
+import { createVendor } from "@/app/actions/vendors";
+import { VENDOR_CATEGORIES } from "@/lib/vendor-categories";
 
 export function AddVendorDialog() {
   const [open, setOpen] = useState(false);
