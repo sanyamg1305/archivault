@@ -32,11 +32,17 @@ export default async function MaterialApprovalsPage({
 
   if (!project) redirect("/portal");
 
+  const imagePaths = (materialsResult ?? []).map((m: any) => m.image_path).filter(Boolean);
+  const { data: signedResults } = imagePaths.length
+    ? await supabase.storage.from("materials").createSignedUrls(imagePaths, 60 * 60 * 24)
+    : { data: [] };
+  const imageUrlMap = Object.fromEntries(
+    (signedResults ?? []).map((r: any) => [r.path, r.signedUrl])
+  );
+
   const pendingMaterials = (materialsResult ?? []).map((m: any) => ({
     ...m,
-    imageUrl: m.image_path
-      ? supabase.storage.from("materials").getPublicUrl(m.image_path).data.publicUrl
-      : null,
+    imageUrl: m.image_path ? (imageUrlMap[m.image_path] ?? null) : null,
   }));
 
   return (

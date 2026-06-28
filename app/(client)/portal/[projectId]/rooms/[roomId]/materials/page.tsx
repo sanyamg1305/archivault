@@ -22,11 +22,17 @@ export default async function ClientRoomMaterialsPage({
       .order("created_at", { ascending: false }),
   ]);
 
+  const imagePaths = (rawMaterials ?? []).map((m) => m.image_path).filter(Boolean);
+  const { data: signedResults } = imagePaths.length
+    ? await supabase.storage.from("materials").createSignedUrls(imagePaths, 60 * 60 * 24)
+    : { data: [] };
+  const imageUrlMap = Object.fromEntries(
+    (signedResults ?? []).map((r: any) => [r.path, r.signedUrl])
+  );
+
   const materials = (rawMaterials ?? []).map((m) => ({
     ...m,
-    imageUrl: m.image_path
-      ? supabase.storage.from("materials").getPublicUrl(m.image_path).data.publicUrl
-      : null,
+    imageUrl: m.image_path ? (imageUrlMap[m.image_path] ?? null) : null,
   }));
 
   return (
