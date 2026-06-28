@@ -43,6 +43,33 @@ export async function createRoom(projectId: string, data: {
   return room;
 }
 
+export async function updateRoom(projectId: string, roomId: string, data: {
+  name: string;
+  room_type?: string;
+  floor_area_sqft?: number | null;
+  ceiling_height_ft?: number | null;
+  notes?: string;
+}) {
+  const { userId, orgId } = await auth();
+  if (!userId || !orgId) throw new Error("Unauthorized");
+
+  const supabase = createServiceRoleClient();
+  const { error } = await supabase
+    .from("rooms")
+    .update({
+      name: data.name,
+      room_type: data.room_type || null,
+      floor_area_sqft: data.floor_area_sqft || null,
+      ceiling_height_ft: data.ceiling_height_ft || null,
+      notes: data.notes || null,
+    })
+    .eq("id", roomId)
+    .eq("project_id", projectId);
+
+  if (error) throw new Error(error.message);
+  revalidatePath(`/projects/${projectId}/rooms`);
+}
+
 export async function deleteRoom(projectId: string, roomId: string) {
   const { userId, orgId } = await auth();
   if (!userId || !orgId) throw new Error("Unauthorized");

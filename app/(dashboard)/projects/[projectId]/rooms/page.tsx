@@ -1,8 +1,9 @@
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { CreateFloorDialog } from "@/components/projects/create-floor-dialog";
 import { FloorSection } from "@/components/projects/floor-section";
+import { EditRoomDialog } from "@/components/projects/edit-room-dialog";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { Box, Building2, IndianRupee } from "lucide-react";
+import { Box, Building2 } from "lucide-react";
 import Link from "next/link";
 
 export default async function RoomsPage({
@@ -37,24 +38,27 @@ export default async function RoomsPage({
   function RoomCard({ room }: { room: any }) {
     const approved = spendByRoom.get(room.id) ?? 0;
     return (
-      <Link href={`/projects/${projectId}/rooms/${room.id}`}>
-        <Card className="hover:border-primary transition-colors cursor-pointer">
-          <CardHeader className="flex flex-row items-center gap-3 p-4">
-            <Box className="h-4 w-4 text-muted-foreground shrink-0" />
-            <div className="min-w-0 flex-1">
-              <CardTitle className="text-sm truncate">{room.name}</CardTitle>
-              {room.room_type && (
-                <p className="text-xs text-muted-foreground truncate">{room.room_type}</p>
-              )}
-              {approved > 0 && (
-                <p className="text-xs text-green-600 font-medium mt-0.5">
-                  ₹{approved.toLocaleString("en-IN")} approved
-                </p>
-              )}
-            </div>
-          </CardHeader>
-        </Card>
-      </Link>
+      <div className="relative group">
+        <EditRoomDialog room={room} projectId={projectId} />
+        <Link href={`/projects/${projectId}/rooms/${room.id}`}>
+          <Card className="hover:border-primary transition-colors cursor-pointer">
+            <CardHeader className="flex flex-row items-center gap-3 p-4">
+              <Box className="h-4 w-4 text-muted-foreground shrink-0" />
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-sm truncate">{room.name}</CardTitle>
+                {room.room_type && (
+                  <p className="text-xs text-muted-foreground truncate">{room.room_type}</p>
+                )}
+                {approved > 0 && (
+                  <p className="text-xs text-green-600 font-medium mt-0.5">
+                    ₹{approved.toLocaleString("en-IN")} approved
+                  </p>
+                )}
+              </div>
+            </CardHeader>
+          </Card>
+        </Link>
+      </div>
     );
   }
 
