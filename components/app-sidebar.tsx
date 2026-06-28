@@ -43,7 +43,7 @@ export function AppSidebar() {
           <Building2 className="h-5 w-5 shrink-0 text-primary" />
         ) : (
           <>
-            <Image src="/logo.png" alt="ArchiVault" width={120} height={40} className="object-contain" priority />
+            <Image src="/logo.png" alt="ArchiVault" width={180} height={60} className="object-contain" priority />
             <OrganizationSwitcher
               appearance={{
                 elements: {
