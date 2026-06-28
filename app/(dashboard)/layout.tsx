@@ -36,7 +36,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <NotificationBell notifications={notifications} userId={userId ?? ""} />
             </div>
           </header>
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 min-w-0 overflow-auto">
             {children}
           </main>
         </SidebarInset>
