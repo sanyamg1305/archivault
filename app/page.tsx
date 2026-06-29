@@ -2,16 +2,24 @@ import { SignInButton, SignUpButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import Image from "next/image";
-import { 
-  ArrowRight, 
-  MessageSquare, 
-  Wallet, 
+import {
+  ArrowRight,
+  MessageSquare,
+  Wallet,
   History,
   FolderTree,
   CheckCircle,
   LayoutDashboard,
   Layers,
-  TrendingDown
+  TrendingDown,
+  Clock,
+  AlertCircle,
+  CheckCircle2,
+  ChevronRight,
+  Home,
+  Bath,
+  UtensilsCrossed,
+  Sofa
 } from "lucide-react";
 
 export default async function LandingPage() {
@@ -130,8 +138,206 @@ export default async function LandingPage() {
           </div>
         </section>
 
+        {/* Product UI Showcase */}
+        <section className="mt-32 py-24 sm:py-32 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="mx-auto max-w-2xl text-center mb-16">
+              <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl text-balance">
+                Every decision, tracked and approved.
+              </h2>
+              <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-400">
+                Your full project — materials, rooms, approvals — in one place.
+              </p>
+            </div>
+
+            {/* Split-panel mockup */}
+            <div className="mx-auto max-w-6xl rounded-[2rem] border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 shadow-2xl overflow-hidden">
+              {/* Window chrome */}
+              <div className="flex items-center gap-2 px-5 py-3.5 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                <div className="h-3 w-3 rounded-full bg-red-400" />
+                <div className="h-3 w-3 rounded-full bg-amber-400" />
+                <div className="h-3 w-3 rounded-full bg-green-400" />
+                <div className="ml-4 h-5 w-56 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center px-3 gap-2">
+                  <div className="h-2 w-2 rounded-full bg-zinc-300 dark:bg-zinc-600" />
+                  <div className="h-2 w-32 rounded bg-zinc-200 dark:bg-zinc-700" />
+                </div>
+              </div>
+
+              <div className="flex h-[540px]">
+                {/* Left panel — list */}
+                <div className="w-80 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex flex-col">
+                  <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800">
+                    <div className="flex gap-2 mb-3">
+                      <button className="px-3 py-1.5 rounded-full bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 text-xs font-medium">Pending <span className="ml-1 bg-amber-500 text-white rounded-full px-1.5 py-0.5">5</span></button>
+                      <button className="px-3 py-1.5 rounded-full text-zinc-500 text-xs font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800">Approved 12</button>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-zinc-400">
+                      <span>Group by: Room</span>
+                      <ChevronRight className="h-3 w-3" />
+                    </div>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto">
+                    {/* Group: Kitchen */}
+                    <div className="px-4 pt-3 pb-1">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                        <UtensilsCrossed className="h-3 w-3" />
+                        Kitchen · 2
+                      </div>
+                    </div>
+                    {[
+                      { name: "Calacatta Marble Slab", sub: "Counter & Island", badge: "Action required", badgeColor: "text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400", dot: "bg-red-500", active: true },
+                      { name: "Matte Black Fixtures", sub: "Faucets & Handles", badge: "Pending review", badgeColor: "text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400", dot: "bg-amber-500", active: false },
+                    ].map((item) => (
+                      <div key={item.name} className={`mx-2 my-1 rounded-xl px-3 py-3 cursor-pointer transition-colors ${item.active ? "bg-zinc-100 dark:bg-zinc-800" : "hover:bg-zinc-50 dark:hover:bg-zinc-900"}`}>
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className={`h-2 w-2 rounded-full shrink-0 mt-1 ${item.dot}`} />
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">{item.name}</p>
+                              <p className="text-xs text-zinc-500 truncate">{item.sub}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-2 ml-4">
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${item.badgeColor}`}>{item.badge}</span>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Group: Master Suite */}
+                    <div className="px-4 pt-4 pb-1">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                        <Home className="h-3 w-3" />
+                        Master Suite · 2
+                      </div>
+                    </div>
+                    {[
+                      { name: "Engineered Oak Flooring", sub: "Bedroom & Dressing", badge: "Sent for approval", badgeColor: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400", dot: "bg-blue-500" },
+                      { name: "Linen Wallcovering", sub: "Feature Wall", badge: "Pending review", badgeColor: "text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400", dot: "bg-amber-500" },
+                    ].map((item) => (
+                      <div key={item.name} className="mx-2 my-1 rounded-xl px-3 py-3 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+                        <div className="flex items-center gap-2">
+                          <div className={`h-2 w-2 rounded-full shrink-0 ${item.dot}`} />
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">{item.name}</p>
+                            <p className="text-xs text-zinc-500 truncate">{item.sub}</p>
+                          </div>
+                        </div>
+                        <div className="mt-2 ml-4">
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${item.badgeColor}`}>{item.badge}</span>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Group: Bathrooms */}
+                    <div className="px-4 pt-4 pb-1">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                        <Bath className="h-3 w-3" />
+                        Bathrooms · 1
+                      </div>
+                    </div>
+                    <div className="mx-2 my-1 rounded-xl px-3 py-3 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full shrink-0 bg-green-500" />
+                        <div>
+                          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Travertine Floor Tile</p>
+                          <p className="text-xs text-zinc-500">Master Bath</p>
+                        </div>
+                      </div>
+                      <div className="mt-2 ml-4">
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400">Approved</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right panel — detail */}
+                <div className="flex-1 flex flex-col bg-zinc-50 dark:bg-zinc-950 overflow-hidden">
+                  {/* Detail header */}
+                  <div className="px-8 py-5 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 flex items-start justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> Action required
+                        </span>
+                      </div>
+                      <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Calacatta Marble Slab</h3>
+                      <p className="text-sm text-zinc-500 mt-0.5">Kitchen · Counter & Island · V2</p>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-zinc-400">
+                      <Clock className="h-3.5 w-3.5" />
+                      Added 2 days ago
+                    </div>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6">
+                    {/* Material preview + specs */}
+                    <div className="flex gap-6">
+                      <div className="w-32 h-32 rounded-xl bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-700 border border-zinc-200 dark:border-zinc-700 shrink-0 overflow-hidden flex items-end justify-end p-2">
+                        <span className="text-[10px] text-zinc-400 font-medium">Marble.jpg</span>
+                      </div>
+                      <div className="flex-1 space-y-3">
+                        <div>
+                          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Supplier</p>
+                          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Stone World India · Mumbai</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Unit Cost</p>
+                            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">₹4,200 / sq ft</p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Total</p>
+                            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">₹3,78,000</p>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Lead time</p>
+                          <p className="text-sm font-medium text-amber-600 dark:text-amber-400">6–8 weeks · Order by Aug 5</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Rationale */}
+                    <div className="rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5">
+                      <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Designer&apos;s Note</p>
+                      <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        Selected for its consistent vein pattern across slabs — critical for the waterfall edge on the island. Italian origin with 15mm thickness ensures durability for the high-traffic kitchen counter.
+                      </p>
+                    </div>
+
+                    {/* Budget impact */}
+                    <div className="rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/40 p-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-0.5">Budget Impact</p>
+                        <p className="text-sm text-zinc-700 dark:text-zinc-300">Approved spend will increase to <span className="font-semibold">₹27,28,000</span> of ₹38,00,000</p>
+                      </div>
+                      <div className="text-right shrink-0 ml-4">
+                        <p className="text-xs text-zinc-500">Remaining after approval</p>
+                        <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">₹10,72,000</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action bar */}
+                  <div className="px-8 py-4 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 flex items-center gap-3">
+                    <button className="flex-1 h-11 rounded-xl bg-[oklch(0.52_0.17_258)] text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-[oklch(0.52_0.17_258)]/30 hover:bg-[oklch(0.46_0.17_258)] transition-colors">
+                      <CheckCircle2 className="h-4 w-4" />
+                      Approve Material
+                    </button>
+                    <button className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm font-medium flex items-center justify-center gap-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
+                      Request Change
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* The Problem Section */}
-        <section id="how-it-works" className="mt-32 border-t border-zinc-200 dark:border-zinc-800 bg-white py-32 dark:bg-zinc-950">
+        <section id="how-it-works" className="mt-0 border-t border-zinc-200 dark:border-zinc-800 bg-white py-32 dark:bg-zinc-950">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl text-balance">
