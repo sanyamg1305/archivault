@@ -39,7 +39,7 @@ export default async function ClientRoomMaterialsPage({
     <div className="space-y-4 animate-in fade-in duration-300">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">Room Materials</h3>
-        <AddMaterialDialog projectId={projectId} rooms={rooms || []} defaultRoomId={roomId} />
+        {isAdminOrTeam && <AddMaterialDialog projectId={projectId} rooms={rooms || []} defaultRoomId={roomId} />}
       </div>
       <MaterialsTable
         materials={materials}

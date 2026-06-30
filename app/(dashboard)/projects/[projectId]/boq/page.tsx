@@ -12,7 +12,7 @@ export default async function BOQPage({ params }: { params: Promise<{ projectId:
 
   const [{ data: project }, { data: rooms }, { data: allMaterials }] = await Promise.all([
     supabase.from("projects").select("*").eq("id", projectId).single(),
-    supabase.from("rooms").select("*, materials(*, vendors(name))").eq("project_id", projectId).order("name"),
+    supabase.from("rooms").select("*, materials(*)").eq("project_id", projectId).order("name"),
     supabase.from("materials").select("name, category, brand, vendor, estimated_cost, status, rooms(name)").eq("project_id", projectId).order("category").order("name"),
   ]);
 
@@ -73,7 +73,7 @@ export default async function BOQPage({ params }: { params: Promise<{ projectId:
                   {materials.map((m: any) => (
                     <tr key={m.id} className="border-b hover:bg-muted/20">
                       <td className="px-3 py-2">{m.name}</td>
-                      <td className="px-3 py-2 text-muted-foreground">{m.vendors?.name ?? "—"}</td>
+                      <td className="px-3 py-2 text-muted-foreground">{m.vendor || "—"}</td>
                       <td className="px-3 py-2">
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                           m.status === "Approved" ? "bg-green-100 text-green-700" :

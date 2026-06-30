@@ -31,19 +31,24 @@ export async function markAllRead() {
   const { userId, orgId } = await auth();
   if (!userId || !orgId) return;
   const supabase = createServiceRoleClient();
-  // Fetch unread notifications for this org where user hasn't read
+
   const { data: unread } = await supabase
     .from("notifications")
     .select("id, read_by")
-    .eq("organization_id", orgId);
+    .eq("organization_id", orgId)
+    .not("read_by", "cs", `["${userId}"]`);
 
-  for (const n of unread ?? []) {
-    if (!(n.read_by ?? []).includes(userId)) {
-      await supabase.from("notifications")
+  if (!unread?.length) return;
+
+  await Promise.all(
+    unread.map((n) =>
+      supabase
+        .from("notifications")
         .update({ read_by: [...(n.read_by ?? []), userId] })
-        .eq("id", n.id);
-    }
-  }
+        .eq("id", n.id)
+    )
+  );
+
   revalidatePath("/dashboard");
 }
 

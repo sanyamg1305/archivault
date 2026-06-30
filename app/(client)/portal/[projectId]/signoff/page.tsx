@@ -45,7 +45,7 @@ export default async function ClientSignoffPage({ params }: { params: Promise<{ 
           </div>
         </div>
         <Button asChild variant="outline" className="gap-2">
-          <Link href={`/projects/${projectId}/signoff/preview`} target="_blank">
+          <Link href={`/print/${projectId}`} target="_blank">
             <FileCheck className="h-4 w-4" /> View Sign-off Document
           </Link>
         </Button>

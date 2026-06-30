@@ -23,7 +23,8 @@ import { deleteDesign } from "@/app/actions/designs";
 import { toast } from "sonner";
 
 export function DesignCard({ design, approvalMode, projectId, isAdmin }: { design: any; approvalMode?: boolean; projectId?: string; isAdmin?: boolean }) {
-  const latestVersion = design.design_versions[0]; // Assuming sorted by created_at desc
+  const latestVersion = design.design_versions?.[0];
+  if (!latestVersion) return null;
   const [viewFeedbackVersion, setViewFeedbackVersion] = useState<any>(null);
   const [revisionOpen, setRevisionOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
