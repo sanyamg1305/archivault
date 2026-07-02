@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
+import { assertProjectAccess } from "@/lib/project-access";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -27,12 +28,10 @@ export async function deleteDesign(designId: string, projectId: string) {
 }
 
 export async function uploadDesign(formData: FormData) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
-
   const supabase = createServiceRoleClient();
 
   const projectId = formData.get("projectId") as string;
+  const { userId, orgId } = await assertProjectAccess(projectId);
   let roomId = formData.get("roomId") as string | null;
   if (roomId === "none") roomId = null;
   const title = formData.get("title") as string;
@@ -75,11 +74,11 @@ export async function uploadDesign(formData: FormData) {
 }
 
 export async function uploadNewVersion(formData: FormData) {
-  const { userId, orgId } = await auth();
   const supabase = createServiceRoleClient();
 
   const designId = formData.get("designId") as string;
   const projectId = formData.get("projectId") as string;
+  const { userId, orgId } = await assertProjectAccess(projectId);
   const file = formData.get("file") as File;
   const changeNotes = formData.get("changeNotes") as string;
   const nextVersion = Number(formData.get("nextVersion"));

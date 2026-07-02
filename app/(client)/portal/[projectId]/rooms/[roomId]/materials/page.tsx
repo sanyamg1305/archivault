@@ -11,7 +11,7 @@ export default async function ClientRoomMaterialsPage({
   const { projectId, roomId } = await params;
   const supabase = createServiceRoleClient();
   const { orgRole } = await auth();
-  const isAdminOrTeam = orgRole === "org:admin" || orgRole === "org:member";
+  const isAdminOrTeam = orgRole === "org:admin";
 
   const [{ data: rooms }, { data: rawMaterials }] = await Promise.all([
     supabase.from("rooms").select("id, name").eq("project_id", projectId),

@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
+import { assertProjectAccess } from "@/lib/project-access";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -47,8 +48,9 @@ export async function updateTrade(
 }
 
 export async function deleteTrade(tradeId: string) {
-  const { userId, orgId } = await auth();
+  const { userId, orgId, orgRole } = await auth();
   if (!userId || !orgId) throw new Error("Unauthorized");
+  if (orgRole !== "org:admin") throw new Error("Unauthorized");
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase.from("trades").delete().eq("id", tradeId).eq("organization_id", orgId);
@@ -66,8 +68,7 @@ export async function createTradeTask(data: {
   description?: string;
   dueDate?: string | null;
 }) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(data.projectId);
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase.from("trade_tasks").insert({
@@ -90,8 +91,7 @@ export async function updateTradeTaskStatus(
   projectId: string,
   status: string
 ) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase
@@ -107,8 +107,7 @@ export async function updateTradeTaskStatus(
 }
 
 export async function deleteTradeTask(taskId: string, projectId: string) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase.from("trade_tasks").delete().eq("id", taskId).eq("organization_id", orgId);

@@ -1,12 +1,12 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
+import { assertAdmin } from "@/lib/project-access";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export async function requestSignoff(projectId: string, notes: string, requestedByName: string) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertAdmin();
 
   const supabase = createServiceRoleClient();
 

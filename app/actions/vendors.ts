@@ -33,8 +33,9 @@ export async function updateVendor(id: string, data: {
 }
 
 export async function deleteVendor(id: string) {
-  const { userId, orgId } = await auth();
+  const { userId, orgId, orgRole } = await auth();
   if (!userId || !orgId) throw new Error("Unauthorized");
+  if (orgRole !== "org:admin") throw new Error("Unauthorized");
   const supabase = createServiceRoleClient();
   await supabase.from("vendors").delete().eq("id", id).eq("organization_id", orgId);
   revalidatePath("/vendors");

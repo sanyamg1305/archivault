@@ -7,7 +7,7 @@ import { InviteMemberDialog } from "@/components/team/invite-member-dialog";
 export const metadata = { title: "Team — ArchiVault" };
 
 export default async function TeamPage() {
-  const { orgId } = await auth();
+  const { orgId, orgRole } = await auth();
   if (!orgId) return null;
 
   const clerk = await clerkClient();
@@ -25,7 +25,10 @@ export default async function TeamPage() {
     imageUrl: m.publicUserData?.imageUrl,
   }));
 
-  const teamMembers = members.filter((m) => m.role === "org:admin");
+  const admins = members.filter((m) => m.role === "org:admin");
+  const architects = members.filter((m) => m.role === "org:architect");
+  const total = admins.length + architects.length;
+  const isAdmin = orgRole === "org:admin";
 
   return (
     <div className="p-6 space-y-8">
@@ -37,18 +40,35 @@ export default async function TeamPage() {
         <div className="flex items-center gap-3">
           <Badge variant="secondary" className="text-sm px-3 py-1">
             <Users className="w-4 h-4 mr-2" />
-            {teamMembers.length} {teamMembers.length === 1 ? "member" : "members"}
+            {total} {total === 1 ? "member" : "members"}
           </Badge>
-          <InviteMemberDialog />
+          {isAdmin && <InviteMemberDialog />}
         </div>
       </div>
 
-      <MemberGroup title="Architects & Team" members={teamMembers} emptyText="No team members yet." />
+      <MemberGroup
+        title="Admins"
+        roleBadge="Admin"
+        roleColor="bg-primary/10 text-primary"
+        members={admins}
+        emptyText="No admins."
+      />
+      <MemberGroup
+        title="Team Members"
+        roleBadge="Team Member"
+        roleColor="bg-blue-100 text-blue-700"
+        members={architects}
+        emptyText="No team members yet. Invite an architect to collaborate on projects."
+      />
     </div>
   );
 }
 
-function MemberGroup({ title, members, emptyText }: { title: string; members: any[]; emptyText?: string }) {
+function MemberGroup({
+  title, roleBadge, roleColor, members, emptyText,
+}: {
+  title: string; roleBadge: string; roleColor: string; members: any[]; emptyText?: string;
+}) {
   return (
     <div className="space-y-3">
       <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">{title}</h2>
@@ -66,12 +86,15 @@ function MemberGroup({ title, members, emptyText }: { title: string; members: an
                     {(m.firstName?.[0] ?? m.email[0] ?? "?").toUpperCase()}
                   </div>
                 )}
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="font-medium truncate">
                     {m.firstName || m.lastName ? `${m.firstName} ${m.lastName}`.trim() : m.email}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">{m.email}</p>
                 </div>
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${roleColor}`}>
+                  {roleBadge}
+                </span>
               </CardContent>
             </Card>
           ))}

@@ -1,5 +1,5 @@
-import { auth } from "@clerk/nextjs/server";
 import { createServiceRoleClient } from "@/utils/supabase/server";
+import { getProjectAccess } from "@/lib/project-access";
 import { CheckCircle2, Circle, Clock, PauseCircle, CalendarDays } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AddTradeTaskDialog } from "@/components/trades/add-trade-task-dialog";
@@ -18,7 +18,9 @@ export default async function ProjectTasksPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const { orgId } = await auth();
+  const access = await getProjectAccess(projectId);
+  const canEdit = access?.canEdit ?? false;
+  const orgId = access?.orgId;
   if (!orgId) return null;
 
   const supabase = createServiceRoleClient();
@@ -59,7 +61,7 @@ export default async function ProjectTasksPage({
             {done}/{total} tasks completed
           </p>
         </div>
-        <AddTradeTaskDialog projectId={projectId} trades={trades ?? []} rooms={rooms ?? []} />
+        {canEdit && <AddTradeTaskDialog projectId={projectId} trades={trades ?? []} rooms={rooms ?? []} />}
       </div>
 
       {total === 0 && (

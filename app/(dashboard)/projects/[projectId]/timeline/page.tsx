@@ -1,12 +1,14 @@
-import { auth } from "@clerk/nextjs/server";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { AddMilestoneDialog } from "@/components/timeline/add-milestone-dialog";
 import { MilestoneItem } from "@/components/timeline/milestone-item";
 import { CalendarDays } from "lucide-react";
+import { getProjectAccess } from "@/lib/project-access";
 
 export default async function TimelinePage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
-  const { orgId } = await auth();
+  const access = await getProjectAccess(projectId);
+  const canEdit = access?.canEdit ?? false;
+  const orgId = access?.orgId;
   if (!orgId) return null;
 
   const supabase = createServiceRoleClient();
@@ -28,7 +30,7 @@ export default async function TimelinePage({ params }: { params: Promise<{ proje
           <h2 className="text-xl font-semibold">Project Timeline</h2>
           <p className="text-sm text-muted-foreground mt-0.5">{done}/{total} milestones completed</p>
         </div>
-        <AddMilestoneDialog projectId={projectId} nextOrder={total} />
+        {canEdit && <AddMilestoneDialog projectId={projectId} nextOrder={total} />}
       </div>
 
       {total === 0 && (

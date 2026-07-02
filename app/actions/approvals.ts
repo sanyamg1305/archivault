@@ -13,8 +13,9 @@ export async function approveItem(
   projectId: string,
   itemName: string
 ) {
-  const { userId, orgId } = await auth();
+  const { userId, orgId, orgRole } = await auth();
   if (!userId || !orgId) throw new Error("Unauthorized");
+  if (orgRole === "org:architect") throw new Error("Unauthorized");
 
   const supabase = createServiceRoleClient();
   const table = entityType === "material" ? "materials" : "design_versions";
@@ -52,8 +53,9 @@ export async function requestRevisionItem(
   itemName: string,
   reason: string
 ) {
-  const { userId, orgId } = await auth();
+  const { userId, orgId, orgRole } = await auth();
   if (!userId || !orgId) throw new Error("Unauthorized");
+  if (orgRole === "org:architect") throw new Error("Unauthorized");
 
   const supabase = createServiceRoleClient();
   const table = entityType === "material" ? "materials" : "design_versions";

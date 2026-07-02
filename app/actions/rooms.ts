@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { assertProjectAccess } from "@/lib/project-access";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -12,8 +12,7 @@ export async function createRoom(projectId: string, data: {
   notes?: string;
   floor_id?: string | null;
 }) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
 
@@ -50,8 +49,7 @@ export async function updateRoom(projectId: string, roomId: string, data: {
   ceiling_height_ft?: number | null;
   notes?: string;
 }) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase
@@ -71,8 +69,7 @@ export async function updateRoom(projectId: string, roomId: string, data: {
 }
 
 export async function deleteRoom(projectId: string, roomId: string) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
 

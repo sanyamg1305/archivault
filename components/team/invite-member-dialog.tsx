@@ -27,7 +27,7 @@ import { inviteTeamMember } from "@/app/actions/team";
 export function InviteMemberDialog() {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("org:admin");
+  const [role, setRole] = useState("org:architect");
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent) {
@@ -37,12 +37,13 @@ export function InviteMemberDialog() {
     startTransition(async () => {
       try {
         await inviteTeamMember(email.trim(), role);
+        const roleLabel = role === "org:admin" ? "Admin" : role === "org:architect" ? "Team Member" : "Client";
         toast.success("Invitation sent", {
-          description: `${email} has been invited as ${role === "org:admin" ? "Architect / Team Member" : "Client"}.`,
+          description: `${email} has been invited as ${roleLabel}.`,
         });
         setOpen(false);
         setEmail("");
-        setRole("org:admin");
+        setRole("org:architect");
       } catch (err) {
         toast.error("Failed to send invite", {
           description: err instanceof Error ? err.message : "Please try again.",
@@ -85,15 +86,16 @@ export function InviteMemberDialog() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="org:admin">
-                  Architect / Team Member
-                </SelectItem>
+                <SelectItem value="org:admin">Admin (Principle Architect)</SelectItem>
+                <SelectItem value="org:architect">Team Member (Architect)</SelectItem>
                 <SelectItem value="org:member">Client</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
               {role === "org:admin"
-                ? "Full access — can create projects, upload designs, manage materials."
+                ? "Full access — can create/delete projects, manage team, approve anything."
+                : role === "org:architect"
+                ? "Project-scoped — can edit projects they're assigned to. Cannot approve or delete projects."
                 : "Read-only portal access — can review and approve materials & designs."}
             </p>
           </div>

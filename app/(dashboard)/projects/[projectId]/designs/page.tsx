@@ -1,5 +1,5 @@
-import { auth } from "@clerk/nextjs/server";
 import { createServiceRoleClient } from "@/utils/supabase/server";
+import { getProjectAccess } from "@/lib/project-access";
 import { DesignCard } from "@/components/designs/design-card";
 import { UploadDesignDialog } from "@/components/designs/upload-design-dialog";
 import { FolderCard } from "@/components/designs/folders/folder-card";
@@ -17,8 +17,9 @@ export default async function DesignsPage({
 }) {
   const { projectId } = await params;
   const { folder: activeFolderId } = await searchParams;
-  const { orgRole } = await auth();
-  const isAdmin = orgRole === "org:admin";
+  const access = await getProjectAccess(projectId);
+  const isAdmin = access?.isAdmin ?? false;
+  const canEdit = access?.canEdit ?? false;
   const supabase = createServiceRoleClient();
 
   const [{ data: rooms }, { data: folders }, { data: designs }] = await Promise.all([
@@ -93,10 +94,12 @@ export default async function DesignsPage({
             <h2 className="text-xl font-semibold">Design Drawings & Renders</h2>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          {!activeFolderId && <CreateFolderDialog projectId={projectId} />}
-          <UploadDesignDialog projectId={projectId} rooms={rooms || []} />
-        </div>
+        {canEdit && (
+          <div className="flex items-center gap-2">
+            {!activeFolderId && <CreateFolderDialog projectId={projectId} />}
+            <UploadDesignDialog projectId={projectId} rooms={rooms || []} />
+          </div>
+        )}
       </div>
 
       {/* Folders grid — only on root level */}
@@ -132,7 +135,7 @@ export default async function DesignsPage({
               ? "Upload a design and move it into this folder to get started."
               : "Upload floor plans, renders, or any design files to share with your client."}
           </p>
-          <UploadDesignDialog projectId={projectId} rooms={rooms || []} />
+          {canEdit && <UploadDesignDialog projectId={projectId} rooms={rooms || []} />}
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

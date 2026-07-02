@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { assertProjectAccess } from "@/lib/project-access";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -15,11 +15,9 @@ const ALLOWED_TYPES = [
 ];
 
 export async function uploadDocument(formData: FormData) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
-
   const file = formData.get("file") as File;
   const projectId = formData.get("projectId") as string;
+  const { userId, orgId } = await assertProjectAccess(projectId);
   const name = (formData.get("name") as string) || file?.name;
   const category = (formData.get("category") as string) || "Other";
 
@@ -49,8 +47,7 @@ export async function uploadDocument(formData: FormData) {
 }
 
 export async function deleteDocument(id: string, filePath: string, projectId: string) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(projectId);
   const supabase = createServiceRoleClient();
   await supabase.storage.from("project-documents").remove([filePath]);
   await supabase.from("project_documents").delete().eq("id", id).eq("organization_id", orgId);

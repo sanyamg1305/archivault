@@ -1,5 +1,5 @@
 import { createServiceRoleClient } from "@/utils/supabase/server";
-import { auth } from "@clerk/nextjs/server";
+import { getProjectAccess } from "@/lib/project-access";
 import { AddMaterialDialog } from "@/components/materials/add-material-dialog";
 import { MaterialsTable } from "@/components/materials/materials-table";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,8 @@ import { Printer } from "lucide-react";
 
 export default async function MaterialsPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
-  const { orgRole } = await auth();
+  const access = await getProjectAccess(projectId);
+  const canEdit = access?.canEdit ?? false;
   const supabase = createServiceRoleClient();
 
   const [{ data: rooms }, { data: rawMaterials }] = await Promise.all([
@@ -33,8 +34,6 @@ export default async function MaterialsPage({ params }: { params: Promise<{ proj
     imageUrl: m.image_path ? (imageUrlMap[m.image_path] ?? null) : null,
   }));
 
-  const isAdminOrTeam = orgRole === "org:admin" || orgRole === "org:member";
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -46,13 +45,13 @@ export default async function MaterialsPage({ params }: { params: Promise<{ proj
               Export PDF
             </Link>
           </Button>
-          {isAdminOrTeam && <AddMaterialDialog projectId={projectId} rooms={rooms || []} />}
+          {canEdit && <AddMaterialDialog projectId={projectId} rooms={rooms || []} />}
         </div>
       </div>
-      <MaterialsTable 
-        materials={materials || []} 
-        projectId={projectId} 
-        isAdminOrTeam={isAdminOrTeam} 
+      <MaterialsTable
+        materials={materials || []}
+        projectId={projectId}
+        isAdminOrTeam={canEdit}
       />
     </div>
   );

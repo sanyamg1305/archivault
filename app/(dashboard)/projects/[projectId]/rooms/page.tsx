@@ -5,6 +5,7 @@ import { EditRoomDialog } from "@/components/projects/edit-room-dialog";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Box, Building2 } from "lucide-react";
 import Link from "next/link";
+import { getProjectAccess } from "@/lib/project-access";
 
 export default async function RoomsPage({
   params,
@@ -12,6 +13,8 @@ export default async function RoomsPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
+  const access = await getProjectAccess(projectId);
+  const canEdit = access?.canEdit ?? false;
   const supabase = createServiceRoleClient();
 
   const [{ data: floors }, { data: rooms }, { data: materials }] = await Promise.all([
@@ -39,7 +42,7 @@ export default async function RoomsPage({
     const approved = spendByRoom.get(room.id) ?? 0;
     return (
       <div className="relative group">
-        <EditRoomDialog room={room} projectId={projectId} />
+        {canEdit && <EditRoomDialog room={room} projectId={projectId} />}
         <Link href={`/projects/${projectId}/rooms/${room.id}`}>
           <Card className="hover:border-primary transition-colors cursor-pointer">
             <CardHeader className="flex flex-row items-center gap-3 p-4">
@@ -71,7 +74,7 @@ export default async function RoomsPage({
             Create floors first, then add rooms to each floor.
           </p>
         </div>
-        <CreateFloorDialog projectId={projectId} nextSortOrder={allFloors.length} />
+        {canEdit && <CreateFloorDialog projectId={projectId} nextSortOrder={allFloors.length} />}
       </div>
 
       {allFloors.length === 0 && unassigned.length === 0 && (
@@ -93,6 +96,7 @@ export default async function RoomsPage({
             floor={floor}
             projectId={projectId}
             roomCount={floorRooms.length}
+            canEdit={canEdit}
           >
             {floorRooms.length === 0 ? (
               <div className="py-8 text-center border-2 border-dashed rounded-lg text-sm text-muted-foreground">

@@ -22,7 +22,7 @@ export const metadata = {
 const STATUS_OPTIONS = ["All", "Active", "On Hold", "Completed"];
 
 export default async function ProjectsDirectoryPage({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
-  const { orgId, orgRole } = await auth();
+  const { orgId, orgRole, userId } = await auth();
   const supabase = createServiceRoleClient();
 
   const params = await searchParams;
@@ -30,6 +30,18 @@ export default async function ProjectsDirectoryPage({ searchParams }: { searchPa
   const statusFilter = typeof params.status === 'string' ? params.status : 'All';
 
   const isAdmin = orgRole === "org:admin";
+  const isArchitect = orgRole === "org:architect";
+
+  // For architects: fetch their assigned project IDs so we can show "View only" badges
+  let assignedProjectIds = new Set<string>();
+  if (isArchitect && userId) {
+    const { data: assignments } = await supabase
+      .from("project_members")
+      .select("project_id")
+      .eq("user_id", userId)
+      .eq("organization_id", orgId ?? "");
+    assignedProjectIds = new Set((assignments ?? []).map((a) => a.project_id));
+  }
 
   const [{ data: projects }, { data: milestones }] = await Promise.all([
     supabase.from("projects").select("*").eq("organization_id", orgId ?? "").order("created_at", { ascending: false }),
@@ -99,6 +111,7 @@ export default async function ProjectsDirectoryPage({ searchParams }: { searchPa
         {filteredProjects.length > 0 ? (
           filteredProjects.map((project) => {
             const isOverdue = overdueProjects.has(project.id);
+            const viewOnly = isArchitect && !assignedProjectIds.has(project.id);
             return (
               <div key={project.id} className="relative group/wrap">
                 {/* Action buttons on hover */}
@@ -117,6 +130,11 @@ export default async function ProjectsDirectoryPage({ searchParams }: { searchPa
                           <FolderOpen className="w-5 h-5" />
                         </div>
                         <div className="flex items-center gap-1.5">
+                          {viewOnly && (
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-sm bg-zinc-100 text-zinc-500 uppercase tracking-wider">
+                              View only
+                            </span>
+                          )}
                           {isOverdue && (
                             <span title="Has overdue milestones">
                               <AlertCircle className="h-3.5 w-3.5 text-destructive" />

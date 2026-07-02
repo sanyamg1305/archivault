@@ -12,7 +12,7 @@ export async function inviteTeamMember(email: string, role: string) {
   await clerk.organizations.createOrganizationInvitation({
     organizationId: orgId,
     emailAddress: email,
-    role: role as "org:admin" | "org:member",
+    role: role as "org:admin" | "org:architect" | "org:member",
     inviterUserId: userId,
   });
 

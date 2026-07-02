@@ -1,12 +1,13 @@
-import { auth } from "@clerk/nextjs/server";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { LogVisitDialog } from "@/components/site-visits/log-visit-dialog";
 import { VisitCard } from "@/components/site-visits/visit-card";
 import { ClipboardList } from "lucide-react";
+import { getProjectAccess } from "@/lib/project-access";
 
 export default async function SiteVisitsPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
-  await auth();
+  const access = await getProjectAccess(projectId);
+  const canEdit = access?.canEdit ?? false;
   const supabase = createServiceRoleClient();
 
   const { data: visits } = await supabase
@@ -26,7 +27,7 @@ export default async function SiteVisitsPage({ params }: { params: Promise<{ pro
             Structured records of every site visit — part of the project audit trail.
           </p>
         </div>
-        <LogVisitDialog projectId={projectId} />
+        {canEdit && <LogVisitDialog projectId={projectId} />}
       </div>
 
       {!visits || visits.length === 0 ? (
@@ -38,7 +39,7 @@ export default async function SiteVisitsPage({ params }: { params: Promise<{ pro
       ) : (
         <div className="space-y-3">
           {visits.map(v => (
-            <VisitCard key={v.id} visit={v} projectId={projectId} canEdit={true} />
+            <VisitCard key={v.id} visit={v} projectId={projectId} canEdit={canEdit} />
           ))}
         </div>
       )}

@@ -1,6 +1,7 @@
 "use server";
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import { assertProjectAccess } from "@/lib/project-access";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -11,9 +12,10 @@ export async function createProject(formData: {
   client_id?: string;
   project_type?: string;
 }) {
-  const { userId, orgId } = await auth();
+  const { userId, orgId, orgRole } = await auth();
 
   if (!userId || !orgId) throw new Error("Missing User or Organization context.");
+  if (orgRole !== "org:admin") throw new Error("Unauthorized");
 
   const supabase = createServiceRoleClient();
 
@@ -48,9 +50,7 @@ export async function createProject(formData: {
 }
 
 export async function updateProjectBudget(projectId: string, newBudget: number) {
-  const { userId, orgId } = await auth();
-
-  if (!userId || !orgId) throw new Error("Missing User or Organization context.");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
 
@@ -77,9 +77,7 @@ export async function updateProjectBudget(projectId: string, newBudget: number) 
 }
 
 export async function assignClientToProject(projectId: string, clientId: string, clientReference: string) {
-  const { userId, orgId } = await auth();
-
-  if (!userId || !orgId) throw new Error("Missing User or Organization context.");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
 
@@ -107,8 +105,7 @@ export async function assignClientToProject(projectId: string, clientId: string,
 }
 
 export async function updateProjectStatus(projectId: string, status: string) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Missing User or Organization context.");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
 
@@ -127,8 +124,7 @@ export async function updateProjectStatus(projectId: string, status: string) {
 }
 
 export async function updateProjectNotes(projectId: string, description: string) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Missing User or Organization context.");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase.from("projects").update({ description }).eq("id", projectId).eq("organization_id", orgId);
@@ -142,8 +138,7 @@ export async function updateProjectTimeline(projectId: string, data: {
   target_date: string | null;
   phase: string;
 }) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Missing User or Organization context.");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase.from("projects").update(data).eq("id", projectId).eq("organization_id", orgId);

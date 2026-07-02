@@ -28,11 +28,13 @@ export function FloorSection({
   projectId,
   children,
   roomCount,
+  canEdit = true,
 }: {
   floor: { id: string; name: string };
   projectId: string;
   children: React.ReactNode;
   roomCount: number;
+  canEdit?: boolean;
 }) {
   const [renameOpen, setRenameOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -75,8 +77,8 @@ export function FloorSection({
             </span>
           </div>
           <div className="flex items-center gap-1">
-            <AddRoomToFloorDialog projectId={projectId} floorId={floor.id} floorName={floor.name} />
-            <DropdownMenu>
+            {canEdit && <AddRoomToFloorDialog projectId={projectId} floorId={floor.id} floorName={floor.name} />}
+            {canEdit && <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-7 w-7">
                   <MoreHorizontal className="h-4 w-4" />
@@ -94,7 +96,7 @@ export function FloorSection({
                   <Trash2 className="h-4 w-4 mr-2" /> Delete Floor
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu>}
           </div>
         </div>
 

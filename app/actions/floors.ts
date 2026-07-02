@@ -1,12 +1,11 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { assertProjectAccess } from "@/lib/project-access";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export async function createFloor(projectId: string, name: string, sortOrder: number) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(projectId);
   if (!name.trim()) throw new Error("Floor name is required");
 
   const supabase = createServiceRoleClient();
@@ -21,8 +20,7 @@ export async function createFloor(projectId: string, name: string, sortOrder: nu
 }
 
 export async function renameFloor(floorId: string, projectId: string, name: string) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase
@@ -35,8 +33,7 @@ export async function renameFloor(floorId: string, projectId: string, name: stri
 }
 
 export async function deleteFloor(floorId: string, projectId: string) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
   // Unassign rooms on this floor first

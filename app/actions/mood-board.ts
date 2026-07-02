@@ -1,14 +1,12 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { assertProjectAccess } from "@/lib/project-access";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export async function addMoodBoardImage(formData: FormData) {
-  const { userId, orgId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
   const projectId = formData.get("projectId") as string;
+  const { userId, orgId } = await assertProjectAccess(projectId);
   const roomId = (formData.get("roomId") as string) || null;
   const title = (formData.get("title") as string) || null;
   const notes = (formData.get("notes") as string) || null;
@@ -30,7 +28,7 @@ export async function addMoodBoardImage(formData: FormData) {
 
   const { error } = await supabase.from("mood_board_items").insert({
     project_id: projectId,
-    organization_id: orgId ?? userId,
+    organization_id: orgId,
     room_id: roomId,
     type: "image",
     image_url: path,
@@ -53,15 +51,14 @@ export async function addMoodBoardLink(data: {
   notes?: string;
   addedByName: string;
 }) {
-  const { userId, orgId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(data.projectId);
 
   if (!data.linkUrl.startsWith("http")) throw new Error("Please enter a valid URL");
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase.from("mood_board_items").insert({
     project_id: data.projectId,
-    organization_id: orgId ?? userId,
+    organization_id: orgId,
     room_id: data.roomId || null,
     type: "link",
     link_url: data.linkUrl,
@@ -77,8 +74,7 @@ export async function addMoodBoardLink(data: {
 }
 
 export async function deleteMoodBoardItem(itemId: string, projectId: string, imagePath?: string) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const { userId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
 

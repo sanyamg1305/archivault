@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { assertProjectAccess } from "@/lib/project-access";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -12,8 +12,7 @@ export async function createSiteVisit(data: {
   attendees?: string[];
   createdByName: string;
 }) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(data.projectId);
 
   const supabase = createServiceRoleClient();
   const { data: visit, error } = await supabase
@@ -45,8 +44,7 @@ export async function createSiteVisit(data: {
 }
 
 export async function deleteSiteVisit(visitId: string, projectId: string) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
   await supabase.from("site_visits").delete().eq("id", visitId).eq("organization_id", orgId);
@@ -60,8 +58,7 @@ export async function updateSiteVisit(visitId: string, projectId: string, data: 
   observations?: string;
   attendees?: string[];
 }) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase

@@ -3,8 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IndianRupee, Package, CheckCircle, UserCircle, Home, Clock, FileText, CalendarDays } from "lucide-react";
 import { EditBudgetDialog } from "@/components/projects/edit-budget-dialog";
 import { AssignClientDialog } from "@/components/projects/assign-client-dialog";
+import { AssignTeamDialog } from "@/components/projects/assign-team-dialog";
 import { ProjectNotes } from "@/components/projects/project-notes";
 import { ProjectTimeline } from "@/components/projects/project-timeline";
+import { getProjectAccess } from "@/lib/project-access";
+import { getArchitectsWithAssignment } from "@/app/actions/project-members";
 
 export default async function ProjectOverview({
   params,
@@ -13,12 +16,17 @@ export default async function ProjectOverview({
 }) {
   const { projectId } = await params;
   const supabase = createServiceRoleClient();
+  const access = await getProjectAccess(projectId);
+  const isAdmin = access?.isAdmin ?? false;
+
+  const architectsPromise = isAdmin ? getArchitectsWithAssignment(projectId) : Promise.resolve([]);
 
   const [
     { data: project },
     { data: approvedMaterials },
     { data: rooms },
     { data: activityLogs },
+    architects,
   ] = await Promise.all([
     supabase.from("projects").select("total_budget, client_reference, description, start_date, target_date, phase").eq("id", projectId).single(),
     supabase.from("materials").select("estimated_cost").eq("project_id", projectId).eq("status", "Approved"),
@@ -29,6 +37,7 @@ export default async function ProjectOverview({
       .eq("project_id", projectId)
       .order("created_at", { ascending: false })
       .limit(15),
+    architectsPromise,
   ]);
 
   const approvedSpend = approvedMaterials?.reduce((sum, m) => sum + Number(m.estimated_cost), 0) ?? 0;
@@ -49,7 +58,12 @@ export default async function ProjectOverview({
           <h2 className="text-xl font-semibold">Overview</h2>
           <p className="text-sm text-muted-foreground mt-1">Financial health and project assignments.</p>
         </div>
-        <AssignClientDialog projectId={projectId} currentClientName={project?.client_reference} />
+        {isAdmin && (
+          <div className="flex items-center gap-2">
+            <AssignTeamDialog projectId={projectId} architects={architects} />
+            <AssignClientDialog projectId={projectId} currentClientName={project?.client_reference} />
+          </div>
+        )}
       </div>
 
       {/* Top metric cards */}

@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
+import { assertProjectAccess } from "@/lib/project-access";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -67,9 +68,7 @@ export async function sendMessage(
   content: string,
   senderName: string
 ): Promise<void> {
-  const { userId, orgId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-  if (channel === "internal" && !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase.from("project_messages").insert({
@@ -92,9 +91,7 @@ export async function sendImageMessage(
   formData: FormData,
   senderName: string
 ): Promise<void> {
-  const { userId, orgId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-  if (channel === "internal" && !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const file = formData.get("file") as File;
   if (!file || file.size === 0) throw new Error("No file provided");
@@ -155,9 +152,7 @@ export async function sendContactMessage(
   contact: ContactAttachment,
   senderName: string
 ): Promise<void> {
-  const { userId, orgId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-  if (channel === "internal" && !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase.from("project_messages").insert({
