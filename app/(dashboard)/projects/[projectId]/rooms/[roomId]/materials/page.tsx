@@ -30,7 +30,7 @@ export default async function RoomMaterialsPage({
       <MaterialsTable 
         materials={materials || []} 
         projectId={projectId} 
-        canEdit={canEdit} 
+        isAdminOrTeam={canEdit} 
       />
     </div>
   );
