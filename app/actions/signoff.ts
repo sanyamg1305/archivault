@@ -47,7 +47,6 @@ export async function submitSignoff(projectId: string, signedByName: string) {
     .single();
   if (project?.client_id !== userId) throw new Error("Unauthorized");
 
-  const supabase = createServiceRoleClient();
   const { error } = await supabase
     .from("project_signoffs")
     .update({
