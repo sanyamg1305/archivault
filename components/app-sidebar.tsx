@@ -5,7 +5,7 @@ import { LayoutDashboard, FolderKanban, Users, Settings, Building2, HardHat, Sto
 import { OrganizationSwitcher, UserButton } from "@clerk/nextjs"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import Image from "next/image"
+import { Logo, LogoIcon } from "@/components/logo"
 
 import {
   Sidebar,
@@ -40,10 +40,10 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="flex flex-col items-center border-b px-2 pt-4 pb-3 overflow-hidden gap-3">
         {isCollapsed ? (
-          <Building2 className="h-5 w-5 shrink-0 text-primary" />
+          <LogoIcon className="h-6 w-6" />
         ) : (
           <>
-            <Image src="/logo.png" alt="ArchiVault" width={180} height={60} className="object-contain" priority />
+            <Logo href="/dashboard" iconClassName="h-7 w-7" textClassName="text-xl font-bold" />
             <OrganizationSwitcher
               appearance={{
                 elements: {

@@ -50,6 +50,7 @@ export async function getArchitectsWithAssignment(projectId: string) {
     limit: 100,
   });
 
+  console.log("All memberships:", memberships.map(m => ({ email: m.publicUserData?.identifier, role: m.role })));
   const architects = memberships
     .filter((m) => m.role === "org:architect")
     .map((m) => ({

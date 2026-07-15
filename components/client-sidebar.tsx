@@ -6,6 +6,8 @@ import { OrganizationSwitcher, UserButton, useOrganization } from "@clerk/nextjs
 import { usePathname, useParams } from "next/navigation"
 import Link from "next/link"
 
+import { Logo, LogoIcon } from "@/components/logo"
+
 import {
   Sidebar,
   SidebarContent,
@@ -52,9 +54,10 @@ export function ClientSidebar({ projects = [] }: { projects?: any[] }) {
     <Sidebar collapsible="icon">
       <SidebarHeader className="min-h-16 py-3 flex items-center justify-center px-3 overflow-hidden">
         {isCollapsed ? (
-          <Building2 className="h-5 w-5 shrink-0 text-muted-foreground" />
+          <LogoIcon className="h-5 w-5" />
         ) : (
           <div className="w-full flex flex-col gap-2.5">
+            <Logo href={null} iconClassName="h-6 w-6" textClassName="text-base font-bold" />
             <OrganizationSwitcher
               hidePersonal
               appearance={{

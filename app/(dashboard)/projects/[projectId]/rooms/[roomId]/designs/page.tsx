@@ -1,5 +1,5 @@
-import { auth } from "@clerk/nextjs/server";
 import { createServiceRoleClient } from "@/utils/supabase/server";
+import { getProjectAccess } from "@/lib/project-access";
 import { DesignCard } from "@/components/designs/design-card";
 import { UploadDesignDialog } from "@/components/designs/upload-design-dialog";
 
@@ -9,8 +9,8 @@ export default async function RoomDesignsPage({
   params: Promise<{ projectId: string; roomId: string }>;
 }) {
   const { projectId, roomId } = await params;
-  const { orgRole } = await auth();
-  const isAdminOrTeam = orgRole === "org:admin" || orgRole === "org:member";
+  const access = await getProjectAccess(projectId);
+  const canEdit = access?.canEdit ?? false;
   const supabase = createServiceRoleClient();
 
   const { data: rooms } = await supabase.from("rooms").select("*").eq("project_id", projectId);
@@ -21,33 +21,37 @@ export default async function RoomDesignsPage({
     .eq("room_id", roomId)
     .order("created_at", { ascending: false });
 
-  const designsWithUrls = await Promise.all(
-    (designs || []).map(async (design) => {
-      const sortedVersions = [...(design.design_versions || [])].sort(
-        (a: any, b: any) => b.version_number - a.version_number
-      );
-      const versionsWithUrls = await Promise.all(
-        sortedVersions.map(async (version: any) => {
-          const { data } = await supabase.storage
-            .from("designs")
-            .createSignedUrl(version.file_path, 60 * 60 * 24);
-          return { ...version, signedUrl: data?.signedUrl };
-        })
-      );
-      const latestVersionWithUrl = versionsWithUrls[0];
-      return {
-        ...design,
-        design_versions: versionsWithUrls,
-        signedUrl: latestVersionWithUrl && !latestVersionWithUrl.file_path.endsWith(".pdf") ? latestVersionWithUrl.signedUrl : null,
-      };
-    })
+  const allPaths = (designs || []).flatMap((d) =>
+    (d.design_versions || []).map((v: any) => v.file_path).filter(Boolean)
   );
+  const { data: signedUrlResults } = allPaths.length
+    ? await supabase.storage.from("designs").createSignedUrls(allPaths, 60 * 60 * 24)
+    : { data: [] };
+  const urlMap = Object.fromEntries(
+    (signedUrlResults ?? []).map((r: any) => [r.path, r.signedUrl])
+  );
+
+  const designsWithUrls = (designs || []).map((design) => {
+    const sortedVersions = [...(design.design_versions || [])].sort(
+      (a: any, b: any) => b.version_number - a.version_number
+    );
+    const versionsWithUrls = sortedVersions.map((version: any) => ({
+      ...version,
+      signedUrl: urlMap[version.file_path] ?? null,
+    }));
+    const latestVersionWithUrl = versionsWithUrls[0];
+    return {
+      ...design,
+      design_versions: versionsWithUrls,
+      signedUrl: latestVersionWithUrl && !latestVersionWithUrl.file_path?.endsWith(".pdf") ? latestVersionWithUrl.signedUrl : null,
+    };
+  });
 
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">Room Designs</h3>
-        {isAdminOrTeam && <UploadDesignDialog projectId={projectId} rooms={rooms || []} defaultRoomId={roomId} />}
+        {canEdit && <UploadDesignDialog projectId={projectId} rooms={rooms || []} defaultRoomId={roomId} />}
       </div>
       {designsWithUrls.length === 0 ? (
         <div className="py-16 text-center border-2 border-dashed rounded-lg bg-slate-50/50">

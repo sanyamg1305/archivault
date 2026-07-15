@@ -1,7 +1,7 @@
 import { createServiceRoleClient } from "@/utils/supabase/server";
+import { getProjectAccess } from "@/lib/project-access";
 import { MaterialsTable } from "@/components/materials/materials-table";
 import { AddMaterialDialog } from "@/components/materials/add-material-dialog";
-import { auth } from "@clerk/nextjs/server";
 
 export default async function RoomMaterialsPage({
   params,
@@ -9,9 +9,9 @@ export default async function RoomMaterialsPage({
   params: Promise<{ projectId: string; roomId: string }>;
 }) {
   const { projectId, roomId } = await params;
+  const access = await getProjectAccess(projectId);
+  const canEdit = access?.canEdit ?? false;
   const supabase = createServiceRoleClient();
-  const { orgRole } = await auth();
-  const isAdminOrTeam = orgRole === "org:admin" || orgRole === "org:member";
 
   const { data: rooms } = await supabase.from("rooms").select("*").eq("project_id", projectId);
   
@@ -25,12 +25,12 @@ export default async function RoomMaterialsPage({
     <div className="space-y-4 animate-in fade-in duration-300">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">Room Materials</h3>
-        {isAdminOrTeam && <AddMaterialDialog projectId={projectId} rooms={rooms || []} defaultRoomId={roomId} />}
+        {canEdit && <AddMaterialDialog projectId={projectId} rooms={rooms || []} defaultRoomId={roomId} />}
       </div>
       <MaterialsTable 
         materials={materials || []} 
         projectId={projectId} 
-        isAdminOrTeam={isAdminOrTeam} 
+        canEdit={canEdit} 
       />
     </div>
   );

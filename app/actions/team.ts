@@ -9,12 +9,17 @@ export async function inviteTeamMember(email: string, role: string) {
   if (orgRole !== "org:admin") throw new Error("Only admins can invite members.");
 
   const clerk = await clerkClient();
-  await clerk.organizations.createOrganizationInvitation({
-    organizationId: orgId,
-    emailAddress: email,
-    role: role as "org:admin" | "org:architect" | "org:member",
-    inviterUserId: userId,
-  });
+  try {
+    await clerk.organizations.createOrganizationInvitation({
+      organizationId: orgId,
+      emailAddress: email,
+      role: role as "org:admin" | "org:architect" | "org:member",
+      inviterUserId: userId,
+    });
+  } catch (err: any) {
+    const msg = err?.errors?.[0]?.longMessage ?? err?.errors?.[0]?.message ?? err?.message ?? "Failed to send invitation.";
+    throw new Error(msg);
+  }
 
   revalidatePath("/team");
 }

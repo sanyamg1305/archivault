@@ -7,15 +7,30 @@ import { createNotification } from "./notifications";
 
 type EntityType = "material" | "design_version";
 
+async function assertApprovalAccess(projectId: string) {
+  const { userId, orgId, orgRole } = await auth();
+  if (!userId || !orgId) throw new Error("Unauthorized");
+  if (orgRole === "org:architect") throw new Error("Unauthorized");
+  if (orgRole === "org:member") {
+    // Clients can only approve/reject their own project
+    const supabase = createServiceRoleClient();
+    const { data: project } = await supabase
+      .from("projects")
+      .select("client_id")
+      .eq("id", projectId)
+      .single();
+    if (project?.client_id !== userId) throw new Error("Unauthorized");
+  }
+  return { userId, orgId, orgRole };
+}
+
 export async function approveItem(
   entityType: EntityType,
   id: string,
   projectId: string,
   itemName: string
 ) {
-  const { userId, orgId, orgRole } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
-  if (orgRole === "org:architect") throw new Error("Unauthorized");
+  const { userId, orgId } = await assertApprovalAccess(projectId);
 
   const supabase = createServiceRoleClient();
   const table = entityType === "material" ? "materials" : "design_versions";
@@ -53,9 +68,7 @@ export async function requestRevisionItem(
   itemName: string,
   reason: string
 ) {
-  const { userId, orgId, orgRole } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
-  if (orgRole === "org:architect") throw new Error("Unauthorized");
+  const { userId, orgId } = await assertApprovalAccess(projectId);
 
   const supabase = createServiceRoleClient();
   const table = entityType === "material" ? "materials" : "design_versions";

@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { assertProjectAccess } from "@/lib/project-access";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -13,8 +13,7 @@ export async function createMaterial(data: {
   vendor: string;
   estimated_cost: number;
 }) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertProjectAccess(data.projectId);
 
   const supabase = createServiceRoleClient();
 
@@ -42,13 +41,12 @@ export async function createMaterial(data: {
 }
 
 export async function uploadMaterialImage(formData: FormData) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const materialId = formData.get("materialId") as string;
+  const projectId = formData.get("projectId") as string;
+  const { orgId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
 
-  const materialId = formData.get("materialId") as string;
-  const projectId = formData.get("projectId") as string;
   const file = formData.get("file") as File;
 
   const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -83,7 +81,7 @@ export async function updateMaterialStatus(
   name: string,
   status: string
 ) {
-  const { userId } = await auth();
+  const { userId } = await assertProjectAccess(projectId);
   const supabase = createServiceRoleClient();
 
   const { error } = await supabase
@@ -95,7 +93,7 @@ export async function updateMaterialStatus(
 
   await supabase.from("activity_logs").insert({
     project_id: projectId,
-    user_id: userId ?? "",
+    user_id: userId,
     action_description: `Material '${name}' status changed to ${status}`,
   });
 
@@ -115,8 +113,7 @@ export async function updateMaterial(
     status: string;
   }
 ) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const { userId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
 
@@ -145,8 +142,7 @@ export async function updateMaterial(
 }
 
 export async function deleteMaterial(materialId: string, projectId: string, name: string) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const { userId } = await assertProjectAccess(projectId);
 
   const supabase = createServiceRoleClient();
 

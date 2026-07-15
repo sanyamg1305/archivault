@@ -1,12 +1,14 @@
-import { auth } from "@clerk/nextjs/server";
 import { createServiceRoleClient } from "@/utils/supabase/server";
+import { getProjectAccess } from "@/lib/project-access";
 import { UploadProgressPhotoDialog } from "@/components/progress/upload-progress-photo-dialog";
 import { ProgressPhotoGrid } from "@/components/progress/progress-photo-grid";
 import { ImageIcon } from "lucide-react";
 
 export default async function ProgressPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
-  const { orgId } = await auth();
+  const access = await getProjectAccess(projectId);
+  const canEdit = access?.canEdit ?? false;
+  const orgId = access?.orgId;
   if (!orgId) return null;
 
   const supabase = createServiceRoleClient();
@@ -18,10 +20,16 @@ export default async function ProgressPage({ params }: { params: Promise<{ proje
     supabase.from("rooms").select("id, name").eq("project_id", projectId).order("name"),
   ]);
 
-  // Generate signed URLs
-  const photosWithUrls = await Promise.all((photos ?? []).map(async (p: any) => {
-    const { data } = await supabase.storage.from("site-photos").createSignedUrl(p.file_path, 60 * 60 * 24);
-    return { ...p, signedUrl: data?.signedUrl };
+  // Batch signed URL generation
+  const filePaths = (photos ?? []).map((p: any) => p.file_path).filter(Boolean);
+  const { data: signedResults } = filePaths.length
+    ? await supabase.storage.from("site-photos").createSignedUrls(filePaths, 60 * 60 * 24)
+    : { data: [] };
+  const urlMap = Object.fromEntries((signedResults ?? []).map((r: any) => [r.path, r.signedUrl]));
+
+  const photosWithUrls = (photos ?? []).map((p: any) => ({
+    ...p,
+    signedUrl: urlMap[p.file_path] ?? null,
   }));
 
   // Group by taken_at date
@@ -39,7 +47,7 @@ export default async function ProgressPage({ params }: { params: Promise<{ proje
           <h2 className="text-xl font-semibold">Site Progress Photos</h2>
           <p className="text-sm text-muted-foreground mt-0.5">{photosWithUrls.length} photo{photosWithUrls.length !== 1 ? "s" : ""}</p>
         </div>
-        <UploadProgressPhotoDialog projectId={projectId} rooms={rooms ?? []} />
+        {canEdit && <UploadProgressPhotoDialog projectId={projectId} rooms={rooms ?? []} />}
       </div>
 
       {photosWithUrls.length === 0 && (

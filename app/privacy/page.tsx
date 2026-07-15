@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { Logo } from "@/components/logo";
 
 export const metadata = { title: "Privacy Policy – ArchiVault" };
 
@@ -9,9 +9,7 @@ export default function PrivacyPage() {
       {/* Nav */}
       <header className="border-b sticky top-0 z-10 bg-background/80 backdrop-blur">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/">
-            <Image src="/logo.png" alt="ArchiVault" width={120} height={40} className="object-contain" />
-          </Link>
+          <Logo iconClassName="h-6 w-6" textClassName="text-base font-bold" />
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">← Back to Home</Link>
         </div>
       </header>

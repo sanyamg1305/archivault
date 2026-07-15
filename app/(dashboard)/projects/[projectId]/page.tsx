@@ -72,7 +72,7 @@ export default async function ProjectOverview({
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               Total Budget
-              <EditBudgetDialog projectId={projectId} currentBudget={project?.total_budget ?? 0} />
+              {isAdmin && <EditBudgetDialog projectId={projectId} currentBudget={project?.total_budget ?? 0} />}
             </CardTitle>
             <IndianRupee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>

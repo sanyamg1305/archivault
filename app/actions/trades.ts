@@ -1,7 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
-import { assertProjectAccess } from "@/lib/project-access";
+import { assertAdmin, assertProjectAccess } from "@/lib/project-access";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -14,8 +13,7 @@ export async function createTrade(data: {
   email?: string;
   notes?: string;
 }) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { userId, orgId } = await assertAdmin();
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase.from("trades").insert({
@@ -34,8 +32,7 @@ export async function updateTrade(
   tradeId: string,
   data: { name: string; trade_type: string; phone?: string; email?: string; notes?: string }
 ) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { orgId } = await assertAdmin();
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase
@@ -48,9 +45,7 @@ export async function updateTrade(
 }
 
 export async function deleteTrade(tradeId: string) {
-  const { userId, orgId, orgRole } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
-  if (orgRole !== "org:admin") throw new Error("Unauthorized");
+  const { orgId } = await assertAdmin();
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase.from("trades").delete().eq("id", tradeId).eq("organization_id", orgId);

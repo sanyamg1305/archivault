@@ -19,18 +19,31 @@ export const metadata = {
 };
 
 export default async function DashboardPage() {
-  const { orgId, orgRole } = await auth();
+  const { orgId, orgRole, userId } = await auth();
 
   const supabase = createServiceRoleClient();
 
   const isAdmin = orgRole === "org:admin";
+  const isArchitect = orgRole === "org:architect";
 
-  // Fetch projects
-  const { data: projects } = await supabase
+  // Fetch projects — architects only see their assigned projects
+  let projectsQuery = supabase
     .from("projects")
     .select("*")
     .eq("organization_id", orgId ?? "")
     .order("created_at", { ascending: false });
+
+  if (isArchitect && userId) {
+    const { data: assignments } = await supabase
+      .from("project_members")
+      .select("project_id")
+      .eq("user_id", userId)
+      .eq("organization_id", orgId ?? "");
+    const assignedIds = (assignments ?? []).map((a) => a.project_id);
+    projectsQuery = projectsQuery.in("id", assignedIds.length ? assignedIds : ["_none_"]);
+  }
+
+  const { data: projects } = await projectsQuery;
 
   const projectIds = projects?.map(p => p.id) ?? [];
 

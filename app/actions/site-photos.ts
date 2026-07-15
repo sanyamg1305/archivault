@@ -1,15 +1,14 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { assertProjectAccess } from "@/lib/project-access";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export async function uploadSitePhoto(formData: FormData) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const projectId = formData.get("projectId") as string;
+  const { userId, orgId } = await assertProjectAccess(projectId);
 
   const file = formData.get("file") as File;
-  const projectId = formData.get("projectId") as string;
   const roomId = (formData.get("roomId") as string) || null;
   const caption = (formData.get("caption") as string) || null;
   const takenAt = (formData.get("taken_at") as string) || new Date().toISOString().split("T")[0];
@@ -40,8 +39,7 @@ export async function uploadSitePhoto(formData: FormData) {
 }
 
 export async function deleteSitePhoto(id: string, filePath: string, projectId: string) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Unauthorized");
+  const { orgId } = await assertProjectAccess(projectId);
   const supabase = createServiceRoleClient();
   await supabase.storage.from("site-photos").remove([filePath]);
   await supabase.from("site_photos").delete().eq("id", id).eq("organization_id", orgId);

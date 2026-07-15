@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { assertAdmin } from "@/lib/project-access";
 import { createServiceRoleClient } from "@/utils/supabase/server";
+
 import { revalidatePath } from "next/cache";
 
 export async function requestSignoff(projectId: string, notes: string, requestedByName: string) {
@@ -33,8 +34,18 @@ export async function requestSignoff(projectId: string, notes: string, requested
 }
 
 export async function submitSignoff(projectId: string, signedByName: string) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const { userId, orgId, orgRole } = await auth();
+  if (!userId || !orgId) throw new Error("Unauthorized");
+  if (orgRole !== "org:member") throw new Error("Unauthorized");
+
+  // Verify this client is the one assigned to the project
+  const supabase = createServiceRoleClient();
+  const { data: project } = await supabase
+    .from("projects")
+    .select("client_id")
+    .eq("id", projectId)
+    .single();
+  if (project?.client_id !== userId) throw new Error("Unauthorized");
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase

@@ -4,15 +4,13 @@ import { redirect } from "next/navigation";
 import { OrganizationGuard } from "@/components/auth/org-guard";
 
 export default async function ClientPortalIndex() {
-  const { orgId } = await auth();
+  const { orgId, userId } = await auth();
 
   if (!orgId) {
     return <OrganizationGuard />;
   }
 
   const supabase = createServiceRoleClient();
-
-  const { userId } = await auth();
 
   // Find the projects associated with this client
   const { data: projects } = await supabase

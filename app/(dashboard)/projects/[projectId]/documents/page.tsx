@@ -1,5 +1,5 @@
-import { auth } from "@clerk/nextjs/server";
 import { createServiceRoleClient } from "@/utils/supabase/server";
+import { getProjectAccess } from "@/lib/project-access";
 import { UploadDocumentDialog } from "@/components/documents/upload-document-dialog";
 import { DocumentRow } from "@/components/documents/document-row";
 import { FolderOpen } from "lucide-react";
@@ -8,7 +8,8 @@ const CATEGORY_ORDER = ["Contract", "Permit", "BOQ", "Drawing", "Other"];
 
 export default async function DocumentsPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
-  const { orgId } = await auth();
+  const access = await getProjectAccess(projectId);
+  const orgId = access?.orgId;
   if (!orgId) return null;
 
   const supabase = createServiceRoleClient();
@@ -20,11 +21,16 @@ export default async function DocumentsPage({ params }: { params: Promise<{ proj
     .order("category")
     .order("created_at", { ascending: false });
 
-  // Generate signed download URLs
-  const docsWithUrls = await Promise.all((docs ?? []).map(async (d: any) => {
-    const { data } = await supabase.storage.from("project-documents")
-      .createSignedUrl(d.file_path, 60 * 60);
-    return { ...d, signedUrl: data?.signedUrl };
+  // Batch signed URLs
+  const filePaths = (docs ?? []).map((d: any) => d.file_path).filter(Boolean);
+  const { data: signedResults } = filePaths.length
+    ? await supabase.storage.from("project-documents").createSignedUrls(filePaths, 60 * 60)
+    : { data: [] };
+  const urlMap = Object.fromEntries((signedResults ?? []).map((r: any) => [r.path, r.signedUrl]));
+
+  const docsWithUrls = (docs ?? []).map((d: any) => ({
+    ...d,
+    signedUrl: urlMap[d.file_path] ?? null,
   }));
 
   const grouped: Record<string, typeof docsWithUrls> = {};

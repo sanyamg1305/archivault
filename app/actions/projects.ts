@@ -1,7 +1,7 @@
 "use server";
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { assertProjectAccess } from "@/lib/project-access";
+import { assertAdmin, assertProjectAccess } from "@/lib/project-access";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -193,8 +193,7 @@ export async function deleteProject(projectId: string) {
 }
 
 export async function inviteClientToOrg(email: string) {
-  const { userId, orgId } = await auth();
-  if (!userId || !orgId) throw new Error("Missing User or Organization context.");
+  const { userId, orgId } = await assertAdmin();
 
   const clerk = await clerkClient();
   await clerk.organizations.createOrganizationInvitation({
