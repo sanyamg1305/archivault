@@ -9,7 +9,7 @@ interface LogoProps {
   iconClassName?: string;
   textClassName?: string;
   showText?: boolean;
-  href?: string;
+  href?: string | null;
 }
 
 export function LogoIcon({ className = "h-8 w-8" }: { className?: string }) {
