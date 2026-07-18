@@ -53,3 +53,30 @@ export async function deleteDocument(id: string, filePath: string, projectId: st
   await supabase.from("project_documents").delete().eq("id", id).eq("organization_id", orgId);
   revalidatePath(`/projects/${projectId}/documents`);
 }
+
+export async function createDocumentRecord(data: {
+  projectId: string;
+  name: string;
+  filePath: string;
+  fileSize: number;
+  mimeType: string;
+  category: string;
+}) {
+  const { userId, orgId } = await assertProjectAccess(data.projectId);
+  const supabase = createServiceRoleClient();
+
+  const { error: dbError } = await supabase.from("project_documents").insert({
+    project_id: data.projectId,
+    organization_id: orgId,
+    name: data.name,
+    file_path: data.filePath,
+    file_size: data.fileSize,
+    mime_type: data.mimeType,
+    category: data.category,
+    uploaded_by: userId,
+  });
+
+  if (dbError) throw new Error(dbError.message);
+
+  revalidatePath(`/projects/${data.projectId}/documents`);
+}

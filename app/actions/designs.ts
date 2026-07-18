@@ -108,3 +108,75 @@ export async function uploadNewVersion(formData: FormData) {
   revalidatePath(`/projects/${projectId}/designs`);
   revalidatePath(`/projects/${projectId}`, "layout");
 }
+
+export async function createDesignAndVersion(data: {
+  id: string;
+  projectId: string;
+  roomId: string | null;
+  title: string;
+  filePath: string;
+  changeNotes: string;
+}) {
+  const { userId } = await assertProjectAccess(data.projectId);
+  const supabase = createServiceRoleClient();
+
+  // 1. Create the Design record
+  const { error: designErr } = await supabase
+    .from("designs")
+    .insert({
+      id: data.id,
+      project_id: data.projectId,
+      room_id: data.roomId,
+      title: data.title
+    });
+
+  if (designErr) throw new Error(designErr.message);
+
+  // 2. Create Version 1
+  const { error: versionErr } = await supabase.from("design_versions").insert({
+    design_id: data.id,
+    file_path: data.filePath,
+    version_number: 1,
+    change_notes: data.changeNotes || "Initial upload",
+    created_by: userId
+  });
+
+  if (versionErr) {
+    // Rollback design creation
+    await supabase.from("designs").delete().eq("id", data.id);
+    throw new Error(versionErr.message);
+  }
+
+  revalidatePath(`/projects/${data.projectId}/designs`);
+  revalidatePath(`/projects/${data.projectId}`, "layout");
+}
+
+export async function createDesignVersion(data: {
+  designId: string;
+  filePath: string;
+  versionNumber: number;
+  changeNotes: string;
+  projectId: string;
+}) {
+  const { userId } = await assertProjectAccess(data.projectId);
+  const supabase = createServiceRoleClient();
+
+  // Supersede any prior versions that are still awaiting client action
+  await supabase
+    .from("design_versions")
+    .update({ status: "Superseded" })
+    .eq("design_id", data.designId)
+    .in("status", ["Pending", "Revision Requested"]);
+
+  const { error: versionErr } = await supabase.from("design_versions").insert({
+    design_id: data.designId,
+    file_path: data.filePath,
+    version_number: data.versionNumber,
+    change_notes: data.changeNotes,
+    created_by: userId
+  });
+  if (versionErr) throw new Error(versionErr.message);
+
+  revalidatePath(`/projects/${data.projectId}/designs`);
+  revalidatePath(`/projects/${data.projectId}`, "layout");
+}

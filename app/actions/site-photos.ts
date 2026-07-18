@@ -45,3 +45,28 @@ export async function deleteSitePhoto(id: string, filePath: string, projectId: s
   await supabase.from("site_photos").delete().eq("id", id).eq("organization_id", orgId);
   revalidatePath(`/projects/${projectId}/progress`);
 }
+
+export async function createSitePhotoRecord(data: {
+  projectId: string;
+  roomId: string | null;
+  filePath: string;
+  caption: string | null;
+  takenAt: string;
+}) {
+  const { userId, orgId } = await assertProjectAccess(data.projectId);
+  const supabase = createServiceRoleClient();
+
+  const { error: dbError } = await supabase.from("site_photos").insert({
+    project_id: data.projectId,
+    room_id: data.roomId,
+    organization_id: orgId,
+    file_path: data.filePath,
+    caption: data.caption,
+    taken_at: data.takenAt,
+    uploaded_by: userId,
+  });
+
+  if (dbError) throw new Error(dbError.message);
+
+  revalidatePath(`/projects/${data.projectId}/progress`);
+}

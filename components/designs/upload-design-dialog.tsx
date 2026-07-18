@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Upload } from "lucide-react";
-import { useFormStatus } from "react-dom";
+import { Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useOrganization } from "@clerk/nextjs";
+import { useSupabaseBrowser } from "@/utils/supabase/client";
 
 import {
   Dialog,
@@ -23,17 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { uploadDesign } from "@/app/actions/designs";
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button type="submit" disabled={pending} className="w-full">
-      {pending ? "Uploading..." : "Upload Design"}
-    </Button>
-  );
-}
+import { createDesignAndVersion } from "@/app/actions/designs";
 
 export function UploadDesignDialog({
   projectId,
@@ -45,6 +36,77 @@ export function UploadDesignDialog({
   defaultRoomId?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const { organization, isLoaded } = useOrganization();
+  const supabase = useSupabaseBrowser();
+
+  const [title, setTitle] = useState("");
+  const [roomId, setRoomId] = useState(defaultRoomId || "none");
+  const [file, setFile] = useState<File | null>(null);
+  const [changeNotes, setChangeNotes] = useState("");
+
+  async function handleUpload(e: React.FormEvent) {
+    e.preventDefault();
+    if (!title.trim() || !file || !isLoaded || !organization) {
+      toast.error("Please fill in all fields and ensure organization is loaded.");
+      return;
+    }
+
+    const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"];
+    const MAX_SIZE = 20 * 1024 * 1024; // 20 MB
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      toast.error("Only images and PDFs are allowed.");
+      return;
+    }
+    if (file.size > MAX_SIZE) {
+      toast.error("File must be under 20 MB.");
+      return;
+    }
+
+    setUploading(true);
+    const toastId = toast.loading("Uploading design to storage...");
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const designId = crypto.randomUUID();
+      const orgId = organization.id;
+      const filePath = `${orgId}/${projectId}/${designId}/v1.${fileExt}`;
+
+      // 1. Direct upload from browser to Supabase Storage
+      const { error: storageErr } = await supabase.storage
+        .from("designs")
+        .upload(filePath, file, { cacheControl: "3600", upsert: true });
+
+      if (storageErr) throw new Error(storageErr.message);
+
+      toast.loading("Saving design details...", { id: toastId });
+
+      // 2. Call Server Action to write metadata to DB
+      await createDesignAndVersion({
+        id: designId,
+        projectId,
+        roomId: roomId === "none" ? null : roomId,
+        title,
+        filePath,
+        changeNotes: changeNotes || "Initial upload",
+      });
+
+      toast.success("Design uploaded successfully", { id: toastId });
+      setOpen(false);
+      // Reset state
+      setTitle("");
+      setFile(null);
+      setChangeNotes("");
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Upload failed", {
+        id: toastId,
+        description: err instanceof Error ? err.message : "Something went wrong.",
+      });
+    } finally {
+      setUploading(false);
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -60,28 +122,25 @@ export function UploadDesignDialog({
             Upload a drawing or render. It will be tracked as version 1.
           </DialogDescription>
         </DialogHeader>
-        <form
-          action={async (formData) => {
-            formData.append("projectId", projectId);
-            try {
-              await uploadDesign(formData);
-              setOpen(false);
-              toast.success("Design uploaded successfully");
-            } catch (err) {
-              toast.error("Upload failed", {
-                description: err instanceof Error ? err.message : "Something went wrong.",
-              });
-            }
-          }}
-          className="space-y-4"
-        >
+        <form onSubmit={handleUpload} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
-            <Input id="title" name="title" required placeholder="e.g. Master Bedroom Layout" />
+            <Input 
+              id="title" 
+              required 
+              placeholder="e.g. Master Bedroom Layout" 
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              disabled={uploading}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="roomId">Room (Optional)</Label>
-            <Select name="roomId" defaultValue={defaultRoomId}>
+            <Select 
+              value={roomId} 
+              onValueChange={setRoomId}
+              disabled={uploading}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select a room" />
               </SelectTrigger>
@@ -97,14 +156,36 @@ export function UploadDesignDialog({
           </div>
           <div className="space-y-2">
             <Label htmlFor="file">File</Label>
-            <Input id="file" name="file" type="file" required accept="image/*,application/pdf" />
+            <Input 
+              id="file" 
+              type="file" 
+              required 
+              accept="image/*,application/pdf" 
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              disabled={uploading}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="changeNotes">Change Notes (Optional)</Label>
-            <Input id="changeNotes" name="changeNotes" placeholder="Initial concept..." />
+            <Input 
+              id="changeNotes" 
+              placeholder="Initial concept..." 
+              value={changeNotes}
+              onChange={(e) => setChangeNotes(e.target.value)}
+              disabled={uploading}
+            />
           </div>
           <div className="pt-4">
-            <SubmitButton />
+            <Button type="submit" disabled={uploading || !isLoaded || !organization} className="w-full">
+              {uploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                "Upload Design"
+              )}
+            </Button>
           </div>
         </form>
       </DialogContent>
