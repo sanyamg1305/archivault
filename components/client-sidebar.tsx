@@ -63,8 +63,10 @@ export function ClientSidebar({ projects = [] }: { projects?: any[] }) {
               appearance={{
                 elements: {
                   rootBox: "w-full",
-                  organizationSwitcherTrigger:
-                    "w-full flex justify-between px-2 py-1.5 border rounded-md text-sm bg-background",
+                  organizationSwitcherTrigger: "w-full flex justify-between px-2 py-1.5 border rounded-md text-sm bg-transparent text-white border-white/10 hover:bg-white/5 hover:text-white",
+                  organizationPreview: "text-white",
+                  organizationPreviewTextContainer: "text-white",
+                  organizationSwitcherTriggerIcon: "text-white",
                 },
               }}
             />

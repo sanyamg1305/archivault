@@ -48,7 +48,10 @@ export function AppSidebar() {
               appearance={{
                 elements: {
                   rootBox: "w-full flex items-center justify-center",
-                  organizationSwitcherTrigger: "w-full px-2 py-1.5 border rounded-md truncate",
+                  organizationSwitcherTrigger: "w-full px-2 py-1.5 border rounded-md truncate text-white border-white/10 bg-transparent hover:bg-white/5 hover:text-white",
+                  organizationPreview: "text-white",
+                  organizationPreviewTextContainer: "text-white",
+                  organizationSwitcherTriggerIcon: "text-white",
                 },
               }}
             />
