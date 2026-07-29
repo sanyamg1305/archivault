@@ -31,7 +31,11 @@ export async function approveItem(
   projectId: string,
   itemName: string
 ) {
-  const { userId, orgId } = await assertApprovalAccess(projectId);
+  const { userId, orgId, orgRole } = await assertApprovalAccess(projectId);
+  if (entityType === "material") {
+    const isClient = orgRole === "org:member" || orgRole === "member" || orgRole === "org:client" || orgRole === "client";
+    if (!isClient) throw new Error("Only clients are allowed to approve materials");
+  }
 
   const supabase = createServiceRoleClient();
   const table = entityType === "material" ? "materials" : "design_versions";
@@ -69,7 +73,11 @@ export async function requestRevisionItem(
   itemName: string,
   reason: string
 ) {
-  const { userId, orgId } = await assertApprovalAccess(projectId);
+  const { userId, orgId, orgRole } = await assertApprovalAccess(projectId);
+  if (entityType === "material") {
+    const isClient = orgRole === "org:member" || orgRole === "member" || orgRole === "org:client" || orgRole === "client";
+    if (!isClient) throw new Error("Only clients are allowed to request revisions on materials");
+  }
 
   const supabase = createServiceRoleClient();
   const table = entityType === "material" ? "materials" : "design_versions";

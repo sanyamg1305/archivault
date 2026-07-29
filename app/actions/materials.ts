@@ -81,7 +81,11 @@ export async function updateMaterialStatus(
   name: string,
   status: string
 ) {
-  const { userId } = await assertProjectAccess(projectId);
+  const { userId, orgRole } = await assertProjectAccess(projectId);
+  const isTeam = orgRole === "org:admin" || orgRole === "admin" || orgRole === "org:architect" || orgRole === "architect";
+  if (status === "Approved" && isTeam) {
+    throw new Error("Only clients are allowed to approve materials");
+  }
   const supabase = createServiceRoleClient();
 
   const { error } = await supabase

@@ -198,12 +198,6 @@ export function MaterialsTable({ materials, projectId, isAdminOrTeam }: {
 
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      {m.status === "Pending" && (
-                        <Button
-                          size="sm" variant="ghost" className="text-green-600 h-8"
-                          onClick={() => updateMaterialStatus(projectId, m.id, m.name, "Approved")}
-                        >Approve</Button>
-                      )}
                       {m.status === "Revision Requested" && isAdminOrTeam && (
                         <Button
                           size="sm" variant="ghost" className="text-blue-600 h-8"
