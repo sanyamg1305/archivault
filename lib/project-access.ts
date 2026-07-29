@@ -19,11 +19,11 @@ export async function getProjectAccess(projectId: string): Promise<ProjectAccess
   const { userId, orgId, orgRole } = await auth();
   if (!userId || !orgId) return null;
 
-  if (orgRole === "org:admin") {
+  if (orgRole === "org:admin" || orgRole === "admin") {
     return { userId, orgId, orgRole, isAdmin: true, canEdit: true };
   }
 
-  if (orgRole === "org:architect") {
+  if (orgRole === "org:architect" || orgRole === "architect") {
     const supabase = createServiceRoleClient();
     const { data } = await supabase
       .from("project_members")
@@ -45,9 +45,9 @@ export async function assertProjectAccess(projectId: string): Promise<{ userId: 
   const { userId, orgId, orgRole } = await auth();
   if (!userId || !orgId) throw new Error("Unauthorized");
 
-  if (orgRole === "org:admin") return { userId, orgId, orgRole };
+  if (orgRole === "org:admin" || orgRole === "admin") return { userId, orgId, orgRole };
 
-  if (orgRole === "org:architect") {
+  if (orgRole === "org:architect" || orgRole === "architect") {
     const supabase = createServiceRoleClient();
     const { data } = await supabase
       .from("project_members")
@@ -67,6 +67,7 @@ export async function assertProjectAccess(projectId: string): Promise<{ userId: 
  */
 export async function assertAdmin(): Promise<{ userId: string; orgId: string }> {
   const { userId, orgId, orgRole } = await auth();
-  if (!userId || !orgId || orgRole !== "org:admin") throw new Error("Unauthorized");
+  const isAdmin = orgRole === "org:admin" || orgRole === "admin";
+  if (!userId || !orgId || !isAdmin) throw new Error("Unauthorized");
   return { userId, orgId };
 }

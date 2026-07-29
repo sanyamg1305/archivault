@@ -38,10 +38,11 @@ export default clerkMiddleware(async (auth, req) => {
     const authObject = await auth();
     const { orgRole } = authObject;
 
-    // Intercept client trying to access architect routes
+    // Intercept client trying to access team routes
     if (isArchitectRoute(req)) {
-        // If not an admin/architect, force them to the client portal
-        if (orgRole && orgRole !== 'org:admin') {
+        // Only client roles should be forced to the portal. Team roles stay in the dashboard.
+        const isTeam = orgRole === 'org:admin' || orgRole === 'admin' || orgRole === 'org:architect' || orgRole === 'architect';
+        if (orgRole && !isTeam) {
             const url = new URL(req.url);
             const match = url.pathname.match(/^\/projects\/([^\/]+)/);
             if (match) {

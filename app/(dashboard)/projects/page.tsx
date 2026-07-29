@@ -29,8 +29,8 @@ export default async function ProjectsDirectoryPage({ searchParams }: { searchPa
   const searchQuery = typeof params.q === 'string' ? params.q.toLowerCase() : '';
   const statusFilter = typeof params.status === 'string' ? params.status : 'All';
 
-  const isAdmin = orgRole === "org:admin";
-  const isArchitect = orgRole === "org:architect";
+  const isAdmin = orgRole === "org:admin" || orgRole === "admin";
+  const isArchitect = orgRole === "org:architect" || orgRole === "architect";
 
   // For architects: fetch their assigned project IDs so we can show "View only" badges
   let assignedProjectIds = new Set<string>();

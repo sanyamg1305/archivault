@@ -21,7 +21,7 @@ export default async function ClientsPage() {
   ]);
 
   const clients = memberships
-    .filter((m) => m.role === "org:member")
+    .filter((m) => m.role === "org:member" || m.role === "member" || m.role === "org:client" || m.role === "client")
     .map((m) => ({
       id: m.id,
       userId: m.publicUserData?.userId ?? "",

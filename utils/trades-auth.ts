@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 
 const SECRET = process.env.TRADES_SESSION_SECRET ?? "dev-secret-change-in-prod";
 const COOKIE = "tv_trades";
+const COOKIE_PATH = "/trades-portal";
 
 // ── Password hashing (scrypt, no extra deps) ─────────────────────────────────
 
@@ -38,7 +39,7 @@ export async function setTradesSession(tradeId: string): Promise<void> {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 7 * 86_400,
-    path: "/trades-portal",
+    path: COOKIE_PATH,
   });
 }
 
@@ -59,5 +60,11 @@ export async function getTradesSession(): Promise<{ tradeId: string } | null> {
 
 export async function clearTradesSession(): Promise<void> {
   const jar = await cookies();
-  jar.delete(COOKIE);
+  jar.set(COOKIE, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 0,
+    path: COOKIE_PATH,
+  });
 }

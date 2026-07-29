@@ -68,12 +68,15 @@ export async function POST(req: Request) {
         // 1. Map Clerk Role Identifiers to our Database Roles
         let archivaultRole: 'admin' | 'team_member' | 'client' = 'team_member';
 
-        if (role === 'org:admin') {
+        const isClient = role === 'org:client' || role === 'client' || role === 'org:member' || role === 'member';
+        const isAdmin = role === 'org:admin' || role === 'admin';
+
+        if (isAdmin) {
             archivaultRole = 'admin';
-        } else if (role === 'org:client') {
+        } else if (isClient) {
             archivaultRole = 'client';
         } else {
-            // Default for org:member or any other custom team roles
+            // Default for org:architect, architect, or any other custom team roles
             archivaultRole = 'team_member';
         }
 

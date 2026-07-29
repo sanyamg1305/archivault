@@ -106,11 +106,16 @@ export async function getMyTradeWorker(): Promise<TradeWorker | null> {
   if (!session) return null;
 
   const supabase = createServiceRoleClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("trades")
     .select("id, name, trade_type, phone, username, organization_id")
     .eq("id", session.tradeId)
-    .single();
+    .maybeSingle();
+
+  if (error || !data) {
+    await clearTradesSession();
+    return null;
+  }
 
   return data as TradeWorker | null;
 }

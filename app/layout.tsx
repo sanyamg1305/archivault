@@ -27,7 +27,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${sans.variable} ${geistMono.variable}`}>
       <body className="antialiased">
-        <ClerkProvider>
+        <ClerkProvider
+          signInForceRedirectUrl="/dashboard"
+          signUpForceRedirectUrl="/dashboard"
+        >
           {children}
           <Toaster />
         </ClerkProvider>

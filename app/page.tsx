@@ -1,4 +1,3 @@
-import { SignInButton, SignUpButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import Image from "next/image";
@@ -42,16 +41,12 @@ export default async function LandingPage() {
           <div className="flex items-center gap-4">
             {!userId ? (
               <>
-                <SignInButton mode="modal">
-                  <button className="text-sm font-medium hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-                    Log in
-                  </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <button className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white transition-all hover:bg-primary/90 shadow-sm">
-                    Get Started
-                  </button>
-                </SignUpButton>
+                <Link href="/sign-in" className="text-sm font-medium hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
+                  Log in
+                </Link>
+                <Link href="/sign-up" className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white transition-all hover:bg-primary/90 shadow-sm">
+                  Get Started
+                </Link>
               </>
             ) : (
                 <Link href="/dashboard" className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white transition-all hover:bg-primary/90 shadow-sm">
@@ -73,12 +68,10 @@ export default async function LandingPage() {
               Move from scattered coordination to a single source of truth. Stop losing project decisions in WhatsApp, emails, and fragmented spreadsheets.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <SignUpButton mode="modal">
-                <button className="group flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-8 text-base font-medium text-white transition-all hover:bg-primary/90 hover:scale-105 active:scale-95 shadow-xl shadow-primary/30">
-                  Start Your First Project
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </button>
-              </SignUpButton>
+              <Link href="/sign-up" className="group flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-8 text-base font-medium text-white transition-all hover:bg-primary/90 hover:scale-105 active:scale-95 shadow-xl shadow-primary/30">
+                Start Your First Project
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
               <p className="text-sm text-zinc-500 dark:text-zinc-500">No credit card required</p>
             </div>
           </div>
@@ -550,12 +543,10 @@ export default async function LandingPage() {
               Join forward-thinking architecture and design studios who have standardized their execution on Archivault.
             </p>
             <div className="mt-10 flex justify-center">
-              <SignUpButton mode="modal">
-                <button className="group flex h-14 items-center justify-center gap-2 rounded-full bg-primary px-10 text-lg font-medium text-white transition-all hover:bg-primary/90 hover:scale-105 active:scale-95 shadow-xl shadow-primary/30">
-                  Start Building
-                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </button>
-              </SignUpButton>
+              <Link href="/sign-up" className="group flex h-14 items-center justify-center gap-2 rounded-full bg-primary px-10 text-lg font-medium text-white transition-all hover:bg-primary/90 hover:scale-105 active:scale-95 shadow-xl shadow-primary/30">
+                Start Building
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Link>
             </div>
           </div>
         </section>

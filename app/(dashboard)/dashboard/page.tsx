@@ -23,8 +23,8 @@ export default async function DashboardPage() {
 
   const supabase = createServiceRoleClient();
 
-  const isAdmin = orgRole === "org:admin";
-  const isArchitect = orgRole === "org:architect";
+  const isAdmin = orgRole === "org:admin" || orgRole === "admin";
+  const isArchitect = orgRole === "org:architect" || orgRole === "architect";
 
   // Fetch projects — architects only see their assigned projects
   let projectsQuery = supabase

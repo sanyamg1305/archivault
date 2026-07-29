@@ -36,7 +36,8 @@ export async function requestSignoff(projectId: string, notes: string, requested
 export async function submitSignoff(projectId: string, signedByName: string) {
   const { userId, orgId, orgRole } = await auth();
   if (!userId || !orgId) throw new Error("Unauthorized");
-  if (orgRole !== "org:member") throw new Error("Unauthorized");
+  const isClient = orgRole === "org:member" || orgRole === "member" || orgRole === "org:client" || orgRole === "client";
+  if (!isClient) throw new Error("Unauthorized");
 
   // Verify this client is the one assigned to the project
   const supabase = createServiceRoleClient();

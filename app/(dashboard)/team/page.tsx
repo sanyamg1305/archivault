@@ -25,10 +25,10 @@ export default async function TeamPage() {
     imageUrl: m.publicUserData?.imageUrl,
   }));
 
-  const admins = members.filter((m) => m.role === "org:admin");
-  const architects = members.filter((m) => m.role === "org:architect");
+  const admins = members.filter((m) => m.role === "org:admin" || m.role === "admin");
+  const architects = members.filter((m) => m.role === "org:architect" || m.role === "architect");
   const total = admins.length + architects.length;
-  const isAdmin = orgRole === "org:admin";
+  const isAdmin = orgRole === "org:admin" || orgRole === "admin";
 
   return (
     <div className="p-6 space-y-8">
