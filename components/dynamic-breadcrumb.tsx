@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { usePathname } from "next/navigation";
 import {
   Breadcrumb,
@@ -54,7 +55,7 @@ export function DynamicBreadcrumb() {
           <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
         </BreadcrumbItem>
         {items.map((item, i) => (
-          <span key={item.href} className="flex items-center gap-1.5">
+          <React.Fragment key={item.href}>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               {i === items.length - 1 ? (
@@ -63,7 +64,7 @@ export function DynamicBreadcrumb() {
                 <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
               )}
             </BreadcrumbItem>
-          </span>
+          </React.Fragment>
         ))}
       </BreadcrumbList>
     </Breadcrumb>
