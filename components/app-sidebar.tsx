@@ -96,7 +96,10 @@ export function AppSidebar() {
           showName={!isCollapsed} 
           appearance={{
             elements: {
-              userButtonOuterIdentifier: "text-white font-medium",
+              userButtonOuterIdentifier: {
+                color: "#ffffff",
+                fontWeight: "500",
+              }
             }
           }}
         />
