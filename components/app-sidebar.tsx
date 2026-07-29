@@ -83,10 +83,10 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-4 flex flex-col gap-3 overflow-hidden">
+      <SidebarFooter className="border-t border-white/10 p-4 flex flex-col gap-3 overflow-hidden">
         <a
           href="mailto:support@archivault.in"
-          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-white transition-colors"
           title="support@archivault.in"
         >
           <LifeBuoy className="h-4 w-4 shrink-0" />

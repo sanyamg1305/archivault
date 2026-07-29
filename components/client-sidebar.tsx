@@ -79,7 +79,7 @@ export function ClientSidebar({ projects = [] }: { projects?: any[] }) {
                   }
                 }}
               >
-                <SelectTrigger className="w-full bg-background h-8 text-xs">
+                <SelectTrigger className="w-full bg-[#1e1e20] hover:bg-white/5 border-white/10 text-white h-8 text-xs select-none">
                   <SelectValue placeholder="Select Project" />
                 </SelectTrigger>
                 <SelectContent>
@@ -89,7 +89,7 @@ export function ClientSidebar({ projects = [] }: { projects?: any[] }) {
                 </SelectContent>
               </Select>
             ) : (
-              <div className="w-full px-2 py-1 border rounded-md truncate text-xs font-medium bg-background text-center text-muted-foreground">
+              <div className="w-full px-2 py-1.5 border border-white/10 rounded-md truncate text-xs font-medium bg-transparent text-white/85 text-center select-none">
                 {projects[0]?.name || "My Project"}
               </div>
             )}
@@ -120,11 +120,11 @@ export function ClientSidebar({ projects = [] }: { projects?: any[] }) {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-4 flex flex-col gap-3 overflow-hidden">
+      <SidebarFooter className="border-t border-white/10 p-4 flex flex-col gap-3 overflow-hidden">
         {isAdmin && (
           <Link
             href="/dashboard"
-            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-white transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
             {!isCollapsed && <span>Back to Dashboard</span>}
@@ -132,7 +132,7 @@ export function ClientSidebar({ projects = [] }: { projects?: any[] }) {
         )}
         <a
           href="mailto:support@archivault.in"
-          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-white transition-colors"
           title="support@archivault.in"
         >
           <LifeBuoy className="h-4 w-4 shrink-0" />
