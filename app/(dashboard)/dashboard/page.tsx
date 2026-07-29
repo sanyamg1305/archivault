@@ -186,36 +186,45 @@ export default async function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {projects && projects.length > 0 ? (
                 projects.slice(0, isAdmin ? 3 : 6).map((project) => (
-                  <Link key={project.id} href={`/projects/${project.id}`} className="block group">
-                    <Card className="hover:border-primary/50 hover:shadow-sm transition-all h-full bg-card/50">
-                      <CardHeader className="p-4 pb-3">
-                        <CardTitle className="text-base">{project.name}</CardTitle>
-                        <CardDescription className="text-xs">{project.client_reference}</CardDescription>
-                      </CardHeader>
-                      <CardContent className="p-4 pt-0 space-y-3">
+                  <Link key={project.id} href={`/projects/${project.id}`} className="block h-full">
+                    <div className="group/project border border-border/60 hover:border-[#2F5BFF]/50 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-full bg-card/40 backdrop-blur-md flex flex-col justify-between hover:-translate-y-0.5">
+                      <div className="p-5 pb-3">
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <h3 className="text-sm font-semibold text-foreground group-hover/project:text-[#2F5BFF] transition-colors truncate">
+                            {project.name}
+                          </h3>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {project.client_reference || "No Client Assigned"}
+                        </p>
+                      </div>
+                      <div className="p-5 pt-0 space-y-4">
                         {(() => {
                           const ms = milestonesByProject.get(project.id);
                           const pct = ms && ms.total > 0 ? Math.round((ms.completed / ms.total) * 100) : null;
                           return pct !== null ? (
-                            <div className="space-y-1">
-                              <div className="flex justify-between text-xs text-muted-foreground">
-                                <span>Progress</span>
-                                <span className="font-medium text-foreground">{pct}%</span>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-[10px] text-muted-foreground/80">
+                                <span className="font-medium">Progress</span>
+                                <span className="font-bold text-foreground">{pct}%</span>
                               </div>
-                              <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
-                                <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${pct}%` }} />
+                              <div className="h-2 w-full bg-muted/30 rounded-full overflow-hidden border border-border/20">
+                                <div 
+                                  className="h-full bg-gradient-to-r from-[#2F5BFF] to-indigo-500 rounded-full transition-all duration-500" 
+                                  style={{ width: `${pct}%` }} 
+                                />
                               </div>
-                              <p className="text-xs text-muted-foreground">{ms!.completed}/{ms!.total} milestones</p>
+                              <p className="text-[10px] text-muted-foreground/70">{ms!.completed}/{ms!.total} milestones</p>
                             </div>
                           ) : null;
                         })()}
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-medium text-muted-foreground group-hover:text-primary transition-colors flex items-center gap-1">
-                            Open project <ChevronRight className="w-3 h-3" />
+                        <div className="flex items-center justify-between pt-1 border-t border-border/30">
+                          <span className="text-[11px] font-semibold text-muted-foreground group-hover/project:text-[#2F5BFF] transition-colors flex items-center gap-1">
+                            Open project <ChevronRight className="w-3.5 h-3.5 group-hover/project:translate-x-0.5 transition-transform duration-300" />
                           </span>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   </Link>
                 ))
               ) : (

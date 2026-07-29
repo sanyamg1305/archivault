@@ -71,64 +71,54 @@ export default async function ProjectOverview({
       {/* Top metric cards */}
       {isAdmin ? (
         <div className="grid gap-6 md:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
+          <div className="border border-border/60 rounded-xl p-5 bg-card/40 backdrop-blur-md shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="text-xs font-semibold text-muted-foreground/80 flex items-center gap-1.5">
                 Total Budget
                 <EditBudgetDialog projectId={projectId} currentBudget={project?.total_budget ?? 0} />
-              </CardTitle>
-              <IndianRupee className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">₹{(project?.total_budget ?? 0).toLocaleString('en-IN')}</div>
-            </CardContent>
-          </Card>
+              </span>
+              <IndianRupee className="h-4 w-4 text-muted-foreground/60" />
+            </div>
+            <div className="text-2xl font-bold text-foreground">₹{(project?.total_budget ?? 0).toLocaleString('en-IN')}</div>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Assigned Client</CardTitle>
-              <UserCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-bold truncate mt-1">
-                {project?.client_reference || "Unassigned"}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="border border-border/60 rounded-xl p-5 bg-card/40 backdrop-blur-md shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="text-xs font-semibold text-muted-foreground/80">Assigned Client</span>
+              <UserCircle className="h-4 w-4 text-muted-foreground/60" />
+            </div>
+            <div className="text-lg font-bold text-foreground truncate">
+              {project?.client_reference || "Unassigned"}
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Approved Spend</CardTitle>
+          <div className="border border-border/60 rounded-xl p-5 bg-card/40 backdrop-blur-md shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="text-xs font-semibold text-muted-foreground/80">Approved Spend</span>
               <CheckCircle className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">₹{approvedSpend.toLocaleString('en-IN')}</div>
-            </CardContent>
-          </Card>
+            </div>
+            <div className="text-2xl font-bold text-green-600">₹{approvedSpend.toLocaleString('en-IN')}</div>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Remaining Budget</CardTitle>
-              <Package className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">₹{remainingBudget.toLocaleString('en-IN')}</div>
-            </CardContent>
-          </Card>
+          <div className="border border-border/60 rounded-xl p-5 bg-card/40 backdrop-blur-md shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="text-xs font-semibold text-muted-foreground/80">Remaining Budget</span>
+              <Package className="h-4 w-4 text-[#2F5BFF]" />
+            </div>
+            <div className="text-2xl font-bold text-[#2F5BFF]">₹{remainingBudget.toLocaleString('en-IN')}</div>
+          </div>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-1">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Assigned Client</CardTitle>
-              <UserCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-bold truncate mt-1">
-                {project?.client_reference || "Unassigned"}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="border border-border/60 rounded-xl p-5 bg-card/40 backdrop-blur-md shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="text-xs font-semibold text-muted-foreground/80">Assigned Client</span>
+              <UserCircle className="h-4 w-4 text-muted-foreground/60" />
+            </div>
+            <div className="text-lg font-bold text-foreground truncate">
+              {project?.client_reference || "Unassigned"}
+            </div>
+          </div>
         </div>
       )}
 
