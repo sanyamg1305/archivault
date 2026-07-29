@@ -20,13 +20,13 @@ export const metadata = {
 
 export default async function DashboardPage() {
   const { orgId, orgRole, userId } = await auth();
-  const user = await currentUser();
-  const firstName = user?.firstName || "Team Member";
-
-  const supabase = createServiceRoleClient();
-
   const isAdmin = orgRole === "org:admin" || orgRole === "admin";
   const isArchitect = orgRole === "org:architect" || orgRole === "architect";
+
+  const user = await currentUser();
+  const firstName = user?.firstName || (isAdmin ? "Admin" : isArchitect ? "Team Member" : "User");
+
+  const supabase = createServiceRoleClient();
 
   // Fetch projects — architects only see their assigned projects
   let projectsQuery = supabase
