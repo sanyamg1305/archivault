@@ -74,7 +74,7 @@ export default async function DashboardPage() {
     if (!materialsByProject.has(m.project_id)) materialsByProject.set(m.project_id, []);
     materialsByProject.get(m.project_id)!.push(m);
   }
-  const budgetUtilization = projects?.reduce((acc, project) => {
+  const budgetUtilization: Record<string, { spent: number; total: number }> = projects?.reduce((acc, project) => {
     const spent = (materialsByProject.get(project.id) ?? [])
       .filter(m => m.status !== "Rejected")
       .reduce((sum, m) => sum + (Number(m.estimated_cost) || 0), 0);
@@ -273,8 +273,9 @@ export default async function DashboardPage() {
               </div>
               
               {(() => {
-                const totalSpent = Object.values(budgetUtilization).reduce((sum, b) => sum + b.spent, 0);
-                const totalBudget = Object.values(budgetUtilization).reduce((sum, b) => sum + b.total, 0);
+                const values = Object.values(budgetUtilization) as { spent: number; total: number }[];
+                const totalSpent = values.reduce((sum, b) => sum + b.spent, 0);
+                const totalBudget = values.reduce((sum, b) => sum + b.total, 0);
                 const percentage = totalBudget > 0 ? Math.min(Math.round((totalSpent / totalBudget) * 100), 100) : 0;
                 return (
                   <div className="space-y-3 pt-4 relative z-10 border-t border-white/10">
