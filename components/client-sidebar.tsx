@@ -138,7 +138,14 @@ export function ClientSidebar({ projects = [] }: { projects?: any[] }) {
           <LifeBuoy className="h-4 w-4 shrink-0" />
           {!isCollapsed && <span>Support</span>}
         </a>
-        <UserButton showName={!isCollapsed} />
+        <UserButton 
+          showName={!isCollapsed} 
+          appearance={{
+            elements: {
+              userButtonOuterIdentifier: "text-white font-medium",
+            }
+          }}
+        />
       </SidebarFooter>
     </Sidebar>
   )
