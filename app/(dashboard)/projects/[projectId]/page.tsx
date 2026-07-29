@@ -71,51 +71,56 @@ export default async function ProjectOverview({
       {/* Top metric cards */}
       {isAdmin ? (
         <div className="grid gap-6 md:grid-cols-4">
-          <div className="border border-border/60 rounded-xl p-5 bg-card/40 backdrop-blur-md shadow-sm flex flex-col justify-between">
+          {/* Total Budget - Pink */}
+          <div className="border border-rose-200/60 dark:border-rose-900/30 rounded-2xl p-5 bg-rose-50/50 dark:bg-rose-950/10 shadow-sm flex flex-col justify-between transition-all hover:shadow-md duration-300">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-xs font-semibold text-muted-foreground/80 flex items-center gap-1.5">
+              <span className="text-xs font-bold text-rose-800 dark:text-rose-400 flex items-center gap-1.5">
                 Total Budget
                 <EditBudgetDialog projectId={projectId} currentBudget={project?.total_budget ?? 0} />
               </span>
-              <IndianRupee className="h-4 w-4 text-muted-foreground/60" />
+              <IndianRupee className="h-4 w-4 text-rose-700 dark:text-rose-400" />
             </div>
-            <div className="text-2xl font-bold text-foreground">₹{(project?.total_budget ?? 0).toLocaleString('en-IN')}</div>
+            <div className="text-2xl font-extrabold text-rose-900 dark:text-rose-300">₹{(project?.total_budget ?? 0).toLocaleString('en-IN')}</div>
           </div>
 
-          <div className="border border-border/60 rounded-xl p-5 bg-card/40 backdrop-blur-md shadow-sm flex flex-col justify-between">
+          {/* Assigned Client - Purple */}
+          <div className="border border-purple-200/60 dark:border-purple-900/30 rounded-2xl p-5 bg-purple-50/50 dark:bg-purple-950/10 shadow-sm flex flex-col justify-between transition-all hover:shadow-md duration-300">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-xs font-semibold text-muted-foreground/80">Assigned Client</span>
-              <UserCircle className="h-4 w-4 text-muted-foreground/60" />
+              <span className="text-xs font-bold text-purple-800 dark:text-purple-400">Assigned Client</span>
+              <UserCircle className="h-4 w-4 text-purple-700 dark:text-purple-400" />
             </div>
-            <div className="text-lg font-bold text-foreground truncate">
+            <div className="text-lg font-bold text-purple-900 dark:text-purple-300 truncate">
               {project?.client_reference || "Unassigned"}
             </div>
           </div>
 
-          <div className="border border-border/60 rounded-xl p-5 bg-card/40 backdrop-blur-md shadow-sm flex flex-col justify-between">
+          {/* Approved Spend - Blue */}
+          <div className="border border-blue-200/60 dark:border-blue-900/30 rounded-2xl p-5 bg-blue-50/50 dark:bg-blue-950/10 shadow-sm flex flex-col justify-between transition-all hover:shadow-md duration-300">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-xs font-semibold text-muted-foreground/80">Approved Spend</span>
-              <CheckCircle className="h-4 w-4 text-green-600" />
+              <span className="text-xs font-bold text-blue-800 dark:text-blue-400">Approved Spend</span>
+              <CheckCircle className="h-4 w-4 text-blue-700 dark:text-blue-400" />
             </div>
-            <div className="text-2xl font-bold text-green-600">₹{approvedSpend.toLocaleString('en-IN')}</div>
+            <div className="text-2xl font-extrabold text-blue-900 dark:text-blue-300">₹{approvedSpend.toLocaleString('en-IN')}</div>
           </div>
 
-          <div className="border border-border/60 rounded-xl p-5 bg-card/40 backdrop-blur-md shadow-sm flex flex-col justify-between">
+          {/* Remaining Budget - Yellow */}
+          <div className="border border-amber-200/60 dark:border-amber-900/30 rounded-2xl p-5 bg-amber-50/50 dark:bg-amber-950/10 shadow-sm flex flex-col justify-between transition-all hover:shadow-md duration-300">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-xs font-semibold text-muted-foreground/80">Remaining Budget</span>
-              <Package className="h-4 w-4 text-[#2F5BFF]" />
+              <span className="text-xs font-bold text-amber-800 dark:text-amber-400">Remaining Budget</span>
+              <Package className="h-4 w-4 text-amber-700 dark:text-amber-400" />
             </div>
-            <div className="text-2xl font-bold text-[#2F5BFF]">₹{remainingBudget.toLocaleString('en-IN')}</div>
+            <div className="text-2xl font-extrabold text-amber-900 dark:text-amber-300">₹{remainingBudget.toLocaleString('en-IN')}</div>
           </div>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-1">
-          <div className="border border-border/60 rounded-xl p-5 bg-card/40 backdrop-blur-md shadow-sm flex flex-col justify-between">
+          {/* Assigned Client - Purple */}
+          <div className="border border-purple-200/60 dark:border-purple-900/30 rounded-2xl p-5 bg-purple-50/50 dark:bg-purple-950/10 shadow-sm flex flex-col justify-between transition-all hover:shadow-md duration-300">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-xs font-semibold text-muted-foreground/80">Assigned Client</span>
-              <UserCircle className="h-4 w-4 text-muted-foreground/60" />
+              <span className="text-xs font-bold text-purple-800 dark:text-purple-400">Assigned Client</span>
+              <UserCircle className="h-4 w-4 text-purple-700 dark:text-purple-400" />
             </div>
-            <div className="text-lg font-bold text-foreground truncate">
+            <div className="text-lg font-bold text-purple-900 dark:text-purple-300 truncate">
               {project?.client_reference || "Unassigned"}
             </div>
           </div>
