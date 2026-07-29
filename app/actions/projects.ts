@@ -180,7 +180,7 @@ export async function deleteProject(projectId: string) {
       : Promise.resolve(),
   ]);
 
-  // Delete the project — cascades to all child tables via FK
+  // Delete the project - cascades to all child tables via FK
   const { error } = await supabase
     .from("projects")
     .delete()

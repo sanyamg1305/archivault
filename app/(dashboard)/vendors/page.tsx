@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Phone, MapPin, Store } from "lucide-react";
 
-export const metadata = { title: "Vendors — ArchiVault" };
+export const metadata = { title: "Vendors - ArchiVault" };
 
 export default async function VendorsPage() {
   const { orgId } = await auth();

@@ -27,21 +27,21 @@ export default function PrivacyPage() {
 
         <Section title="2. What We Collect">
           <ul className="list-disc pl-5 space-y-1.5">
-            <li><strong>Account information</strong> — name, email address, and profile photo provided when you sign up via Clerk.</li>
-            <li><strong>Organisation data</strong> — firm name, team members you invite, and roles assigned to them.</li>
-            <li><strong>Project content</strong> — designs, materials, documents, photos, chat messages, mood board items, and any other files you upload while using ArchiVault.</li>
-            <li><strong>Usage data</strong> — pages visited, actions taken inside the app, and timestamps (stored in our activity log).</li>
-            <li><strong>Device & browser data</strong> — IP address, browser type, and operating system, collected automatically by our hosting infrastructure.</li>
+            <li><strong>Account information</strong> - name, email address, and profile photo provided when you sign up via Clerk.</li>
+            <li><strong>Organisation data</strong> - firm name, team members you invite, and roles assigned to them.</li>
+            <li><strong>Project content</strong> - designs, materials, documents, photos, chat messages, mood board items, and any other files you upload while using ArchiVault.</li>
+            <li><strong>Usage data</strong> - pages visited, actions taken inside the app, and timestamps (stored in our activity log).</li>
+            <li><strong>Device & browser data</strong> - IP address, browser type, and operating system, collected automatically by our hosting infrastructure.</li>
           </ul>
         </Section>
 
         <Section title="3. How We Use Your Data">
           <ul className="list-disc pl-5 space-y-1.5">
             <li>To create and manage your account and organisation.</li>
-            <li>To deliver the core features of ArchiVault — project tracking, client collaboration, document storage, and notifications.</li>
+            <li>To deliver the core features of ArchiVault - project tracking, client collaboration, document storage, and notifications.</li>
             <li>To generate audit trails and sign-off documents on your behalf.</li>
             <li>To send you transactional emails (e.g., invitations, OTP codes for trade workers).</li>
-            <li>To improve the platform — we analyse aggregate, anonymised usage to understand which features are most useful.</li>
+            <li>To improve the platform - we analyse aggregate, anonymised usage to understand which features are most useful.</li>
             <li>To comply with legal obligations.</li>
           </ul>
           <p>We do <strong>not</strong> sell your data to third parties. We do <strong>not</strong> use your project content to train AI models.</p>
@@ -56,10 +56,10 @@ export default function PrivacyPage() {
         <Section title="5. Data Sharing">
           <p>We share your data only with the following third-party service providers, strictly to operate the platform:</p>
           <ul className="list-disc pl-5 space-y-1.5">
-            <li><strong>Clerk</strong> — authentication and user management.</li>
-            <li><strong>Supabase</strong> — database and file storage.</li>
-            <li><strong>Vercel</strong> — application hosting and edge delivery.</li>
-            <li><strong>Twilio / SMS provider</strong> — OTP delivery for trade worker login.</li>
+            <li><strong>Clerk</strong> - authentication and user management.</li>
+            <li><strong>Supabase</strong> - database and file storage.</li>
+            <li><strong>Vercel</strong> - application hosting and edge delivery.</li>
+            <li><strong>Twilio / SMS provider</strong> - OTP delivery for trade worker login.</li>
           </ul>
           <p>All providers are bound by data processing agreements and industry-standard security practices.</p>
         </Section>

@@ -77,7 +77,7 @@ export default function TermsPage() {
 
         <Section title="10. Disclaimers">
           <p>The Service is provided "as is" without warranties of any kind, express or implied, including fitness for a particular purpose or non-infringement.</p>
-          <p>ArchiVault is a project management tool — it does not provide architectural, legal, financial, or any other professional advice. All project decisions remain the responsibility of the relevant professionals and parties.</p>
+          <p>ArchiVault is a project management tool - it does not provide architectural, legal, financial, or any other professional advice. All project decisions remain the responsibility of the relevant professionals and parties.</p>
         </Section>
 
         <Section title="11. Limitation of Liability">

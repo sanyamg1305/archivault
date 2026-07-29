@@ -24,7 +24,7 @@ export default async function SiteVisitsPage({ params }: { params: Promise<{ pro
             <ClipboardList className="h-5 w-5 text-primary" /> Site Visit Log
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Structured records of every site visit — part of the project audit trail.
+            Structured records of every site visit - part of the project audit trail.
           </p>
         </div>
         {canEdit && <LogVisitDialog projectId={projectId} />}

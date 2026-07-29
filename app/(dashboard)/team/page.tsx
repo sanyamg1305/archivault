@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
 import { InviteMemberDialog } from "@/components/team/invite-member-dialog";
 
-export const metadata = { title: "Team — ArchiVault" };
+export const metadata = { title: "Team - ArchiVault" };
 
 export default async function TeamPage() {
   const { orgId, orgRole } = await auth();

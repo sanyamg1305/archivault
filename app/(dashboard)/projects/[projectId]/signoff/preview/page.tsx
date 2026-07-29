@@ -104,7 +104,7 @@ export default async function SignoffPreviewPage({ params }: { params: Promise<{
                   {(items ?? []).map((m: any) => (
                     <tr key={m.id}>
                       <td className="py-2">{m.name}</td>
-                      <td className="py-2 text-zinc-500">{m.rooms?.name ?? "—"}</td>
+                      <td className="py-2 text-zinc-500">{m.rooms?.name ?? "-"}</td>
                       <td className="py-2 text-right">₹{Number(m.estimated_cost).toLocaleString("en-IN")}</td>
                     </tr>
                   ))}
@@ -135,7 +135,7 @@ export default async function SignoffPreviewPage({ params }: { params: Promise<{
                   <tr key={dv.id}>
                     <td className="py-2">{dv.designs?.title}</td>
                     <td className="py-2 text-zinc-500">v{dv.version_number}</td>
-                    <td className="py-2 text-zinc-500">{dv.designs?.rooms?.name ?? "—"}</td>
+                    <td className="py-2 text-zinc-500">{dv.designs?.rooms?.name ?? "-"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -148,7 +148,7 @@ export default async function SignoffPreviewPage({ params }: { params: Promise<{
           <div>
             <div className="h-12 border-b border-zinc-400 mb-2" />
             <p className="text-sm text-zinc-500">Architect / Designer</p>
-            <p className="text-sm font-medium mt-0.5">{signoff?.requested_by_name ?? "—"}</p>
+            <p className="text-sm font-medium mt-0.5">{signoff?.requested_by_name ?? "-"}</p>
           </div>
           <div>
             <div className="h-12 border-b border-zinc-400 mb-2 relative">

@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { RequiresAttention } from "@/components/dashboard/requires-attention";
 
 export const metadata = {
-  title: "Dashboard — Action Center",
+  title: "Dashboard - Action Center",
   description: "Action center for your architecture and design projects.",
 };
 
@@ -28,7 +28,7 @@ export default async function DashboardPage() {
   const isAdmin = orgRole === "org:admin" || orgRole === "admin";
   const isArchitect = orgRole === "org:architect" || orgRole === "architect";
 
-  // Fetch projects — architects only see their assigned projects
+  // Fetch projects - architects only see their assigned projects
   let projectsQuery = supabase
     .from("projects")
     .select("*")

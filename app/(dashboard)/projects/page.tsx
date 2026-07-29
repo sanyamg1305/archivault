@@ -15,7 +15,7 @@ import { DeleteProjectButton } from "@/components/projects/delete-project-button
 import { CopyLinkButton } from "@/components/projects/copy-link-button";
 
 export const metadata = {
-  title: "Projects Directory — ArchiVault",
+  title: "Projects Directory - ArchiVault",
   description: "View and filter all your architecture projects.",
 };
 
@@ -86,7 +86,7 @@ export default async function ProjectsDirectoryPage({ searchParams }: { searchPa
               defaultValue={searchQuery}
             />
           </form>
-          {/* Status filter — URL-driven via GET links */}
+          {/* Status filter - URL-driven via GET links */}
           <div className="flex gap-1">
             {STATUS_OPTIONS.map(s => (
               <Link

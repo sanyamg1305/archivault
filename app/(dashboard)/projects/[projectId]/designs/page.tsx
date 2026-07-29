@@ -102,7 +102,7 @@ export default async function DesignsPage({
         )}
       </div>
 
-      {/* Folders grid — only on root level */}
+      {/* Folders grid - only on root level */}
       {!activeFolderId && allFolders.length > 0 && (
         <div>
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Folders</p>

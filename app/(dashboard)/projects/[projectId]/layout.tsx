@@ -11,7 +11,7 @@ export default async function ProjectLayout({
   children: React.ReactNode;
   params: Promise<{ projectId: string }>;
 }) {
-  // In Next.js 15, params is a Promise — must be awaited
+  // In Next.js 15, params is a Promise - must be awaited
   const { projectId } = await params;
   const { orgId, orgRole } = await auth();
   const isTeamMember = orgRole === "org:architect" || orgRole === "architect";
@@ -53,7 +53,7 @@ export default async function ProjectLayout({
           )}
         </div>
 
-        {/* Project Navigation — client component for active state */}
+        {/* Project Navigation - client component for active state */}
         <ProjectNav projectId={projectId} />
       </div>
 

@@ -6,7 +6,7 @@ import { UserRound, FolderOpen } from "lucide-react";
 import Link from "next/link";
 import { InviteClientDialog } from "@/components/team/invite-client-dialog";
 
-export const metadata = { title: "Clients — ArchiVault" };
+export const metadata = { title: "Clients - ArchiVault" };
 
 export default async function ClientsPage() {
   const { orgId } = await auth();

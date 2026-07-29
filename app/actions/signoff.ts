@@ -11,7 +11,7 @@ export async function requestSignoff(projectId: string, notes: string, requested
 
   const supabase = createServiceRoleClient();
 
-  // Upsert — one sign-off per project
+  // Upsert - one sign-off per project
   const { error } = await supabase.from("project_signoffs").upsert(
     {
       project_id: projectId,

@@ -37,7 +37,7 @@ export default async function MoodBoardPage({ params }: { params: Promise<{ proj
             <Sparkles className="h-5 w-5 text-primary" /> Mood Board
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Client inspiration — images and reference links organised by room.
+            Client inspiration - images and reference links organised by room.
           </p>
         </div>
         {canEdit && <AddMoodBoardItemDialog projectId={projectId} rooms={rooms ?? []} />}

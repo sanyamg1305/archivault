@@ -140,7 +140,7 @@ export default async function LandingPage() {
                 Every decision, tracked and approved.
               </h2>
               <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-400">
-                Your full project — materials, rooms, approvals — in one place.
+                Your full project - materials, rooms, approvals - in one place.
               </p>
             </div>
 
@@ -158,7 +158,7 @@ export default async function LandingPage() {
               </div>
 
               <div className="flex h-[540px]">
-                {/* Left panel — list */}
+                {/* Left panel - list */}
                 <div className="w-80 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex flex-col">
                   <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800">
                     <div className="flex gap-2 mb-3">
@@ -246,7 +246,7 @@ export default async function LandingPage() {
                   </div>
                 </div>
 
-                {/* Right panel — detail */}
+                {/* Right panel - detail */}
                 <div className="flex-1 flex flex-col bg-zinc-50 dark:bg-zinc-950 overflow-hidden">
                   {/* Detail header */}
                   <div className="px-8 py-5 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 flex items-start justify-between">
@@ -297,7 +297,7 @@ export default async function LandingPage() {
                     <div className="rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5">
                       <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Designer&apos;s Note</p>
                       <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                        Selected for its consistent vein pattern across slabs — critical for the waterfall edge on the island. Italian origin with 15mm thickness ensures durability for the high-traffic kitchen counter.
+                        Selected for its consistent vein pattern across slabs - critical for the waterfall edge on the island. Italian origin with 15mm thickness ensures durability for the high-traffic kitchen counter.
                       </p>
                     </div>
 

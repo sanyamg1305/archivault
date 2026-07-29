@@ -33,7 +33,7 @@ export default async function ClientMoodBoardPage({ params }: { params: Promise<
             <Sparkles className="h-5 w-5 text-primary" /> Mood Board
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Your inspiration board — curated by your architect team.
+            Your inspiration board - curated by your architect team.
           </p>
         </div>
       </div>

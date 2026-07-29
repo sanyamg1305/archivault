@@ -51,7 +51,7 @@ export default async function ProjectChatPage({
             Client Chat
             {project?.client_reference && (
               <span className="text-xs text-muted-foreground">
-                — {project.client_reference}
+                - {project.client_reference}
               </span>
             )}
           </TabsTrigger>

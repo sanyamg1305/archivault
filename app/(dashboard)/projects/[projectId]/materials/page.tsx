@@ -21,7 +21,7 @@ export default async function MaterialsPage({ params }: { params: Promise<{ proj
       .order("created_at", { ascending: false }),
   ]);
 
-  // Signed URLs — materials bucket is private
+  // Signed URLs - materials bucket is private
   const imagePaths = (rawMaterials ?? []).map((m) => m.image_path).filter(Boolean);
   const { data: signedResults } = imagePaths.length
     ? await supabase.storage.from("materials").createSignedUrls(imagePaths, 60 * 60 * 24)

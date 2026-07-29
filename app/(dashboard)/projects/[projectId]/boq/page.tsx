@@ -43,7 +43,7 @@ export default async function BOQPage({ params }: { params: Promise<{ projectId:
         {/* Print header */}
         <div className="mb-8 print:block">
           <h1 className="text-2xl font-bold">{project?.name}</h1>
-          <p className="text-sm text-muted-foreground">Bill of Quantities — Generated {new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</p>
+          <p className="text-sm text-muted-foreground">Bill of Quantities - Generated {new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</p>
           {project?.client_reference && <p className="text-sm text-muted-foreground">Client: {project.client_reference}</p>}
         </div>
 
@@ -74,7 +74,7 @@ export default async function BOQPage({ params }: { params: Promise<{ projectId:
                   {materials.map((m: any) => (
                     <tr key={m.id} className="border-b hover:bg-muted/20">
                       <td className="px-3 py-2">{m.name}</td>
-                      <td className="px-3 py-2 text-muted-foreground">{m.vendor || "—"}</td>
+                      <td className="px-3 py-2 text-muted-foreground">{m.vendor || "-"}</td>
                       <td className="px-3 py-2">
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                           m.status === "Approved" ? "bg-green-100 text-green-700" :
@@ -114,7 +114,7 @@ export default async function BOQPage({ params }: { params: Promise<{ projectId:
                   {over
                     ? `⚠️ Over budget by ₹${(grandTotal - budget).toLocaleString("en-IN")}`
                     : warn
-                    ? `⚡ ${pct.toFixed(0)}% of budget used — approaching limit`
+                    ? `⚡ ${pct.toFixed(0)}% of budget used - approaching limit`
                     : `Budget: ₹${budget.toLocaleString("en-IN")} total`}
                 </span>
                 <span className="font-semibold shrink-0">{pct.toFixed(0)}% used</span>

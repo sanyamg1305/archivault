@@ -86,7 +86,7 @@ export default async function TradesPortalDashboard() {
             Welcome, {worker.name} 👋
           </h1>
           <p className="text-sm text-white/70 leading-relaxed font-medium">
-            {worker.trade_type} &mdash; Coordinate project milestones, view room locations, and update statuses as tasks are completed.
+            {worker.trade_type} · Coordinate project milestones, view room locations, and update statuses as tasks are completed.
           </p>
         </div>
         {/* Abstract background graphics */}

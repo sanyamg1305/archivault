@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { AddTradeDialog } from "@/components/trades/add-trade-dialog";
 import { EditTradeDialog } from "@/components/trades/edit-trade-dialog";
 
-export const metadata = { title: "Trades — ArchiVault" };
+export const metadata = { title: "Trades - ArchiVault" };
 
 const TRADE_COLORS: Record<string, string> = {
   Painter:      "bg-yellow-100 text-yellow-700",
@@ -50,7 +50,7 @@ export default async function TradesPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Trades</h1>
           <p className="text-muted-foreground mt-1">
-            Your in-house trade workers — painters, plumbers, electricians and more.
+            Your in-house trade workers - painters, plumbers, electricians and more.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -111,7 +111,7 @@ export default async function TradesPage() {
                       ) : (
                         <p className="flex items-center gap-2 text-xs text-muted-foreground">
                           <KeyRound className="h-3.5 w-3.5 shrink-0" />
-                          No login set — use ⋯ → Set Login
+                          No login set - use ⋯ → Set Login
                         </p>
                       )}
                     </div>
