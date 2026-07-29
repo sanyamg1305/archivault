@@ -48,7 +48,7 @@ export function Logo({
       <LogoIcon className={iconClassName} />
       {showText && (
         <span className={cn("font-sans dark:text-white", textClassName || "text-foreground")}>
-          Archi<span className="text-[#2F5BFF]">Vault</span>
+          Archi<span className="text-[#2F5BFF]">Vault<sup className="text-[9px] select-none ml-0.5 font-bold align-super">TM</sup></span>
         </span>
       )}
     </div>

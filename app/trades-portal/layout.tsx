@@ -12,7 +12,7 @@ export default async function TradesPortalLayout({ children }: { children: React
         <header className="border-b bg-card px-6 py-3 flex items-center justify-between shadow-sm relative z-20">
           <div className="flex items-center gap-2 font-bold text-foreground">
             <HardHat className="h-5 w-5 text-[#2F5BFF]" />
-            <span>ArchiVault Trades</span>
+            <span>ArchiVault<sup className="text-[8px] select-none ml-0.5 font-bold align-super">TM</sup> Trades</span>
           </div>
           <TradesSignOutButton />
         </header>

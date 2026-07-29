@@ -23,7 +23,7 @@ export default function TradesSignInPage() {
             <HardHat className="h-8 w-8 text-[#2F5BFF]" />
           </div>
           <div className="space-y-1">
-            <h1 className="text-2xl font-extrabold tracking-tight text-white">ArchiVault Trades</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight text-white flex items-center justify-center">ArchiVault<sup className="text-xs select-none ml-0.5 font-bold align-super">TM</sup> Trades</h1>
             <p className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Trades Portal Access</p>
           </div>
         </div>
