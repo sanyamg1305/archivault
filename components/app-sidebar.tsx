@@ -43,7 +43,7 @@ export function AppSidebar() {
           <LogoIcon className="h-6 w-6" />
         ) : (
           <>
-            <Logo href="/dashboard" iconClassName="h-7 w-7" textClassName="text-xl font-bold" />
+            <Logo href="/dashboard" iconClassName="h-7 w-7" textClassName="text-xl font-bold text-white" />
             <OrganizationSwitcher
               appearance={{
                 elements: {

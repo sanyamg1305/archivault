@@ -1,11 +1,11 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { getSignoff } from "@/app/actions/signoff";
 import Link from "next/link";
 import {
   AlertCircle, CheckCircle2, ChevronRight, FileCheck,
   IndianRupee, CalendarDays, ClipboardList, Sparkles,
-  MessageCircle, Clock, TrendingUp, Users,
+  MessageCircle, Clock, TrendingUp, Calendar, Info
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,13 +17,13 @@ function ProgressRing({ pct }: { pct: number }) {
   const dash = (pct / 100) * circ;
   return (
     <svg width="88" height="88" viewBox="0 0 88 88" className="-rotate-90">
-      <circle cx="44" cy="44" r={r} fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/30" />
+      <circle cx="44" cy="44" r={r} fill="none" stroke="currentColor" strokeWidth="6" className="text-muted/20" />
       <circle
         cx="44" cy="44" r={r} fill="none"
-        stroke="currentColor" strokeWidth="8"
+        stroke="currentColor" strokeWidth="6"
         strokeDasharray={`${dash} ${circ}`}
         strokeLinecap="round"
-        className="text-primary transition-all duration-700"
+        className="text-[#2F5BFF] transition-all duration-700"
       />
     </svg>
   );
@@ -35,7 +35,9 @@ export default async function ClientDashboardPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const { userId } = await auth();
+  const user = await currentUser();
+  const firstName = user?.firstName || "Client";
+
   const supabase = createServiceRoleClient();
 
   const [
@@ -99,186 +101,216 @@ export default async function ClientDashboardPage({
   ];
 
   return (
-    <div className="p-6 space-y-8 animate-in fade-in duration-300">
-
-      {/* Welcome header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">{project?.name}</h1>
-        <p className="text-muted-foreground mt-1 text-sm">Your project overview — everything in one place.</p>
+    <div className="p-8 space-y-10 animate-in fade-in duration-300">
+      
+      {/* Welcome header (Eduplex Style) */}
+      <div className="border-b border-border/20 pb-6">
+        <h1 className="text-3xl font-bold tracking-tight font-sans text-foreground">
+          Welcome back, {firstName} 👋
+        </h1>
+        <p className="text-muted-foreground mt-1 text-sm font-medium">
+          Workspace for <span className="text-[#2F5BFF] font-semibold">{project?.name}</span>.
+        </p>
       </div>
 
-      {/* Next action banner */}
-      {nextAction && (
-        <Link href={nextAction.href}>
-          <div className={cn(
-            "flex items-center justify-between rounded-xl p-4 border transition-all hover:shadow-sm",
-            nextAction.urgent ? "bg-amber-50 border-amber-200" : "bg-primary/5 border-primary/20"
-          )}>
-            <div className="flex items-center gap-3">
-              <div className={cn("p-2 rounded-full", nextAction.urgent ? "bg-amber-100 text-amber-600" : "bg-primary/10 text-primary")}>
-                <AlertCircle className="h-4 w-4" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Next Action</p>
-                <p className={cn("font-semibold text-sm mt-0.5", nextAction.urgent ? "text-amber-900" : "text-foreground")}>
-                  {nextAction.label}
-                </p>
-              </div>
-            </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
-          </div>
-        </Link>
-      )}
-
-      {/* Progress + budget row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Project progress ring */}
-        <div className="sm:col-span-1 rounded-xl border bg-card p-5 flex items-center gap-5">
-          <div className="relative shrink-0">
+      {/* Progress + Budget Row (Eduplex Mockup top metrics style) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Project progress ring card */}
+        <div className="border border-border/60 rounded-2xl p-6 bg-card/45 backdrop-blur-md shadow-sm flex items-center gap-6">
+          <div className="relative shrink-0 flex items-center justify-center">
             <ProgressRing pct={milestonePct} />
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-lg font-bold">{milestonePct}%</span>
+              <span className="text-lg font-bold text-foreground">{milestonePct}%</span>
             </div>
           </div>
           <div>
-            <p className="text-sm font-semibold">Project Progress</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{completedMilestones} of {totalMilestones} milestones</p>
+            <p className="text-sm font-bold text-foreground">Project Progress</p>
+            <p className="text-xs text-muted-foreground mt-1">{completedMilestones} of {totalMilestones} milestones</p>
             {nextMilestone && (
-              <p className="text-xs text-primary mt-2 font-medium truncate max-w-[140px]">
+              <p className="text-xs text-[#2F5BFF] mt-3 font-semibold truncate max-w-[140px]" title={nextMilestone.title}>
                 Next: {nextMilestone.title}
               </p>
             )}
           </div>
         </div>
 
-        {/* Budget */}
-        <div className="sm:col-span-2 rounded-xl border bg-card p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold">Budget</p>
-            <span className={cn("text-sm font-bold", budgetPct >= 90 ? "text-destructive" : budgetPct >= 75 ? "text-amber-500" : "text-primary")}>
-              {budgetPct}% used
+        {/* Dark budget utilization card (Go Premium banner style) */}
+        <div className="md:col-span-2 bg-[#0f0f10] border border-border/40 text-white rounded-2xl p-6 shadow-lg relative overflow-hidden flex flex-col justify-between min-h-[160px]">
+          <div className="flex items-center justify-between relative z-10">
+            <div>
+              <span className="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded bg-white/10 text-white/90">
+                Budget Tracking
+              </span>
+              <h3 className="text-base font-bold mt-1.5">Approved Project Expenses</h3>
+            </div>
+            <span className={cn("text-xs font-bold px-2 py-1 rounded bg-white/10", budgetPct >= 90 ? "text-red-400" : budgetPct >= 75 ? "text-amber-400" : "text-white")}>
+              {budgetPct}% Used
             </span>
           </div>
-          <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden">
-            <div
-              className={cn("h-full rounded-full transition-all duration-700", budgetPct >= 90 ? "bg-destructive" : budgetPct >= 75 ? "bg-amber-500" : "bg-primary")}
-              style={{ width: `${budgetPct}%` }}
-            />
+
+          <div className="space-y-2 mt-4 relative z-10">
+            <div className="h-2 w-full bg-white/15 rounded-full overflow-hidden">
+              <div
+                className={cn("h-full rounded-full transition-all duration-700 bg-gradient-to-r from-[#2F5BFF] to-indigo-400")}
+                style={{ width: `${budgetPct}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-xs text-white/70">
+              <span className="font-semibold text-white">₹{approvedSpend.toLocaleString("en-IN")} Approved</span>
+              <span>of ₹{totalBudget.toLocaleString("en-IN")}</span>
+            </div>
           </div>
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">₹{approvedSpend.toLocaleString("en-IN")} approved</span>
-            <span>of ₹{totalBudget.toLocaleString("en-IN")}</span>
-          </div>
-          <div className="pt-1 flex gap-4 text-xs">
-            <span className="text-muted-foreground">
-              Remaining: <span className="font-semibold text-foreground">₹{Math.max(totalBudget - approvedSpend, 0).toLocaleString("en-IN")}</span>
+
+          <div className="pt-3 border-t border-white/10 flex gap-4 text-[10px] text-white/60 relative z-10 mt-3">
+            <span>
+              Remaining: <span className="font-semibold text-white">₹{Math.max(totalBudget - approvedSpend, 0).toLocaleString("en-IN")}</span>
             </span>
-            <span className="text-muted-foreground">
-              Pending review: <span className="font-semibold text-amber-600">{pendingMaterials.length} items</span>
+            <span>
+              Pending approvals: <span className="font-semibold text-amber-400">{pendingMaterials.length} items</span>
             </span>
           </div>
+          
+          <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-[#2F5BFF]/10 rounded-full blur-2xl pointer-events-none" />
         </div>
       </div>
 
-      {/* Quick links */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-        {quickLinks.map(({ label, href, icon: Icon, badge }) => (
-          <Link key={label} href={href}>
-            <div className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 hover:border-primary/50 hover:bg-primary/5 transition-all text-center relative">
-              {badge !== null && badge !== undefined && (
-                <span className={cn(
-                  "absolute -top-1.5 -right-1.5 h-5 min-w-5 px-1 rounded-full text-[10px] font-bold flex items-center justify-center",
-                  badge === "✓" ? "bg-green-500 text-white" : "bg-primary text-primary-foreground"
-                )}>
-                  {badge}
+      {/* Quick Links Grid (Eduplex Sidebar shortcut style) */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-bold text-foreground">Project Sections</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+          {quickLinks.map(({ label, href, icon: Icon, badge }) => (
+            <Link key={label} href={href} className="group">
+              <div className="flex flex-col items-center gap-2.5 rounded-2xl border border-border/50 bg-card/45 backdrop-blur-md p-4 hover:border-[#2F5BFF]/50 hover:bg-[#eaefff]/30 transition-all text-center relative hover:-translate-y-0.5 duration-300">
+                {badge !== null && badge !== undefined && (
+                  <span className={cn(
+                    "absolute -top-1.5 -right-1.5 h-5 min-w-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center",
+                    badge === "✓" ? "bg-green-500 text-white" : "bg-[#2F5BFF] text-white"
+                  )}>
+                    {badge}
+                  </span>
+                )}
+                <Icon className="h-5 w-5 text-[#2F5BFF] group-hover:scale-110 transition-transform duration-300" />
+                <span className="text-xs font-semibold text-foreground group-hover:text-[#2F5BFF] transition-colors leading-tight">
+                  {label}
                 </span>
-              )}
-              <Icon className="h-5 w-5 text-primary" />
-              <span className="text-xs font-medium leading-tight">{label}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Split details column (Next Action, Recent Activity, Site Visits) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Left 2/3 Content Area */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Next action banner */}
+          {nextAction && (
+            <Link href={nextAction.href} className="block">
+              <div className={cn(
+                "flex items-center justify-between rounded-2xl p-4 border transition-all duration-300 hover:shadow-md hover:-translate-y-0.5",
+                nextAction.urgent ? "bg-amber-500/5 border-amber-500/20" : "bg-[#2F5BFF]/5 border-[#2F5BFF]/20"
+              )}>
+                <div className="flex items-center gap-3.5">
+                  <div className={cn("p-2 rounded-xl", nextAction.urgent ? "bg-amber-500/10 text-amber-600" : "bg-[#2F5BFF]/10 text-[#2F5BFF]")}>
+                    <AlertCircle className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Pending Action</p>
+                    <p className="font-semibold text-sm mt-0.5 text-foreground">
+                      {nextAction.label}
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground/60 shrink-0" />
+              </div>
+            </Link>
+          )}
+
+          {/* Activity vertical timeline */}
+          <div className="space-y-4">
+            <h3 className="text-base font-bold text-foreground">Project Activity Timeline</h3>
+            <div className="rounded-2xl border border-border/50 divide-y divide-border/30 bg-card/45 backdrop-blur-md overflow-hidden">
+              {!activityLogs || activityLogs.length === 0 ? (
+                <p className="text-sm text-muted-foreground p-6 text-center">No activity updates yet.</p>
+              ) : activityLogs.map(log => (
+                <div key={log.id} className="flex items-start gap-4.5 p-4">
+                  <div className="mt-1 h-2 w-2 rounded-full bg-[#2F5BFF] shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm text-foreground leading-snug">{log.action_description}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      {new Date(log.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
-          </Link>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Recent activity */}
-        <div className="space-y-3">
-          <h3 className="font-semibold text-sm">Recent Activity</h3>
-          <div className="rounded-xl border divide-y">
-            {!activityLogs || activityLogs.length === 0 ? (
-              <p className="text-sm text-muted-foreground p-4 text-center">No activity yet.</p>
-            ) : activityLogs.map(log => (
-              <div key={log.id} className="flex items-start gap-3 p-3">
-                <div className="mt-0.5 h-2 w-2 rounded-full bg-primary shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-sm truncate">{log.action_description}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {new Date(log.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
-                  </p>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
 
-        {/* Recent site visits */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-sm">Recent Site Visits</h3>
-            <Button variant="ghost" size="sm" className="h-7 text-xs" asChild>
-              <Link href={`${base}/site-visits`}>View all</Link>
-            </Button>
-          </div>
-          <div className="rounded-xl border divide-y">
-            {!visits || visits.length === 0 ? (
-              <p className="text-sm text-muted-foreground p-4 text-center">No site visits yet.</p>
-            ) : visits.map(v => (
-              <div key={v.id} className="flex items-start gap-3 p-3">
-                <div className="p-1.5 rounded-md bg-primary/10 text-primary shrink-0">
-                  <ClipboardList className="h-3.5 w-3.5" />
+        {/* Right 1/3 Widget Area */}
+        <div className="space-y-8">
+          {/* Recent Site Visits Schedule widget */}
+          <div className="border border-border/60 rounded-2xl p-6 bg-card/45 backdrop-blur-md shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-[#2F5BFF]" />
+                Recent Site Visits
+              </h3>
+              <Button variant="ghost" size="sm" className="h-7 text-xs text-[#2F5BFF] hover:bg-[#eaefff]" asChild>
+                <Link href={`${base}/site-visits`}>View all</Link>
+              </Button>
+            </div>
+            
+            <div className="space-y-3">
+              {!visits || visits.length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center py-4">No site visits logged.</p>
+              ) : visits.map(v => (
+                <div key={v.id} className="flex items-start gap-3 p-3 rounded-xl bg-muted/10 border border-border/30">
+                  <div className="p-2 rounded-lg bg-[#2F5BFF]/10 text-[#2F5BFF] shrink-0">
+                    <ClipboardList className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-foreground truncate">{v.title}</p>
+                    <p className="text-[10px] text-muted-foreground/80 mt-0.5">
+                      {new Date(v.visit_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">{v.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {new Date(v.visit_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-                    {v.attendees?.length ? ` · ${v.attendees.length} attendee${v.attendees.length > 1 ? "s" : ""}` : ""}
-                  </p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Sign-off status (if exists) */}
-      {signoff && (
-        <Link href={`${base}/signoff`}>
-          <div className={cn(
-            "flex items-center justify-between rounded-xl border p-4 transition-all hover:shadow-sm",
-            signoff.status === "signed" ? "bg-green-50 border-green-200" : "bg-amber-50 border-amber-200"
-          )}>
-            <div className="flex items-center gap-3">
-              {signoff.status === "signed"
-                ? <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
-                : <Clock className="h-5 w-5 text-amber-600 shrink-0" />
-              }
-              <div>
-                <p className="font-semibold text-sm">
-                  {signoff.status === "signed" ? "Project signed off" : "Sign-off requested"}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
+          {/* Sign-off overview */}
+          {signoff && (
+            <Link href={`${base}/signoff`} className="block">
+              <div className={cn(
+                "flex items-center justify-between rounded-2xl border p-4 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5",
+                signoff.status === "signed" ? "bg-green-500/5 border-green-500/20" : "bg-amber-500/5 border-amber-500/20"
+              )}>
+                <div className="flex items-center gap-3.5">
                   {signoff.status === "signed"
-                    ? `Signed by ${signoff.signed_by_name} on ${new Date(signoff.signed_at!).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`
-                    : "Your architect is awaiting your formal acknowledgement"
+                    ? <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
+                    : <Clock className="h-5 w-5 text-amber-600 shrink-0" />
                   }
-                </p>
+                  <div>
+                    <p className="font-semibold text-xs text-foreground">
+                      {signoff.status === "signed" ? "Project signed off" : "Sign-off requested"}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/80 mt-0.5 leading-relaxed">
+                      {signoff.status === "signed"
+                        ? `Signed by ${signoff.signed_by_name} on ${new Date(signoff.signed_at!).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`
+                        : "Acknowledgement requested by your architect"
+                      }
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground/60 shrink-0" />
               </div>
-            </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-          </div>
-        </Link>
-      )}
-
+            </Link>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

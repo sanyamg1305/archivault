@@ -57,7 +57,7 @@ export function ClientSidebar({ projects = [] }: { projects?: any[] }) {
           <LogoIcon className="h-5 w-5" />
         ) : (
           <div className="w-full flex flex-col gap-2.5">
-            <Logo href={null} iconClassName="h-6 w-6" textClassName="text-base font-bold" />
+            <Logo href={null} iconClassName="h-6 w-6" textClassName="text-base font-bold text-white" />
             <OrganizationSwitcher
               hidePersonal
               appearance={{

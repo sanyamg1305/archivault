@@ -47,7 +47,7 @@ export function Logo({
     <div className={cn("flex items-center gap-2.5 select-none", className)}>
       <LogoIcon className={iconClassName} />
       {showText && (
-        <span className={cn("font-sans text-foreground dark:text-white", textClassName)}>
+        <span className={cn("font-sans dark:text-white", textClassName || "text-foreground")}>
           Archi<span className="text-[#2F5BFF]">Vault</span>
         </span>
       )}
