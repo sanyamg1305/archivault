@@ -3,22 +3,57 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 
-const tabs = [
-  { label: "Overview",   segment: null },
-  { label: "Rooms",      segment: "rooms" },
-  { label: "Materials",  segment: "materials" },
-  { label: "Designs",    segment: "designs" },
-  { label: "Timeline",   segment: "timeline" },
-  { label: "Progress",   segment: "progress" },
-  { label: "Documents",  segment: "documents" },
-  { label: "BOQ",        segment: "boq" },
-  { label: "Tasks",        segment: "tasks" },
-  { label: "Task Allotment", segment: "internal-tasks" },
-  { label: "Site Visits",  segment: "site-visits" },
-  { label: "Mood Board",   segment: "mood-board" },
-  { label: "Sign-off",     segment: "signoff" },
-  { label: "Chat",         segment: "chat" },
+const groups = [
+  {
+    label: "Overview",
+    type: "link" as const,
+    segment: null,
+  },
+  {
+    label: "Planning",
+    type: "dropdown" as const,
+    items: [
+      { label: "Rooms", segment: "rooms" },
+      { label: "Designs", segment: "designs" },
+      { label: "Mood Board", segment: "mood-board" },
+    ],
+  },
+  {
+    label: "Execution",
+    type: "dropdown" as const,
+    items: [
+      { label: "Timeline", segment: "timeline" },
+      { label: "Tasks", segment: "tasks" },
+      { label: "Task Allotment", segment: "internal-tasks" },
+      { label: "Site Visits", segment: "site-visits" },
+      { label: "Progress", segment: "progress" },
+    ],
+  },
+  {
+    label: "Budget & Specs",
+    type: "dropdown" as const,
+    items: [
+      { label: "Materials", segment: "materials" },
+      { label: "BOQ", segment: "boq" },
+    ],
+  },
+  {
+    label: "Client Portal",
+    type: "dropdown" as const,
+    items: [
+      { label: "Documents", segment: "documents" },
+      { label: "Sign-off", segment: "signoff" },
+      { label: "Chat", segment: "chat" },
+    ],
+  },
 ];
 
 export function ProjectNav({ projectId }: { projectId: string }) {
@@ -26,26 +61,73 @@ export function ProjectNav({ projectId }: { projectId: string }) {
   const base = `/projects/${projectId}`;
 
   return (
-    <nav className="flex gap-1">
-      {tabs.map(({ label, segment }) => {
-        const href = segment ? `${base}/${segment}` : base;
-        const isActive = segment
-          ? pathname.startsWith(`${base}/${segment}`)
-          : pathname === base;
+    <nav className="flex items-center gap-1.5">
+      {groups.map((group) => {
+        if (group.type === "link") {
+          const href = group.segment ? `${base}/${group.segment}` : base;
+          const isActive = group.segment
+            ? pathname.startsWith(`${base}/${group.segment}`)
+            : pathname === base;
+
+          return (
+            <Link
+              key={group.label}
+              href={href}
+              className={cn(
+                "px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 select-none",
+                isActive
+                  ? "bg-[#2F5BFF] text-white shadow-sm shadow-[#2F5BFF]/10"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              )}
+            >
+              {group.label}
+            </Link>
+          );
+        }
+
+        // Check if any sub-item in this dropdown is currently active
+        const isActive = group.items.some((item) =>
+          pathname.startsWith(`${base}/${item.segment}`)
+        );
 
         return (
-          <Link
-            key={label}
-            href={href}
-            className={cn(
-              "px-4 py-2 text-sm font-medium rounded-md transition-colors",
-              isActive
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
-            )}
-          >
-            {label}
-          </Link>
+          <DropdownMenu key={group.label}>
+            <DropdownMenuTrigger
+              className={cn(
+                "px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 flex items-center gap-1 outline-none select-none border border-transparent hover:border-border/30",
+                isActive
+                  ? "bg-[#2F5BFF] text-white shadow-sm shadow-[#2F5BFF]/10"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              )}
+            >
+              {group.label}
+              <ChevronDown className="h-3.5 w-3.5 opacity-80 shrink-0" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="rounded-xl p-1.5 min-w-[160px] border-border/50 shadow-md">
+              {group.items.map((item) => {
+                const href = `${base}/${item.segment}`;
+                const isItemActive = pathname.startsWith(href);
+
+                return (
+                  <DropdownMenuItem
+                    key={item.label}
+                    asChild
+                    className={cn(
+                      "rounded-lg text-xs font-semibold cursor-pointer py-2 px-3",
+                      isItemActive
+                        ? "bg-[#eaefff] text-[#2F5BFF] dark:bg-[#2F5BFF]/20 dark:text-[#93c5fd]"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <Link href={href} className="w-full flex items-center justify-between">
+                      <span>{item.label}</span>
+                      {isItemActive && <span className="h-1.5 w-1.5 rounded-full bg-[#2F5BFF] dark:bg-[#93c5fd]" />}
+                    </Link>
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       })}
     </nav>
