@@ -151,10 +151,24 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {/* Welcome Banner for Team Members */}
+      {!isAdmin && (
+        <div className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white shadow-md relative overflow-hidden">
+          <div className="relative z-10 space-y-2">
+            <h2 className="text-2xl font-bold">Welcome back!</h2>
+            <p className="text-blue-100 max-w-xl">
+              Track your assigned projects, view tasks, and manage room designs directly from your workspace.
+            </p>
+          </div>
+          {/* Subtle decoration */}
+          <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-white/5 skew-x-12 translate-x-12 pointer-events-none" />
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        {/* LEFT COLUMN: Action Items */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* LEFT COLUMN: Action Items & Projects */}
+        <div className={`${isAdmin ? "lg:col-span-2" : "lg:col-span-3"} space-y-6`}>
           <RequiresAttention actionItems={actionItems} />
 
           {/* Ongoing Projects Section */}
@@ -171,7 +185,7 @@ export default async function DashboardPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {projects && projects.length > 0 ? (
-                projects.slice(0, 3).map((project) => (
+                projects.slice(0, isAdmin ? 3 : 6).map((project) => (
                   <Link key={project.id} href={`/projects/${project.id}`} className="block group">
                     <Card className="hover:border-primary/50 hover:shadow-sm transition-all h-full bg-card/50">
                       <CardHeader className="p-4 pb-3">
@@ -214,70 +228,72 @@ export default async function DashboardPage() {
 
         </div>
 
-        {/* RIGHT COLUMN: Budget Health */}
-        <div className="space-y-6">
-          <h2 className="text-xl font-semibold">Budget Health</h2>
+        {/* RIGHT COLUMN: Budget Health (Only for Admin) */}
+        {isAdmin && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold">Budget Health</h2>
 
-          <div className="space-y-4">
-            {projects && projects.length > 0 ? (
-              projects.map(project => {
-                const { spent, total } = budgetUtilization[project.id];
-                const percentage = total > 0 ? Math.min(Math.round((spent / total) * 100), 100) : 0;
+            <div className="space-y-4">
+              {projects && projects.length > 0 ? (
+                projects.map(project => {
+                  const { spent, total } = budgetUtilization[project.id];
+                  const percentage = total > 0 ? Math.min(Math.round((spent / total) * 100), 100) : 0;
 
-                let statusColor = "bg-primary";
-                let textColor = "text-primary";
-                if (percentage >= 90) {
-                  statusColor = "bg-destructive";
-                  textColor = "text-destructive";
-                } else if (percentage >= 75) {
-                  statusColor = "bg-amber-500";
-                  textColor = "text-amber-500";
-                }
+                  let statusColor = "bg-primary";
+                  let textColor = "text-primary";
+                  if (percentage >= 90) {
+                    statusColor = "bg-destructive";
+                    textColor = "text-destructive";
+                  } else if (percentage >= 75) {
+                    statusColor = "bg-amber-500";
+                    textColor = "text-amber-500";
+                  }
 
-                return (
-                  <Card key={project.id} className="border-muted hover:border-border transition-colors">
-                    <CardHeader className="p-4 pb-2">
-                      <div className="flex justify-between items-start">
-                        <CardTitle className="text-base font-medium line-clamp-1">
-                          <Link href={`/projects/${project.id}`} className="hover:underline">
-                            {project.name}
-                          </Link>
-                        </CardTitle>
-                        <span className={`text-xs font-bold ${textColor}`}>
-                          {percentage}%
-                        </span>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-4 pt-2">
-                      <div className="space-y-2">
-                        <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                          <div
-                            className={`h-full ${statusColor} rounded-full transition-all duration-500 ease-out`}
-                            style={{ width: `${percentage}%` }}
-                          />
-                        </div>
-                        <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                          <span className="font-medium text-foreground/80">
-                            ₹{spent.toLocaleString('en-IN')} spent
-                          </span>
-                          <span>
-                            of ₹{total.toLocaleString('en-IN')}
+                  return (
+                    <Card key={project.id} className="border-muted hover:border-border transition-colors">
+                      <CardHeader className="p-4 pb-2">
+                        <div className="flex justify-between items-start">
+                          <CardTitle className="text-base font-medium line-clamp-1">
+                            <Link href={`/projects/${project.id}`} className="hover:underline">
+                              {project.name}
+                            </Link>
+                          </CardTitle>
+                          <span className={`text-xs font-bold ${textColor}`}>
+                            {percentage}%
                           </span>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })
-            ) : (
-              <Card className="border-dashed bg-transparent shadow-none">
-                <CardContent className="p-8 text-center text-sm text-muted-foreground">
-                  No active projects to monitor.
-                </CardContent>
-              </Card>
-            )}
+                      </CardHeader>
+                      <CardContent className="p-4 pt-2">
+                        <div className="space-y-2">
+                          <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+                            <div
+                              className={`h-full ${statusColor} rounded-full transition-all duration-500 ease-out`}
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                          <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                            <span className="font-medium text-foreground/80">
+                              ₹{spent.toLocaleString('en-IN')} spent
+                            </span>
+                            <span>
+                              of ₹{total.toLocaleString('en-IN')}
+                            </span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })
+              ) : (
+                <Card className="border-dashed bg-transparent shadow-none">
+                  <CardContent className="p-8 text-center text-sm text-muted-foreground">
+                    No active projects to monitor.
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
       </div>
     </div>

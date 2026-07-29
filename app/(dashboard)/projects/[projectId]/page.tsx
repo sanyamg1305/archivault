@@ -56,7 +56,9 @@ export default async function ProjectOverview({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold">Overview</h2>
-          <p className="text-sm text-muted-foreground mt-1">Financial health and project assignments.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {isAdmin ? "Financial health and project assignments." : "Track project timeline, notes, and activity."}
+          </p>
         </div>
         {isAdmin && (
           <div className="flex items-center gap-2">
@@ -67,90 +69,108 @@ export default async function ProjectOverview({
       </div>
 
       {/* Top metric cards */}
-      <div className="grid gap-6 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              Total Budget
-              {isAdmin && <EditBudgetDialog projectId={projectId} currentBudget={project?.total_budget ?? 0} />}
-            </CardTitle>
-            <IndianRupee className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{(project?.total_budget ?? 0).toLocaleString('en-IN')}</div>
-          </CardContent>
-        </Card>
+      {isAdmin ? (
+        <div className="grid gap-6 md:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                Total Budget
+                <EditBudgetDialog projectId={projectId} currentBudget={project?.total_budget ?? 0} />
+              </CardTitle>
+              <IndianRupee className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">₹{(project?.total_budget ?? 0).toLocaleString('en-IN')}</div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Assigned Client</CardTitle>
-            <UserCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold truncate mt-1">
-              {project?.client_reference || "Unassigned"}
-            </div>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Assigned Client</CardTitle>
+              <UserCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold truncate mt-1">
+                {project?.client_reference || "Unassigned"}
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Approved Spend</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">₹{approvedSpend.toLocaleString('en-IN')}</div>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Approved Spend</CardTitle>
+              <CheckCircle className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">₹{approvedSpend.toLocaleString('en-IN')}</div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Remaining Budget</CardTitle>
-            <Package className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">₹{remainingBudget.toLocaleString('en-IN')}</div>
-          </CardContent>
-        </Card>
-      </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Remaining Budget</CardTitle>
+              <Package className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">₹{remainingBudget.toLocaleString('en-IN')}</div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-1">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Assigned Client</CardTitle>
+              <UserCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold truncate mt-1">
+                {project?.client_reference || "Unassigned"}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Per-room budget breakdown */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Home className="h-4 w-4 text-muted-foreground" />
-              Budget by Room
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {roomBreakdown.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-4 text-center">No rooms created yet.</p>
-            ) : (
-              <div className="space-y-3">
-                {roomBreakdown.map((room) => {
-                  const pct = room.total > 0 ? Math.min(Math.round((room.approved / room.total) * 100), 100) : 0;
-                  return (
-                    <div key={room.id}>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm font-medium">{room.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          ₹{room.approved.toLocaleString('en-IN')} / ₹{room.total.toLocaleString('en-IN')}
-                        </span>
+        {isAdmin && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Home className="h-4 w-4 text-muted-foreground" />
+                Budget by Room
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {roomBreakdown.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">No rooms created yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {roomBreakdown.map((room) => {
+                    const pct = room.total > 0 ? Math.min(Math.round((room.approved / room.total) * 100), 100) : 0;
+                    return (
+                      <div key={room.id}>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-sm font-medium">{room.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            ₹{room.approved.toLocaleString('en-IN')} / ₹{room.total.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+                          <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
+                        </div>
                       </div>
-                      <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
-                        <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Activity log */}
-        <Card>
+        <Card className={isAdmin ? "" : "md:col-span-2"}>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
