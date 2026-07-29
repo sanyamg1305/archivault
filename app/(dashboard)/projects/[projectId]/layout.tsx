@@ -13,7 +13,8 @@ export default async function ProjectLayout({
 }) {
   // In Next.js 15, params is a Promise — must be awaited
   const { projectId } = await params;
-  const { orgId } = await auth();
+  const { orgId, orgRole } = await auth();
+  const isTeamMember = orgRole === "org:architect" || orgRole === "architect";
 
   const supabase = createServiceRoleClient();
 
@@ -42,12 +43,14 @@ export default async function ProjectLayout({
               <ProjectStatusSelect projectId={projectId} status={project.status ?? "Active"} />
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Total Budget</p>
-            <p className="text-2xl font-mono font-bold">
-              ₹{project.total_budget.toLocaleString('en-IN')}
-            </p>
-          </div>
+          {!isTeamMember && (
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground">Total Budget</p>
+              <p className="text-2xl font-mono font-bold">
+                ₹{project.total_budget.toLocaleString('en-IN')}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Project Navigation — client component for active state */}

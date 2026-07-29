@@ -1,5 +1,6 @@
 import { createServiceRoleClient } from "@/utils/supabase/server";
 import { PrintButton } from "./print-button";
+import { auth } from "@clerk/nextjs/server";
 
 export default async function ExportPage({
   params,
@@ -7,6 +8,9 @@ export default async function ExportPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
+  const { orgRole } = await auth();
+  const isTeamMember = orgRole === "org:architect" || orgRole === "architect";
+
   const supabase = createServiceRoleClient();
 
   const [{ data: project }, { data: rooms }] = await Promise.all([
@@ -44,8 +48,8 @@ export default async function ExportPage({
         <h1 className="text-3xl font-bold">{project?.name}</h1>
         <div className="flex gap-6 mt-2 text-sm text-zinc-500">
           {project?.client_reference && <span>Client: <strong className="text-zinc-800">{project.client_reference}</strong></span>}
-          <span>Total Budget: <strong className="text-zinc-800">₹{Number(project?.total_budget).toLocaleString('en-IN')}</strong></span>
-          <span>Approved Spend: <strong className="text-green-700">₹{approvedTotal.toLocaleString('en-IN')}</strong></span>
+          {!isTeamMember && <span>Total Budget: <strong className="text-zinc-800">₹{Number(project?.total_budget).toLocaleString('en-IN')}</strong></span>}
+          {!isTeamMember && <span>Approved Spend: <strong className="text-green-700">₹{approvedTotal.toLocaleString('en-IN')}</strong></span>}
           <span>Exported: <strong className="text-zinc-800">{new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</strong></span>
         </div>
       </div>

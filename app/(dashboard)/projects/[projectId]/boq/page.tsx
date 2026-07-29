@@ -5,8 +5,9 @@ import { ExportCSVButton } from "@/components/boq/export-csv-button";
 
 export default async function BOQPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
-  const { orgId } = await auth();
+  const { orgId, orgRole } = await auth();
   if (!orgId) return null;
+  const isTeamMember = orgRole === "org:architect" || orgRole === "architect";
 
   const supabase = createServiceRoleClient();
 
@@ -98,7 +99,7 @@ export default async function BOQPage({ params }: { params: Promise<{ projectId:
             <span className="font-bold text-lg">Grand Total</span>
             <span className="font-bold text-xl">₹{grandTotal.toLocaleString("en-IN")}</span>
           </div>
-          {project?.total_budget && (() => {
+          {!isTeamMember && project?.total_budget && (() => {
             const budget = Number(project.total_budget);
             const pct = budget > 0 ? (grandTotal / budget) * 100 : 0;
             const over = grandTotal > budget;
