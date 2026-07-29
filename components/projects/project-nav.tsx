@@ -14,6 +14,7 @@ const tabs = [
   { label: "Documents",  segment: "documents" },
   { label: "BOQ",        segment: "boq" },
   { label: "Tasks",        segment: "tasks" },
+  { label: "Task Allotment", segment: "internal-tasks" },
   { label: "Site Visits",  segment: "site-visits" },
   { label: "Mood Board",   segment: "mood-board" },
   { label: "Sign-off",     segment: "signoff" },
