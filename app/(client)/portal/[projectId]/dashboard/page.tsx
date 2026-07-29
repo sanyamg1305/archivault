@@ -101,29 +101,41 @@ export default async function ClientDashboardPage({
   ];
 
   return (
-    <div className="p-8 space-y-10 animate-in fade-in duration-300">
-      
-      {/* Welcome header (Eduplex Style) */}
-      <div className="border-b border-border/20 pb-6">
-        <h1 className="text-3xl font-bold tracking-tight font-sans text-foreground">
-          Welcome back, {firstName} 👋
-        </h1>
-        <p className="text-muted-foreground mt-1 text-sm font-medium">
-          Workspace for <span className="text-[#2F5BFF] font-semibold">{project?.name}</span>.
-        </p>
+    <div className="p-8 space-y-10 animate-in fade-in duration-300 relative min-h-screen">
+      {/* Ambient background glows */}
+      <div className="absolute top-0 right-0 w-[450px] h-[450px] bg-gradient-to-br from-[#2F5BFF]/5 to-[#6366f1]/5 rounded-full blur-[120px] pointer-events-none -z-10" />
+      <div className="absolute bottom-10 left-10 w-[350px] h-[350px] bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-[100px] pointer-events-none -z-10" />
+
+      {/* Client Header Card (Redesigned with glowing premium look) */}
+      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0f0f10] p-8 text-white shadow-xl min-h-[160px] flex flex-col justify-between">
+        <div className="relative z-10 max-w-xl space-y-2">
+          <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded bg-[#2F5BFF]/20 text-[#93c5fd] border border-[#2F5BFF]/30">
+            Client Portal Workspace
+          </span>
+          <h1 className="text-3xl font-extrabold tracking-tight mt-2 text-white">
+            Welcome back, {firstName} 👋
+          </h1>
+          <p className="text-sm text-white/70 leading-relaxed font-medium">
+            Track your project's development phases, inspect mood boards, view timeline status, and coordinate design approvals with your architect.
+          </p>
+        </div>
+        {/* Abstract background graphics */}
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-[#2F5BFF]/10 to-transparent pointer-events-none" />
+        <div className="absolute -right-16 -top-16 w-48 h-48 bg-[#2F5BFF]/20 rounded-full blur-[80px] pointer-events-none" />
       </div>
 
       {/* Progress + Budget Row (Eduplex Mockup top metrics style) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Project progress ring card */}
-        <div className="border border-border/60 rounded-2xl p-6 bg-card/45 backdrop-blur-md shadow-sm flex items-center gap-6">
+        <div className="border border-border/60 rounded-2xl p-6 bg-card/45 backdrop-blur-md shadow-sm flex items-center gap-6 relative overflow-hidden">
+          <div className="absolute -right-8 -bottom-8 w-20 h-20 bg-[#2F5BFF]/5 rounded-full blur-xl pointer-events-none" />
           <div className="relative shrink-0 flex items-center justify-center">
             <ProgressRing pct={milestonePct} />
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-lg font-bold text-foreground">{milestonePct}%</span>
             </div>
           </div>
-          <div>
+          <div className="relative z-10">
             <p className="text-sm font-bold text-foreground">Project Progress</p>
             <p className="text-xs text-muted-foreground mt-1">{completedMilestones} of {totalMilestones} milestones</p>
             {nextMilestone && (

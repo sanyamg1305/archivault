@@ -20,13 +20,13 @@ export const metadata = {
 
 export default async function DashboardPage() {
   const { orgId, orgRole, userId } = await auth();
-  const isAdmin = orgRole === "org:admin" || orgRole === "admin";
-  const isArchitect = orgRole === "org:architect" || orgRole === "architect";
-
   const user = await currentUser();
-  const firstName = user?.firstName || (isAdmin ? "Admin" : isArchitect ? "Team Member" : "User");
+  const firstName = user?.firstName || "Team Member";
 
   const supabase = createServiceRoleClient();
+
+  const isAdmin = orgRole === "org:admin" || orgRole === "admin";
+  const isArchitect = orgRole === "org:architect" || orgRole === "architect";
 
   // Fetch projects — architects only see their assigned projects
   let projectsQuery = supabase
@@ -137,20 +137,32 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div className="p-8 space-y-10 animate-in fade-in duration-300">
-      {/* Header (Eduplex Style) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/20 pb-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground font-sans">
+    <div className="p-8 space-y-10 animate-in fade-in duration-300 relative min-h-screen">
+      {/* Ambient background glow decoration */}
+      <div className="absolute top-0 right-0 w-[450px] h-[450px] bg-gradient-to-br from-[#2F5BFF]/5 to-[#6366f1]/5 rounded-full blur-[120px] pointer-events-none -z-10" />
+      <div className="absolute bottom-10 left-10 w-[350px] h-[350px] bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-[100px] pointer-events-none -z-10" />
+
+      {/* Studio Header Card (Redesigned with glowing premium look) */}
+      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0f0f10] p-8 text-white shadow-xl min-h-[160px] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+        <div className="relative z-10 max-w-xl space-y-2">
+          <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded bg-[#2F5BFF]/20 text-[#93c5fd] border border-[#2F5BFF]/30">
+            {isAdmin ? "Administrator Workspace" : "Architect Workspace"}
+          </span>
+          <h1 className="text-3xl font-extrabold tracking-tight mt-2 text-white">
             Welcome back, {firstName} 👋
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm font-medium">
-            Here is your studio's overview and items that need attention.
+          <p className="text-sm text-white/70 leading-relaxed font-medium">
+            {isAdmin 
+              ? "Oversee active client projects, verify approvals, and manage your studio's operational budget."
+              : "Track your assigned project deadlines, coordinate with team members, and check active design feedback."}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 relative z-10 sm:self-center">
           {isAdmin && <CreateProjectDialog />}
         </div>
+        {/* Abstract background graphics */}
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-[#2F5BFF]/10 to-transparent pointer-events-none" />
+        <div className="absolute -right-16 -top-16 w-48 h-48 bg-[#2F5BFF]/20 rounded-full blur-[80px] pointer-events-none" />
       </div>
 
       {/* Ongoing Projects Section (Top Row like 'New Courses') */}
@@ -174,17 +186,18 @@ export default async function DashboardPage() {
               const pct = ms && ms.total > 0 ? Math.round((ms.completed / ms.total) * 100) : 0;
               return (
                 <Link key={project.id} href={`/projects/${project.id}`} className="block h-full group">
-                  <div className="border border-border/60 hover:border-[#2F5BFF]/50 rounded-2xl p-6 bg-card/45 backdrop-blur-md shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col justify-between hover:-translate-y-1">
+                  <div className="border border-border/60 hover:border-[#2F5BFF]/50 rounded-2xl p-6 bg-card/45 backdrop-blur-md shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col justify-between hover:-translate-y-1 relative overflow-hidden">
+                    <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-[#2F5BFF]/5 rounded-full blur-xl group-hover:bg-[#2F5BFF]/10 transition-colors duration-300" />
                     <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-muted/40 text-muted-foreground">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#2F5BFF]/10 text-[#2F5BFF] dark:bg-[#2F5BFF]/20 dark:text-[#93c5fd]">
                           {project.phase || "Active"}
                         </span>
                       </div>
-                      <h3 className="text-base font-bold text-foreground group-hover:text-[#2F5BFF] transition-colors truncate">
+                      <h3 className="text-base font-extrabold text-foreground group-hover:text-[#2F5BFF] transition-colors truncate">
                         {project.name}
                       </h3>
-                      <p className="text-xs text-muted-foreground truncate mt-0.5">
+                      <p className="text-xs text-muted-foreground truncate mt-1 font-medium">
                         {project.client_reference || "No Client Assigned"}
                       </p>
                     </div>
