@@ -11,15 +11,31 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 
-const groups = [
+interface LinkGroup {
+  label: string;
+  type: "link";
+  segment: string | null;
+  items?: undefined;
+}
+
+interface DropdownGroup {
+  label: string;
+  type: "dropdown";
+  items: { label: string; segment: string }[];
+  segment?: undefined;
+}
+
+type GroupItem = LinkGroup | DropdownGroup;
+
+const groups: GroupItem[] = [
   {
     label: "Overview",
-    type: "link" as const,
+    type: "link",
     segment: null,
   },
   {
     label: "Planning",
-    type: "dropdown" as const,
+    type: "dropdown",
     items: [
       { label: "Rooms", segment: "rooms" },
       { label: "Designs", segment: "designs" },
@@ -28,7 +44,7 @@ const groups = [
   },
   {
     label: "Execution",
-    type: "dropdown" as const,
+    type: "dropdown",
     items: [
       { label: "Timeline", segment: "timeline" },
       { label: "Tasks", segment: "tasks" },
@@ -39,7 +55,7 @@ const groups = [
   },
   {
     label: "Budget & Specs",
-    type: "dropdown" as const,
+    type: "dropdown",
     items: [
       { label: "Materials", segment: "materials" },
       { label: "BOQ", segment: "boq" },
@@ -47,7 +63,7 @@ const groups = [
   },
   {
     label: "Client Portal",
-    type: "dropdown" as const,
+    type: "dropdown",
     items: [
       { label: "Documents", segment: "documents" },
       { label: "Sign-off", segment: "signoff" },
